@@ -7,7 +7,7 @@ import { schema } from './model'
 export Tournament, { schema } from './model'
 
 const router = new Router()
-const { name, type, game, dateStart, dateEnd, players, event, series, bracket, bracketImage, meta } = schema.tree
+const { name, type, _gameId, dateStart, dateEnd, players, event, series, bracket, bracketImage, meta } = schema.tree
 
 /**
  * @api {post} /tournaments Create tournament
@@ -17,7 +17,7 @@ const { name, type, game, dateStart, dateEnd, players, event, series, bracket, b
  * @apiParam {String} access_token admin access token.
  * @apiParam name Tournament's name.
  * @apiParam type Tournament's type.
- * @apiParam game Tournament's game.
+ * @apiParam _gameId Tournament's _gameId.
  * @apiParam dateStart Tournament's dateStart.
  * @apiParam dateEnd Tournament's dateEnd.
  * @apiParam players Tournament's players.
@@ -33,7 +33,7 @@ const { name, type, game, dateStart, dateEnd, players, event, series, bracket, b
  */
 router.post('/',
   token({ required: true, roles: ['admin'] }),
-  body({ name, type, game, dateStart, dateEnd, players, event, series, bracket, bracketImage, meta }),
+  body({ name, type, _gameId, dateStart, dateEnd, players, event, series, bracket, bracketImage, meta }),
   create)
 
 /**
@@ -67,7 +67,7 @@ router.get('/:id',
  * @apiParam {String} access_token admin access token.
  * @apiParam name Tournament's name.
  * @apiParam type Tournament's type.
- * @apiParam game Tournament's game.
+ * @apiParam _gameId Tournament's _gameId.
  * @apiParam dateStart Tournament's dateStart.
  * @apiParam dateEnd Tournament's dateEnd.
  * @apiParam players Tournament's players.
@@ -83,7 +83,7 @@ router.get('/:id',
  */
 router.put('/:id',
   token({ required: true, roles: ['admin'] }),
-  body({ name, type, game, dateStart, dateEnd, players, event, series, bracket, bracketImage, meta }),
+  body({ name, type, _gameId, dateStart, dateEnd, players, event, series, bracket, bracketImage, meta }),
   update)
 
 /**

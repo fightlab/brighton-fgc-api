@@ -7,7 +7,7 @@ import { schema } from './model'
 export Series, { schema } from './model'
 
 const router = new Router()
-const { name, game, isCurrent, meta } = schema.tree
+const { name, _gameId, isCurrent, meta } = schema.tree
 
 /**
  * @api {post} /series Create series
@@ -16,7 +16,7 @@ const { name, game, isCurrent, meta } = schema.tree
  * @apiPermission admin
  * @apiParam {String} access_token admin access token.
  * @apiParam name Series's name.
- * @apiParam game Series's game.
+ * @apiParam _gameId Series's _gameId.
  * @apiParam isCurrent Series's isCurrent.
  * @apiParam meta Series's meta.
  * @apiSuccess {Object} series Series's data.
@@ -26,7 +26,7 @@ const { name, game, isCurrent, meta } = schema.tree
  */
 router.post('/',
   token({ required: true, roles: ['admin'] }),
-  body({ name, game, isCurrent, meta }),
+  body({ name, _gameId, isCurrent, meta }),
   create)
 
 /**
@@ -59,7 +59,7 @@ router.get('/:id',
  * @apiPermission admin
  * @apiParam {String} access_token admin access token.
  * @apiParam name Series's name.
- * @apiParam game Series's game.
+ * @apiParam _gameId Series's _gameId.
  * @apiParam isCurrent Series's isCurrent.
  * @apiParam meta Series's meta.
  * @apiSuccess {Object} series Series's data.
@@ -69,7 +69,7 @@ router.get('/:id',
  */
 router.put('/:id',
   token({ required: true, roles: ['admin'] }),
-  body({ name, game, isCurrent, meta }),
+  body({ name, _gameId, isCurrent, meta }),
   update)
 
 /**
