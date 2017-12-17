@@ -4,6 +4,7 @@ import auth from './auth'
 import passwordReset from './password-reset'
 import player from './player'
 import game from './game'
+import event from './event'
 
 const router = new Router()
 
@@ -35,5 +36,6 @@ router.use('/auth', auth)
 router.use('/password-resets', passwordReset)
 router.use('/players', player)
 router.use('/games', game)
+router.use('/events', event)
 
 export default router
