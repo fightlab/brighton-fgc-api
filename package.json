@@ -29,6 +29,8 @@
     "dotenv-safe": "^4.0.3",
     "eslint": "^4.4.1",
     "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.0.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest-cli": "^20.0.4",
