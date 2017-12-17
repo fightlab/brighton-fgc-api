@@ -4,7 +4,7 @@ import { Types } from 'mongoose'
 let series
 
 beforeEach(async () => {
-  series = await Series.create({ name: 'test', game: new Types.ObjectId(), isCurrent: true, meta: 'test' })
+  series = await Series.create({ name: 'test', _gameId: new Types.ObjectId(), isCurrent: true, meta: 'test' })
 })
 
 describe('view', () => {
@@ -13,7 +13,7 @@ describe('view', () => {
     expect(typeof view).toBe('object')
     expect(view.id).toBe(series.id)
     expect(view.name).toBe(series.name)
-    expect(view.game).toBe(series.game)
+    expect(view._gameId).toBe(series._gameId)
     expect(view.isCurrent).toBe(series.isCurrent)
     expect(view.meta).toBe(series.meta)
     expect(view.createdAt).toBeTruthy()
@@ -25,7 +25,7 @@ describe('view', () => {
     expect(typeof view).toBe('object')
     expect(view.id).toBe(series.id)
     expect(view.name).toBe(series.name)
-    expect(view.game).toBe(series.game)
+    expect(view._gameId).toBe(series._gameId)
     expect(view.isCurrent).toBe(series.isCurrent)
     expect(view.meta).toBe(series.meta)
     expect(view.createdAt).toBeTruthy()

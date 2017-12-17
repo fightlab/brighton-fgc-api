@@ -19,14 +19,15 @@ beforeEach(async () => {
 })
 
 test('POST /series 201 (admin)', async () => {
-  const game = new Types.ObjectId().toString()
+  const _gameId = new Types.ObjectId().toString()
   const { status, body } = await request(app())
     .post(`${apiRoot}`)
-    .send({ access_token: adminSession, name: 'test', game, isCurrent: true, meta: 'test' })
+    .send({ access_token: adminSession, name: 'test', _gameId, isCurrent: true, meta: 'test' })
+  console.log(body)
   expect(status).toBe(201)
   expect(typeof body).toEqual('object')
   expect(body.name).toEqual('test')
-  expect(body.game).toEqual(game)
+  expect(body._gameId).toEqual(_gameId)
   expect(body.isCurrent).toEqual(true)
   expect(body.meta).toEqual('test')
 })
@@ -66,15 +67,15 @@ test('GET /series/:id 404', async () => {
 })
 
 test('PUT /series/:id 200 (admin)', async () => {
-  const game = new Types.ObjectId().toString()
+  const _gameId = new Types.ObjectId().toString()
   const { status, body } = await request(app())
     .put(`${apiRoot}/${series.id}`)
-    .send({ access_token: adminSession, name: 'test', game, isCurrent: true, meta: 'test' })
+    .send({ access_token: adminSession, name: 'test', _gameId, isCurrent: true, meta: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.id).toEqual(series.id)
   expect(body.name).toEqual('test')
-  expect(body.game).toEqual(game)
+  expect(body._gameId).toEqual(_gameId)
   expect(body.isCurrent).toEqual(true)
   expect(body.meta).toEqual('test')
 })
@@ -95,7 +96,7 @@ test('PUT /series/:id 401', async () => {
 test('PUT /series/:id 404 (admin)', async () => {
   const { status } = await request(app())
     .put(apiRoot + '/123456789098765432123456')
-    .send({ access_token: adminSession, name: 'test', game: 'test', isCurrent: 'test', meta: 'test' })
+    .send({ access_token: adminSession, name: 'test', _gameId: 'test', isCurrent: 'test', meta: 'test' })
   expect(status).toBe(404)
 })
 

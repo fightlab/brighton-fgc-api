@@ -4,7 +4,7 @@ const seriesSchema = new Schema({
   name: {
     type: String
   },
-  game: {
+  _gameId: {
     type: Schema.Types.ObjectId
   },
   isCurrent: {
@@ -27,7 +27,7 @@ seriesSchema.methods = {
       // simple view
       id: this.id,
       name: this.name,
-      game: this.game,
+      _gameId: this._gameId,
       isCurrent: this.isCurrent,
       meta: this.meta,
       createdAt: this.createdAt,

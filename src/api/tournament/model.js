@@ -7,7 +7,7 @@ const tournamentSchema = new Schema({
   type: {
     type: String
   },
-  game: {
+  _gameId: {
     type: Schema.Types.ObjectId
   },
   dateStart: {
@@ -49,7 +49,7 @@ tournamentSchema.methods = {
       id: this.id,
       name: this.name,
       type: this.type,
-      game: this.game,
+      _gameId: this._gameId,
       dateStart: this.dateStart,
       dateEnd: this.dateEnd,
       players: this.players,

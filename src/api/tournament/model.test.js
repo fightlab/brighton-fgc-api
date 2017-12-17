@@ -4,7 +4,7 @@ import { Types } from 'mongoose'
 let tournament
 
 beforeEach(async () => {
-  tournament = await Tournament.create({ name: 'test', type: 'test', game: new Types.ObjectId(), dateStart: new Date(), dateEnd: new Date(), players: new Types.ObjectId(), event: new Types.ObjectId(), series: new Types.ObjectId(), bracket: 'test', bracketImage: 'test', meta: 'test' })
+  tournament = await Tournament.create({ name: 'test', type: 'test', _gameId: new Types.ObjectId(), dateStart: new Date(), dateEnd: new Date(), players: new Types.ObjectId(), event: new Types.ObjectId(), series: new Types.ObjectId(), bracket: 'test', bracketImage: 'test', meta: 'test' })
 })
 
 describe('view', () => {
@@ -14,7 +14,7 @@ describe('view', () => {
     expect(view.id).toBe(tournament.id)
     expect(view.name).toBe(tournament.name)
     expect(view.type).toBe(tournament.type)
-    expect(view.game).toBe(tournament.game)
+    expect(view._gameId).toBe(tournament._gameId)
     expect(view.dateStart).toBe(tournament.dateStart)
     expect(view.dateEnd).toBe(tournament.dateEnd)
     expect(view.players).toBe(tournament.players)
@@ -33,7 +33,7 @@ describe('view', () => {
     expect(view.id).toBe(tournament.id)
     expect(view.name).toBe(tournament.name)
     expect(view.type).toBe(tournament.type)
-    expect(view.game).toBe(tournament.game)
+    expect(view._gameId).toBe(tournament._gameId)
     expect(view.dateStart).toBe(tournament.dateStart)
     expect(view.dateEnd).toBe(tournament.dateEnd)
     expect(view.players).toBe(tournament.players)
