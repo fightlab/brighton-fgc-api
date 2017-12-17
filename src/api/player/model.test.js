@@ -3,7 +3,7 @@ import { Player } from '.'
 let player
 
 beforeEach(async () => {
-  player = await Player.create({ name: 'test', handle: 'test', challongeUsername: 'test', challongeName: 'test', imageUrl: 'test', twitter: 'test', team: 'test', isStaff: 'test' })
+  player = await Player.create({ name: 'test', handle: 'test', challongeUsername: 'test', challongeName: ['test'], imageUrl: 'test', twitter: 'test', team: 'test', isStaff: true})
 })
 
 describe('view', () => {

@@ -1,29 +1,14 @@
 import mongoose, { Schema } from 'mongoose'
 
-const playerSchema = new Schema({
+const gameSchema = new Schema({
   name: {
     type: String
   },
-  handle: {
+  short: {
     type: String
-  },
-  challongeUsername: {
-    type: String
-  },
-  challongeName: {
-    type: [String]
   },
   imageUrl: {
     type: String
-  },
-  twitter: {
-    type: String
-  },
-  team: {
-    type: String
-  },
-  isStaff: {
-    type: Boolean
   },
   meta: {
     type: Schema.Types.Mixed
@@ -36,19 +21,14 @@ const playerSchema = new Schema({
   }
 })
 
-playerSchema.methods = {
+gameSchema.methods = {
   view (full) {
     const view = {
       // simple view
       id: this.id,
       name: this.name,
-      handle: this.handle,
-      challongeUsername: this.challongeUsername,
-      challongeName: this.challongeName,
+      short: this.short,
       imageUrl: this.imageUrl,
-      twitter: this.twitter,
-      team: this.team,
-      isStaff: this.isStaff,
       meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
@@ -61,7 +41,7 @@ playerSchema.methods = {
   }
 }
 
-const model = mongoose.model('Player', playerSchema)
+const model = mongoose.model('Game', gameSchema)
 
 export const schema = model.schema
 export default model
