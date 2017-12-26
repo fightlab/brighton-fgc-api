@@ -17,7 +17,7 @@ const tournamentSchema = new Schema({
     type: Date
   },
   players: {
-    type: [String]
+    type: [Schema.Types.ObjectId]
   },
   event: {
     type: [String]
@@ -31,8 +31,14 @@ const tournamentSchema = new Schema({
   bracketImage: {
     type: String
   },
-  meta: {
+  signUpUrl: {
     type: String
+  },
+  challongeId: {
+    type: Number
+  },
+  meta: {
+    type: Schema.Types.Mixed
   }
 }, {
   timestamps: true,
@@ -57,6 +63,8 @@ tournamentSchema.methods = {
       series: this.series,
       bracket: this.bracket,
       bracketImage: this.bracketImage,
+      signUpUrl: this.signUpUrl,
+      challongeId: this.challongeId,
       meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt

@@ -25,6 +25,9 @@ const playerSchema = new Schema({
   isStaff: {
     type: Boolean
   },
+  emailHash: {
+    type: String
+  },
   meta: {
     type: Schema.Types.Mixed
   }
@@ -49,6 +52,7 @@ playerSchema.methods = {
       twitter: this.twitter,
       team: this.team,
       isStaff: this.isStaff,
+      emailHash: this.emailHash,
       meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
