@@ -8,6 +8,7 @@ import event from './event'
 import series from './series'
 import tournament from './tournament'
 import match from './match'
+import result from './result'
 
 const router = new Router()
 
@@ -43,5 +44,6 @@ router.use('/events', event)
 router.use('/series', series)
 router.use('/tournaments', tournament)
 router.use('/matches', match)
+router.use('/results', result)
 
 export default router
