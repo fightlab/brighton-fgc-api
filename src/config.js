@@ -47,7 +47,7 @@ const config = {
   },
   development: {
     mongo: {
-      uri: 'mongodb://localhost/brighton-fgc-api-dev',
+      uri: process.env.MONGODB_URI || 'mongodb://localhost/brighton-fgc-api-dev',
       options: {
         debug: true
       }
