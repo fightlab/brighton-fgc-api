@@ -17,3 +17,4 @@ env:
   - SENDGRID_KEY=sendgridKey
   - MASTER_KEY=masterKey
   - JWT_SECRET=jwtSecret
+  - MONGODB_URI=mongodb://localhost/brighton-fgc-api-dev
