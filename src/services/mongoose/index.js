@@ -2,9 +2,13 @@ import Promise from 'bluebird'
 import mongoose from 'mongoose'
 import { mongo } from '../../config'
 
-Object.keys(mongo.options).forEach((key) => {
-  mongoose.set(key, mongo.options[key])
-})
+if (mongo.options) {
+  Object.keys(mongo.options).forEach((key) => {
+    console.log(key)
+    console.log(mongo.options[key])
+    mongoose.set(key, mongo.options[key])
+  })
+}
 
 mongoose.Promise = Promise
 /* istanbul ignore next */
