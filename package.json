@@ -4,7 +4,7 @@
   "main": "src",
   "private": true,
   "scripts": {
-    "start": "node .",
+    "start": "cross-env NODE_ENV=production nodemon -i \"*.test.js\" -r dotenv-safe/config .",
     "test": "jest",
     "test:unit": "npm test \"src/**/!(index).test.js\"",
     "test:integration": "npm test \"src/**/index.test.js\"",
