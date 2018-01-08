@@ -63,6 +63,13 @@ test('GET /games/:id 404', async () => {
   expect(status).toBe(404)
 })
 
+test('GET /games/:id/tournaments 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${game.id}/tournaments`)
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+})
+
 test('PUT /games/:id 200 (admin)', async () => {
   const { status, body } = await request(app())
     .put(`${apiRoot}/${game.id}`)
