@@ -8,7 +8,8 @@ const tournamentSchema = new Schema({
     type: String
   },
   _gameId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: 'Game'
   },
   dateStart: {
     type: Date
@@ -17,7 +18,8 @@ const tournamentSchema = new Schema({
     type: Date
   },
   players: {
-    type: [Schema.Types.ObjectId]
+    type: [Schema.Types.ObjectId],
+    ref: 'Player'
   },
   event: {
     type: [String]
@@ -58,20 +60,20 @@ tournamentSchema.methods = {
       _gameId: this._gameId,
       dateStart: this.dateStart,
       dateEnd: this.dateEnd,
-      players: this.players,
       event: this.event,
       series: this.series,
       bracket: this.bracket,
       bracketImage: this.bracketImage,
       signUpUrl: this.signUpUrl,
       challongeId: this.challongeId,
-      meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }
 
     return full ? {
-      ...view
+      ...view,
+      meta: this.meta,
+      players: this.players
       // add properties for a full view
     } : view
   }
