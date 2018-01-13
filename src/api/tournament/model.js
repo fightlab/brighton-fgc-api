@@ -22,10 +22,12 @@ const tournamentSchema = new Schema({
     ref: 'Player'
   },
   event: {
-    type: [String]
+    type: Schema.Types.ObjectId,
+    ref: 'Event'
   },
   series: {
-    type: [String]
+    type: Schema.Types.ObjectId,
+    ref: 'Series'
   },
   bracket: {
     type: String
