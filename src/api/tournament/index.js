@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
 import { token } from '../../services/passport'
-import { create, index, show, update, destroy } from './controller'
+import { create, index, show, update, destroy, challongeUpdate } from './controller'
 import { schema } from './model'
 export Tournament, { schema } from './model'
 
@@ -100,5 +100,22 @@ router.put('/:id',
 router.delete('/:id',
   token({ required: true, roles: ['admin'] }),
   destroy)
+
+/**
+ * @api {put} /tournaments/:id Update tournament from challonge
+ * @apiName UpdateTournament
+ * @apiGroup Tournament
+ * @apiPermission admin
+ * @apiParam {String} access_token admin access token.
+ * @apiParam bracket Tournament's bracket.
+ * @apiSuccess {Object} tournament Tournament's data.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 404 Tournament not found.
+ * @apiError 401 admin access only.
+ */
+router.put('/:id/challonge',
+  token({ required: true, roles: ['admin'] }),
+  body({ bracket }),
+  challongeUpdate)
 
 export default router

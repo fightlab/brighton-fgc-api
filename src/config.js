@@ -29,6 +29,7 @@ const config = {
     sendgridKey: requireProcessEnv('SENDGRID_KEY'),
     masterKey: requireProcessEnv('MASTER_KEY'),
     jwtSecret: requireProcessEnv('JWT_SECRET'),
+    challongeApiKey: requireProcessEnv('CHALLONGE_API_KEY'),
     mongo: {
       options: {
         db: {
