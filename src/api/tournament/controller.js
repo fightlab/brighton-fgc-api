@@ -18,17 +18,29 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
   const queue = map(tournament.meta.participants, p => async callback => {
     const participant = p.participant
 
-    const player = await Player
-      .findOne({
-        $or: [{
-          challongeUsername: participant.challonge_username
-        }, {
-          challongeName: participant.display_name
-        }]
-      })
-      .catch(callback)
+    let player
+
+    if (participant.challonge_username) {
+      player = await Player
+        .findOne({
+          challongeUsername: new RegExp(`^${participant.challonge_username}$`, 'i')
+        })
+        .catch(callback)
+    } else {
+      player = await Player
+        .findOne({
+          challongeName: new RegExp(`^${participant.display_name}$`, 'i')
+        })
+        .catch(callback)
+    }
 
     if (player) {
+      if (player.challongeName.indexOf(participant.display_name) === -1) {
+        player.challongeName.push(participant.display_name)
+        player.markModified('challongeName')
+        await player.save().catch(callback)
+      }
+
       return callback(null, { player, id: participant.id, meta: participant })
     } else {
       const body = {}
@@ -40,13 +52,10 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
       } else {
         body.handle = participant.display_name
         body.challongeName = [participant.display_name]
-        body.emailHash = participant.email_hash
-        body.challongeUsername = participant.challonge_username
       }
 
       const np = new Player(body)
       await np.save().catch(callback)
-      console.log(`Player: ${participant.display_name}`)
       return callback(null, { player: np, id: participant.id, meta: participant })
     }
   })
@@ -71,7 +80,6 @@ const getMatches = (tournament, players) => new Promise((resolve, reject) => {
       challongeMatchObj: m
     })
     await nm.save().catch(callback)
-    console.log(`Match: ${match.id}`)
     return callback(null, nm)
   })
 
@@ -89,7 +97,6 @@ const getResults = (tournament, players) => new Promise((resolve, reject) => {
       rank: p.meta.final_rank
     })
     await nr.save().catch(callback)
-    console.log(`Result: ${nr._tournamentId} - ${nr._playerId} - ${nr.rank}`)
     return callback(null, nr)
   })
 
