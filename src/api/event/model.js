@@ -8,9 +8,12 @@ const eventSchema = new Schema({
     type: String
   },
   date: {
-    type: String
+    type: Date
   },
   url: {
+    type: String
+  },
+  venue: {
     type: String
   },
   meta: {
@@ -33,6 +36,7 @@ eventSchema.methods = {
       name: this.name,
       date: this.date,
       url: this.url,
+      venue: this.venue,
       meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt

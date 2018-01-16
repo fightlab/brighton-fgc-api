@@ -3,7 +3,7 @@ import { Event } from '.'
 let event
 
 beforeEach(async () => {
-  event = await Event.create({ number: 1, name: 'test', date: 'test', url: 'test', meta: 'test' })
+  event = await Event.create({ number: 1, name: 'test', date: new Date(), url: 'test', venue: 'test', meta: 'test' })
 })
 
 describe('view', () => {
@@ -16,6 +16,7 @@ describe('view', () => {
     expect(view.date).toBe(event.date)
     expect(view.url).toBe(event.url)
     expect(view.meta).toBe(event.meta)
+    expect(view.venue).toBe(event.venue)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()
   })
@@ -29,6 +30,7 @@ describe('view', () => {
     expect(view.date).toBe(event.date)
     expect(view.url).toBe(event.url)
     expect(view.meta).toBe(event.meta)
+    expect(view.venue).toBe(event.venue)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()
   })

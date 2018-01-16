@@ -18,15 +18,17 @@ beforeEach(async () => {
 })
 
 test('POST /events 201 (admin)', async () => {
+  const date = new Date().toISOString()
   const { status, body } = await request(app())
     .post(`${apiRoot}`)
-    .send({ access_token: adminSession, number: 1, name: 'test', date: 'test', url: 'test', meta: 'test' })
+    .send({ access_token: adminSession, number: 1, name: 'test', date, url: 'test', venue: 'test', meta: 'test' })
   expect(status).toBe(201)
   expect(typeof body).toEqual('object')
   expect(body.number).toEqual(1)
   expect(body.name).toEqual('test')
-  expect(body.date).toEqual('test')
+  expect(body.date).toEqual(date)
   expect(body.url).toEqual('test')
+  expect(body.venue).toEqual('test')
   expect(body.meta).toEqual('test')
 })
 
@@ -65,15 +67,17 @@ test('GET /events/:id 404', async () => {
 })
 
 test('PUT /events/:id 200 (admin)', async () => {
+  const date = new Date().toISOString()
   const { status, body } = await request(app())
     .put(`${apiRoot}/${event.id}`)
-    .send({ access_token: adminSession, number: 1, name: 'test', date: 'test', url: 'test', meta: 'test' })
+    .send({ access_token: adminSession, number: 1, name: 'test', date, url: 'test', venue: 'test', meta: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.id).toEqual(event.id)
   expect(body.number).toEqual(1)
   expect(body.name).toEqual('test')
-  expect(body.date).toEqual('test')
+  expect(body.date).toEqual(date)
+  expect(body.venue).toEqual('test')
   expect(body.url).toEqual('test')
   expect(body.meta).toEqual('test')
 })
@@ -94,7 +98,7 @@ test('PUT /events/:id 401', async () => {
 test('PUT /events/:id 404 (admin)', async () => {
   const { status } = await request(app())
     .put(apiRoot + '/123456789098765432123456')
-    .send({ access_token: adminSession, number: 'test', name: 'test', date: 'test', url: 'test', meta: 'test' })
+    .send({ access_token: adminSession, number: 'test', name: 'test', date: new Date().toISOString(), url: 'test', venue: 'test', meta: 'test' })
   expect(status).toBe(404)
 })
 

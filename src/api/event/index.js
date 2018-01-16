@@ -7,7 +7,7 @@ import { schema } from './model'
 export Event, { schema } from './model'
 
 const router = new Router()
-const { number, name, date, url, meta } = schema.tree
+const { number, name, date, url, meta, venue } = schema.tree
 
 /**
  * @api {post} /events Create event
@@ -27,7 +27,7 @@ const { number, name, date, url, meta } = schema.tree
  */
 router.post('/',
   token({ required: true, roles: ['admin'] }),
-  body({ number, name, date, url, meta }),
+  body({ number, name, date, url, meta, venue }),
   create)
 
 /**
@@ -71,7 +71,7 @@ router.get('/:id',
  */
 router.put('/:id',
   token({ required: true, roles: ['admin'] }),
-  body({ number, name, date, url, meta }),
+  body({ number, name, date, url, meta, venue }),
   update)
 
 /**

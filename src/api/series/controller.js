@@ -2,10 +2,13 @@ import { success, notFound } from '../../services/response/'
 import { Series } from '.'
 
 export const create = ({ bodymen: { body } }, res, next) =>
-  Series.create(body)
+  {
+    console.log(body)
+    Series.create(body)
     .then((series) => series.view(true))
     .then(success(res, 201))
     .catch(next)
+  }
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
   Series.find(query, select, cursor)

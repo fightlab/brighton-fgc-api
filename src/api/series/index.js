@@ -7,7 +7,7 @@ import { schema } from './model'
 export Series, { schema } from './model'
 
 const router = new Router()
-const { name, _gameId, isCurrent, meta } = schema.tree
+const { name, _gameId, isCurrent, meta, points } = schema.tree
 
 /**
  * @api {post} /series Create series
@@ -26,7 +26,7 @@ const { name, _gameId, isCurrent, meta } = schema.tree
  */
 router.post('/',
   token({ required: true, roles: ['admin'] }),
-  body({ name, _gameId, isCurrent, meta }),
+  body({ name, _gameId, isCurrent, meta, points }),
   create)
 
 /**
@@ -69,7 +69,7 @@ router.get('/:id',
  */
 router.put('/:id',
   token({ required: true, roles: ['admin'] }),
-  body({ name, _gameId, isCurrent, meta }),
+  body({ name, _gameId, isCurrent, meta, points }),
   update)
 
 /**
