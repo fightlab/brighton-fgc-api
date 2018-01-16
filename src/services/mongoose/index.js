@@ -4,8 +4,6 @@ import { mongo } from '../../config'
 
 if (mongo.options) {
   Object.keys(mongo.options).forEach((key) => {
-    console.log(key)
-    console.log(mongo.options[key])
     mongoose.set(key, mongo.options[key])
   })
 }
