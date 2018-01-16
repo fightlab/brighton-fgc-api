@@ -10,6 +10,10 @@ const seriesSchema = new Schema({
   isCurrent: {
     type: Boolean
   },
+  points: {
+    type: [Number],
+    default: [16, 12, 10, 8, 6, 6, 4, 4, 2, 2, 2, 2, 1, 1, 1, 1]
+  },
   meta: {
     type: String
   }
@@ -28,6 +32,7 @@ seriesSchema.methods = {
       id: this.id,
       name: this.name,
       _gameId: this._gameId,
+      points: this.points,
       isCurrent: this.isCurrent,
       meta: this.meta,
       createdAt: this.createdAt,
