@@ -8,7 +8,7 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .catch(next)
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
-  Series.find(query, select, cursor)
+  Series.find(query)
     .then((series) => series.map((series) => series.view()))
     .then(success(res))
     .catch(next)

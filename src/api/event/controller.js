@@ -8,7 +8,7 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .catch(next)
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
-  Event.find(query, select, cursor)
+  Event.find(query)
     .then((events) => events.map((event) => event.view()))
     .then(success(res))
     .catch(next)

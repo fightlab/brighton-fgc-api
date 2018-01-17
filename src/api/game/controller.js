@@ -13,7 +13,7 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .catch(next)
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
-  Game.find(query, select, cursor)
+  Game.find(query)
     .then((games) => games.map((game) => game.view()))
     .then(success(res))
     .catch(next)
