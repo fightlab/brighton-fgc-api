@@ -207,12 +207,16 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     type: tournament.tournament.tournament_type,
     _gameId: game._id || null,
     dateStart: moment(tournament.tournament.started_at || tournament.tournament.start_at || null).toDate(),
-    dateEnd: moment(tournament.tournament.completed_at).toDate(),
+    dateEnd: tournament.tournament.completed_at && moment(tournament.tournament.completed_at).toDate(),
     bracket: tournament.tournament.full_challonge_url,
     bracketImage: tournament.tournament.live_image_url,
     signUpUrl: tournament.tournament.sign_up_url,
     challongeId: tournament.tournament.id,
     meta: tournament.tournament
+  }
+
+  if (!updated.dateEnd) {
+    delete updated.dateEnd
   }
 
   let dbTournament = await Tournament.findById(params.id).catch(next)
