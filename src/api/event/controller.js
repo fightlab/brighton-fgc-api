@@ -7,11 +7,20 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .then(success(res, 201))
     .catch(next)
 
-export const index = ({ querymen: { query, select, cursor } }, res, next) =>
-  Event.find(query)
+export const index = ({ query }, res, next) => {
+  const cursor = {
+    sort: {
+      date: -1
+    }
+  }
+  if (query.limit) {
+    cursor.limit = parseInt(query.limit)
+  }
+  Event.find({}, {}, cursor)
     .then((events) => events.map((event) => event.view()))
     .then(success(res))
     .catch(next)
+}
 
 export const show = ({ params }, res, next) =>
   Event.findById(params.id)
