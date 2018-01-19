@@ -20,12 +20,13 @@ beforeEach(async () => {
 test('POST /games 201 (admin)', async () => {
   const { status, body } = await request(app())
     .post(`${apiRoot}`)
-    .send({ access_token: adminSession, name: 'test', short: 'test', imageUrl: 'test', meta: 'test' })
+    .send({ access_token: adminSession, name: 'test', short: 'test', imageUrl: 'test', gbUrl: 'test', meta: 'test' })
   expect(status).toBe(201)
   expect(typeof body).toEqual('object')
   expect(body.name).toEqual('test')
   expect(body.short).toEqual('test')
   expect(body.imageUrl).toEqual('test')
+  expect(body.bgUrl).toEqual('test')
   expect(body.meta).toEqual('test')
 })
 
@@ -73,13 +74,14 @@ test('GET /games/:id/tournaments 200', async () => {
 test('PUT /games/:id 200 (admin)', async () => {
   const { status, body } = await request(app())
     .put(`${apiRoot}/${game.id}`)
-    .send({ access_token: adminSession, name: 'test', short: 'test', imageUrl: 'test', meta: 'test' })
+    .send({ access_token: adminSession, name: 'test', short: 'test', imageUrl: 'test', gbUrl: 'test', meta: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.id).toEqual(game.id)
   expect(body.name).toEqual('test')
   expect(body.short).toEqual('test')
   expect(body.imageUrl).toEqual('test')
+  expect(body.bgUrl).toEqual('test')
   expect(body.meta).toEqual('test')
 })
 
@@ -99,7 +101,7 @@ test('PUT /games/:id 401', async () => {
 test('PUT /games/:id 404 (admin)', async () => {
   const { status } = await request(app())
     .put(apiRoot + '/123456789098765432123456')
-    .send({ access_token: adminSession, name: 'test', short: 'test', imageUrl: 'test', meta: 'test' })
+    .send({ access_token: adminSession, name: 'test', short: 'test', imageUrl: 'test', gbUrl: 'test', meta: 'test' })
   expect(status).toBe(404)
 })
 

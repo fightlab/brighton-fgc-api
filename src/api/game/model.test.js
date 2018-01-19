@@ -3,7 +3,7 @@ import { Game } from '.'
 let game
 
 beforeEach(async () => {
-  game = await Game.create({ name: 'test', short: 'test', imageUrl: 'test', meta: 'test' })
+  game = await Game.create({ name: 'test', short: 'test', imageUrl: 'test', bgUrl: 'test', meta: 'test' })
 })
 
 describe('view', () => {
@@ -14,6 +14,7 @@ describe('view', () => {
     expect(view.name).toBe(game.name)
     expect(view.short).toBe(game.short)
     expect(view.imageUrl).toBe(game.imageUrl)
+    expect(view.bgUrl).toBe(game.bgUrl)
     expect(view.meta).toBe(game.meta)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()
@@ -26,6 +27,7 @@ describe('view', () => {
     expect(view.name).toBe(game.name)
     expect(view.short).toBe(game.short)
     expect(view.imageUrl).toBe(game.imageUrl)
+    expect(view.bgUrl).toBe(game.bgUrl)
     expect(view.meta).toBe(game.meta)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()

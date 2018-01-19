@@ -10,6 +10,9 @@ const gameSchema = new Schema({
   imageUrl: {
     type: String
   },
+  bgUrl: {
+    type: String
+  },
   meta: {
     type: Schema.Types.Mixed
   }
@@ -29,6 +32,7 @@ gameSchema.methods = {
       name: this.name,
       short: this.short,
       imageUrl: this.imageUrl,
+      bgUrl: this.bgUrl,
       meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
