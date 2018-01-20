@@ -151,7 +151,8 @@ export const show = ({ params }, res, next) =>
       select: 'name id'
     })
     .populate({
-      path: 'players'
+      path: 'players',
+      select: '-challongeName'
     })
     .then(notFound(res))
     .then(tournament => tournament ? tournament.view() : null)

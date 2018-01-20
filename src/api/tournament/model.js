@@ -17,10 +17,10 @@ const tournamentSchema = new Schema({
   dateEnd: {
     type: Date
   },
-  players: {
-    type: [Schema.Types.ObjectId],
+  players: [{
+    type: Schema.Types.ObjectId,
     ref: 'Player'
-  },
+  }],
   event: {
     type: Schema.Types.ObjectId,
     ref: 'Event'
