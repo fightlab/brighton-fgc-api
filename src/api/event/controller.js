@@ -1,5 +1,10 @@
+import { Types } from 'mongoose'
+
 import { success, notFound } from '../../services/response/'
 import { Event } from '.'
+import { Tournament } from '../tournament'
+
+const ObjectId = Types.ObjectId
 
 export const create = ({ bodymen: { body } }, res, next) =>
   Event.create(body)
@@ -42,4 +47,14 @@ export const destroy = ({ params }, res, next) =>
     .then(notFound(res))
     .then((event) => event ? event.remove() : null)
     .then(success(res, 204))
+    .catch(next)
+
+export const showTournaments = ({ params }, res, next) =>
+  Tournament.find({ event: ObjectId(params.id) })
+    .populate({
+      path: 'event',
+      select: 'name id'
+    })
+    .then(tournaments => tournaments.map(tournament => tournament.view()))
+    .then(success(res))
     .catch(next)
