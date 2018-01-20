@@ -52,7 +52,7 @@ export const destroy = ({ params }, res, next) =>
 export const showTournaments = ({ params }, res, next) =>
   Tournament.find({ event: ObjectId(params.id) })
     .populate({
-      path: 'event',
+      path: '_gameId',
       select: 'name id'
     })
     .then(tournaments => tournaments.map(tournament => tournament.view()))
