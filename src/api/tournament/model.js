@@ -69,13 +69,13 @@ tournamentSchema.methods = {
       signUpUrl: this.signUpUrl,
       challongeId: this.challongeId,
       createdAt: this.createdAt,
-      updatedAt: this.updatedAt
+      updatedAt: this.updatedAt,
+      players: this.players
     }
 
     return full ? {
       ...view,
-      meta: this.meta,
-      players: this.players
+      meta: this.meta
       // add properties for a full view
     } : view
   }

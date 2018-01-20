@@ -128,12 +128,31 @@ export const create = ({ bodymen: { body } }, res, next) =>
 
 export const index = ({ query }, res, next) =>
   Tournament.find(query)
+    .populate({
+      path: '_gameId',
+      select: 'name id'
+    })
     .then(tournaments => tournaments.map(tournament => tournament.view()))
     .then(success(res))
     .catch(next)
 
 export const show = ({ params }, res, next) =>
   Tournament.findById(params.id)
+    .populate({
+      path: '_gameId',
+      select: 'name id'
+    })
+    .populate({
+      path: 'event',
+      select: 'name id'
+    })
+    .populate({
+      path: 'series',
+      select: 'name id'
+    })
+    .populate({
+      path: 'players'
+    })
     .then(notFound(res))
     .then(tournament => tournament ? tournament.view() : null)
     .then(success(res))
