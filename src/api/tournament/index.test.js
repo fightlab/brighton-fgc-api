@@ -3,7 +3,8 @@ import { apiRoot } from '../../config'
 import { signSync } from '../../services/jwt'
 import express from '../../services/express'
 import { User } from '../user'
-import routes, { Tournament } from '.'
+import { Tournament } from '.'
+import routes from '../'
 import { Types } from 'mongoose'
 
 const app = () => express(apiRoot, routes)
@@ -22,7 +23,7 @@ test('POST /tournaments 201 (admin)', async () => {
   const id = new Types.ObjectId().toString()
   const date = new Date()
   const { status, body } = await request(app())
-    .post(`${apiRoot}`)
+    .post(`${apiRoot}/tournaments`)
     .send({ access_token: adminSession, name: 'test', type: 'test', _gameId: id, dateStart: date, dateEnd: date, players: id, event: id, series: id, bracket: 'test', bracketImage: 'test', meta: 'test' })
   expect(status).toBe(201)
   expect(typeof body).toEqual('object')
@@ -41,27 +42,29 @@ test('POST /tournaments 201 (admin)', async () => {
 
 test('POST /tournaments 401 (user)', async () => {
   const { status } = await request(app())
-    .post(`${apiRoot}`)
+    .post(`${apiRoot}/tournaments`)
     .send({ access_token: userSession })
   expect(status).toBe(401)
 })
 
 test('POST /tournaments 401', async () => {
   const { status } = await request(app())
-    .post(`${apiRoot}`)
+    .post(`${apiRoot}/tournaments`)
   expect(status).toBe(401)
 })
 
 test('GET /tournaments 200', async () => {
   const { status, body } = await request(app())
-    .get(`${apiRoot}`)
+    .get(`${apiRoot}/tournaments`)
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
 })
 
 test('GET /tournaments/:id 200', async () => {
-  const { status, body } = await request(app())
-    .get(`${apiRoot}/${tournament.id}`)
+  const response = await request(app())
+    .get(`${apiRoot}/tournaments/${tournament.id}`)
+  console.log(response)
+  const { status, body } = response
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.id).toEqual(tournament.id)
@@ -77,7 +80,7 @@ test('PUT /tournaments/:id 200 (admin)', async () => {
   const id = new Types.ObjectId().toString()
   const date = new Date()
   const { status, body } = await request(app())
-    .put(`${apiRoot}/${tournament.id}`)
+    .put(`${apiRoot}/tournaments/${tournament.id}`)
     .send({ access_token: adminSession, name: 'test', type: 'test', _gameId: id, dateStart: date, dateEnd: date, players: id, event: id, series: id, bracket: 'test', bracketImage: 'test', meta: 'test' })
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
@@ -97,14 +100,14 @@ test('PUT /tournaments/:id 200 (admin)', async () => {
 
 test('PUT /tournaments/:id 401 (user)', async () => {
   const { status } = await request(app())
-    .put(`${apiRoot}/${tournament.id}`)
+    .put(`${apiRoot}/tournaments/${tournament.id}`)
     .send({ access_token: userSession })
   expect(status).toBe(401)
 })
 
 test('PUT /tournaments/:id 401', async () => {
   const { status } = await request(app())
-    .put(`${apiRoot}/${tournament.id}`)
+    .put(`${apiRoot}/tournaments/${tournament.id}`)
   expect(status).toBe(401)
 })
 
@@ -117,21 +120,21 @@ test('PUT /tournaments/:id 404 (admin)', async () => {
 
 test('DELETE /tournaments/:id 204 (admin)', async () => {
   const { status } = await request(app())
-    .delete(`${apiRoot}/${tournament.id}`)
+    .delete(`${apiRoot}/tournaments/${tournament.id}`)
     .query({ access_token: adminSession })
   expect(status).toBe(204)
 })
 
 test('DELETE /tournaments/:id 401 (user)', async () => {
   const { status } = await request(app())
-    .delete(`${apiRoot}/${tournament.id}`)
+    .delete(`${apiRoot}/tournaments/${tournament.id}`)
     .query({ access_token: userSession })
   expect(status).toBe(401)
 })
 
 test('DELETE /tournaments/:id 401', async () => {
   const { status } = await request(app())
-    .delete(`${apiRoot}/${tournament.id}`)
+    .delete(`${apiRoot}/tournaments/${tournament.id}`)
   expect(status).toBe(401)
 })
 
