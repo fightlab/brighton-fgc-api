@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
 import { token } from '../../services/passport'
-import { create, index, show, update, destroy, challongeUpdate } from './controller'
+import { create, index, indexNoGame, show, update, destroy, challongeUpdate } from './controller'
 import { schema } from './model'
 export Tournament, { schema } from './model'
 
@@ -48,6 +48,18 @@ router.post('/',
 router.get('/',
   query(),
   index)
+
+/**
+ * @api {get} /tournaments Retrieve tournaments
+ * @apiName RetrieveTournaments
+ * @apiGroup Tournament
+ * @apiUse listParams
+ * @apiSuccess {Object[]} tournaments List of tournaments.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ */
+router.get('/nogame',
+  query(),
+  indexNoGame)
 
 /**
  * @api {get} /tournaments/:id Retrieve tournament
@@ -115,7 +127,7 @@ router.delete('/:id',
  */
 router.put('/:id/challonge',
   token({ required: true, roles: ['admin'] }),
-  body({ bracket }),
+  body({ bracket, _gameId }),
   challongeUpdate)
 
 export default router

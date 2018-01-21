@@ -136,6 +136,12 @@ export const index = ({ query }, res, next) =>
     .then(success(res))
     .catch(next)
 
+export const indexNoGame = ({ query }, res, next) =>
+  Tournament.find(query)
+    .then(tournaments => tournaments.map(tournament => tournament.view()))
+    .then(success(res))
+    .catch(next)
+
 export const show = ({ params }, res, next) =>
   Tournament.findById(params.id)
     .populate({
@@ -220,7 +226,15 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
   const response = await axios(url)
 
   const tournament = response.data
-  const game = await Game.findOne({ name: body._gameId.id || body._gameId || tournament.tournament.game_name })
+
+  const query = {}
+  if (body._gameId) {
+    query._id = ObjectId(body._gameId)
+  } else {
+    query.name = tournament.tournament.game_name
+  }
+
+  const game = await Game.findOne(query).exec(next)
 
   if (!game) {
     return notFound(res)
