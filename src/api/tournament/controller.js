@@ -220,7 +220,11 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
   const response = await axios(url)
 
   const tournament = response.data
-  const game = await Game.findOne({ name: tournament.tournament.game_name })
+  const game = await Game.findOne({ name: body._gameId.id || body._gameId || tournament.tournament.game_name })
+
+  if (!game) {
+    return notFound(res)
+  }
 
   const updated = {
     name: tournament.tournament.name,

@@ -63,7 +63,6 @@ test('GET /tournaments 200', async () => {
 test('GET /tournaments/:id 200', async () => {
   const response = await request(app())
     .get(`${apiRoot}/tournaments/${tournament.id}`)
-  console.log(response)
   const { status, body } = response
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
