@@ -214,7 +214,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
   }
 
   if (!body.bracket) {
-    return notFound(res)
+    return res.sendStatus(404)
   }
 
   const bracket = new URL(body.bracket)
@@ -234,11 +234,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     query.name = tournament.tournament.game_name
   }
 
-  const game = await Game.findOne(query).exec(next)
-
-  if (!game) {
-    return notFound(res)
-  }
+  const game = await Game.findOne(query)
 
   const updated = {
     name: tournament.tournament.name,
