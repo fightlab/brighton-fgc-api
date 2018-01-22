@@ -145,16 +145,13 @@ export const indexNoGame = ({ query }, res, next) =>
 export const show = ({ params }, res, next) =>
   Tournament.findById(params.id)
     .populate({
-      path: '_gameId',
-      select: 'name id'
+      path: '_gameId'
     })
     .populate({
-      path: 'event',
-      select: 'name id'
+      path: 'event'
     })
     .populate({
-      path: 'series',
-      select: 'name id'
+      path: 'series'
     })
     .populate({
       path: 'players',
