@@ -294,3 +294,26 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     return success(res)(dbTournament)
   }
 }
+
+export const getStandings = ({ params }, res, next) => {
+  try {
+    ObjectId(params.id)
+  } catch (e) {
+    return next(e)
+  }
+
+  Result
+    .find({
+      _tournamentId: ObjectId(params.id)
+    }, {}, {
+      sort: {
+        rank: 1
+      }
+    })
+    .populate({
+      path: '_playerId',
+      select: 'id handle emailHash'
+    })
+    .then(success(res))
+    .catch(next)
+}

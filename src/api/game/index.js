@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
 import { token } from '../../services/passport'
-import { create, index, show, update, destroy, showTournaments } from './controller'
+import { create, index, show, update, destroy, showTournaments, getStandings } from './controller'
 import { schema } from './model'
 export Game, { schema } from './model'
 
@@ -40,6 +40,17 @@ router.post('/',
 router.get('/',
   query(),
   index)
+
+/**
+ * @api {get} /games/:id/standings Retrieve standings for a game
+ * @apiName RetrieveGameStandings
+ * @apiGroup Game
+ * @apiSuccess {Object[]} game Game's list of standings.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 422 Invalid parameter.
+ */
+router.get('/:id/standings',
+  getStandings)
 
 /**
  * @api {get} /games/:id Retrieve game

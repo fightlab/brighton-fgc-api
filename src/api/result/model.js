@@ -2,10 +2,12 @@ import mongoose, { Schema } from 'mongoose'
 
 const resultSchema = new Schema({
   _playerId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: 'Player'
   },
   _tournamentId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: 'Tournament'
   },
   rank: {
     type: Number
