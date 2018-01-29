@@ -53,7 +53,7 @@ export const showTournaments = ({ params }, res, next) =>
     .then(success(res))
     .catch(next)
 
-export const getStandings = async ({ params }, res, next) => {
+export const getStandings = async ({ params, query }, res, next) => {
   try {
     ObjectId(params.id)
   } catch (e) {
@@ -99,9 +99,18 @@ export const getStandings = async ({ params }, res, next) => {
     .exec()
     .catch(next)
 
-  return success(res)(_(results).map(v => ({
-    id: v.id,
-    _playerId: v._playerId,
-    rank: _(v.rank).map(r => Scores[r] || 0).sum()
-  })).orderBy('rank', 'desc').take(16))
+  let standings = _(results)
+    .map(v => ({
+      id: v.id,
+      _playerId: v._playerId,
+      rank: _(v.rank).map(r => Scores[r] || 0).sum()
+    }))
+    .orderBy('rank', 'desc')
+    .value()
+
+  if (query.limit) {
+    standings = _.take(standings, parseInt(query.limit))
+  }
+
+  return success(res)(standings)
 }
