@@ -16,6 +16,10 @@ export const create = ({ bodymen: { body } }, res, next) =>
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
   Series.find(query)
+    .populate({
+      path: '_gameId',
+      select: 'name id imageUrl'
+    })
     .then((series) => series.map((series) => series.view()))
     .then(success(res))
     .catch(next)

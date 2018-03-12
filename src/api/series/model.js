@@ -5,7 +5,8 @@ const seriesSchema = new Schema({
     type: String
   },
   _gameId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: 'Game'
   },
   isCurrent: {
     type: Boolean
