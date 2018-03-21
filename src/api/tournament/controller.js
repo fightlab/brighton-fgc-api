@@ -126,8 +126,16 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .then(success(res, 201))
     .catch(next)
 
-export const index = ({ query }, res, next) =>
-  Tournament.find(query)
+export const index = ({ query }, res, next) => {
+  const cursor = {
+    sort: {
+      dateStart: -1
+    }
+  }
+  if (query.limit) {
+    cursor.limit = parseInt(query.limit)
+  }
+  Tournament.find({}, {}, cursor)
     .populate({
       path: '_gameId',
       select: 'name id'
@@ -135,6 +143,7 @@ export const index = ({ query }, res, next) =>
     .then(tournaments => tournaments.map(tournament => tournament.view()))
     .then(success(res))
     .catch(next)
+}
 
 export const indexNoGame = ({ query }, res, next) =>
   Tournament.find(query)
