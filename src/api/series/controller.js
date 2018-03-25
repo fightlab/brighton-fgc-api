@@ -26,6 +26,10 @@ export const index = ({ querymen: { query, select, cursor } }, res, next) =>
 
 export const show = ({ params }, res, next) =>
   Series.findById(params.id)
+    .populate({
+      path: '_gameId',
+      select: 'name id imageUrl'
+    })
     .then(notFound(res))
     .then((series) => series ? series.view() : null)
     .then(success(res))
