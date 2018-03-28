@@ -61,7 +61,7 @@
     "jsonwebtoken": "^8.1.0",
     "lodash": "^4.17.4",
     "moment-timezone": "^0.5.14",
-    "mongoose": "^4.12.4",
+    "mongoose": "4.12.4",
     "mongoose-create-unique": "^0.4.4",
     "mongoose-keywords": "^0.3.2",
     "morgan": "^1.7.0",
@@ -74,5 +74,8 @@
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "sendgrid": "^4.0.2"
+  },
+  "engines": {
+    "node": "8.x"
   }
 }
