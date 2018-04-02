@@ -118,3 +118,24 @@ export const getStandings = async ({ params, query }, res, next) => {
 
   return success(res)(standings)
 }
+
+export const getTournaments = async ({ params, query }, res, next) => {
+  try {
+    ObjectId(params.id)
+  } catch (e) {
+    return res.status(400).json(e)
+  }
+
+  try {
+    let tournaments = await Tournament
+      .find({ series: ObjectId(params.id) })
+
+    if (query.limit) {
+      tournaments = _.take(tournaments, parseInt(query.limit) || 4)
+    }
+
+    return success(res)(tournaments)
+  } catch (error) {
+    return next(error)
+  }
+}
