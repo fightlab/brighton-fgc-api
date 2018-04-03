@@ -47,18 +47,18 @@ playerSchema.methods = {
       name: this.name,
       handle: this.handle,
       challongeUsername: this.challongeUsername,
-      challongeName: this.challongeName,
       imageUrl: this.imageUrl,
       twitter: this.twitter,
       team: this.team,
       isStaff: this.isStaff,
-      emailHash: this.emailHash,
-      meta: this.meta,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt
+      emailHash: this.emailHash
     }
 
     return full ? {
+      meta: this.meta,
+      challongeName: this.challongeName,
+      updatedAt: this.updatedAt,
+      createdAt: this.createdAt,
       ...view
       // add properties for a full view
     } : view

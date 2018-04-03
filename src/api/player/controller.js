@@ -14,11 +14,34 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .then(success(res, 201))
     .catch(next)
 
-export const index = ({ query }, res, next) =>
-  Player.find(query)
+export const index = ({ query }, res, next) => {
+  // query
+  const q = { 'challongeUsername': { $exists: true } }
+
+  // cursor
+  const c = {
+    sort: {
+      handle: 1
+    }
+  }
+
+  if (query.all) {
+    delete q.challongeUsername
+  }
+
+  if (query.staff) {
+    q.isStaff = { $exists: true }
+  }
+
+  if (query.limit) {
+    c.limit = parseInt(query.limit) || 4
+  }
+
+  return Player.find(q, {}, c)
     .then((players) => players.map((player) => player.view()))
     .then(success(res))
     .catch(next)
+}
 
 export const show = ({ params }, res, next) =>
   Player.findById(params.id)
