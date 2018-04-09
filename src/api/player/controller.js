@@ -89,7 +89,7 @@ export const indexPlayers = ({ query }, res, next) => {
       }
     }, {
       $sort: {
-        handle: -1
+        handle: 1
       }
     }, {
       $limit
