@@ -16,7 +16,7 @@ export const create = ({ bodymen: { body } }, res, next) =>
 
 export const index = ({ query }, res, next) => {
   // query
-  const q = { 'challongeUsername': { $exists: true } }
+  const $match = { 'challongeUsername': { $exists: true } }
 
   // cursor
   const c = {
@@ -26,19 +26,74 @@ export const index = ({ query }, res, next) => {
   }
 
   if (query.all) {
-    delete q.challongeUsername
+    delete $match.challongeUsername
   }
 
   if (query.staff) {
-    q.isStaff = { $exists: true }
+    $match.isStaff = { $exists: true }
   }
 
   if (query.limit) {
     c.limit = parseInt(query.limit) || 4
   }
 
-  return Player.find(q, {}, c)
+  return Player.find($match, {}, c)
     .then((players) => players.map((player) => player.view()))
+    .then(success(res))
+    .catch(next)
+}
+
+export const indexPlayers = ({ query }, res, next) => {
+  // query
+  const $match = { 'challongeUsername': { $exists: true } }
+  let $limit = 999
+
+  if (query.all) {
+    delete $match.challongeUsername
+  }
+
+  if (query.staff) {
+    $match.isStaff = { $exists: true }
+  }
+
+  if (query.limit) {
+    $limit = parseInt(query.limit) || 4
+  }
+
+  return Player
+    .aggregate([{
+      $match
+    }, {
+      $lookup: {
+        from: 'tournaments',
+        localField: '_id',
+        foreignField: 'players',
+        as: 'tournaments'
+      }
+    }, {
+      $project: {
+        _id: '$_id',
+        handle: '$handle',
+        challongeUsername: '$challongeUsername',
+        emailHash: '$emailHash',
+        isStaff: '$isStaff',
+        tournaments: {
+          $size: '$tournaments'
+        }
+      }
+    }, {
+      $match: {
+        tournaments: {
+          $gt: 2
+        }
+      }
+    }, {
+      $sort: {
+        handle: -1
+      }
+    }, {
+      $limit
+    }])
     .then(success(res))
     .catch(next)
 }

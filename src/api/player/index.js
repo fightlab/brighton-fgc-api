@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
 import { token } from '../../services/passport'
-import { create, index, show, update, destroy } from './controller'
+import { create, index, show, update, destroy, indexPlayers } from './controller'
 import { schema } from './model'
 export Player, { schema } from './model'
 
@@ -43,6 +43,17 @@ router.post('/',
  */
 router.get('/',
   index)
+
+/**
+ * @api {get} /players/index Retrieve players
+ * @apiName RetrievePlayers
+ * @apiGroup Player
+ * @apiUse listParams
+ * @apiSuccess {Object[]} players List of players.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ */
+router.get('/index',
+  indexPlayers)
 
 /**
  * @api {get} /players/:id Retrieve player
