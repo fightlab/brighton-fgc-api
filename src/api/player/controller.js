@@ -84,7 +84,7 @@ export const indexPlayers = ({ query }, res, next) => {
     }, {
       $match: {
         tournaments: {
-          $gt: 2
+          $gt: 4
         }
       }
     }, {
