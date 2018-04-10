@@ -28,17 +28,25 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
     let player
 
     if (participant.challonge_username) {
-      player = await Player
-        .findOne({
-          challongeUsername: new RegExp(`^${participant.challonge_username}$`, 'i')
-        })
-        .catch(callback)
+      try {
+        player = await Player
+          .findOne({
+            challongeUsername: new RegExp(`^${participant.challonge_username}$`, 'i')
+          })
+      } catch (error) {
+        console.error(error)
+        return callback(error)
+      }
     } else {
-      player = await Player
-        .findOne({
-          challongeName: new RegExp(`^${participant.display_name}$`, 'i')
-        })
-        .catch(callback)
+      try {
+        player = await Player
+          .findOne({
+            challongeName: new RegExp(`^${participant.display_name}$`, 'i')
+          })
+      } catch (error) {
+        console.error(error)
+        return callback(error)
+      }
     }
 
     if (player) {
@@ -53,7 +61,6 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
       }
 
       if (participant.attached_participatable_portrait_url && player.challongeImageUrl !== participant.attached_participatable_portrait_url) {
-        player.challongeImageUrl = participant.attached_participatable_portrait_url
         let url
         if (participant.attached_participatable_portrait_url.startsWith('//')) {
           url = `https:${participant.attached_participatable_portrait_url}`
@@ -62,15 +69,20 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
         }
 
         const result = await new Promise(resolve => cloudinary.uploader.upload(url, resolve))
-
-        player.imageUrl = result.secure_url
-        player.markModified('imageUrl')
-        player.markModified('challongeImageUrl')
+        if (result.secure_url) {
+          player.imageUrl = result.secure_url
+          player.challongeImageUrl = participant.attached_participatable_portrait_url
+          player.markModified('imageUrl')
+          player.markModified('challongeImageUrl')
+        }
       }
-
-      await player.save().catch(callback)
-
-      return callback(null, { player, id: participant.id, meta: participant })
+      try {
+        await player.save()
+        return callback(null, { player, id: participant.id, meta: participant })
+      } catch (error) {
+        console.error(error)
+        return callback(error)
+      }
     } else {
       const body = {}
       if (participant.challonge_username) {
@@ -85,7 +97,9 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
           }
 
           const result = await new Promise(resolve => cloudinary.uploader.upload(url, resolve))
-          body.imageUrl = result.secure_url
+          if (result.secure_url) {
+            body.imageUrl = result.secure_url
+          }
         }
 
         body.challongeUsername = participant.challonge_username
@@ -98,8 +112,13 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
       }
 
       const np = new Player(body)
-      await np.save().catch(callback)
-      return callback(null, { player: np, id: participant.id, meta: participant })
+      try {
+        await np.save()
+        return callback(null, { player: np, id: participant.id, meta: participant })
+      } catch (error) {
+        console.error(error)
+        return callback(error)
+      }
     }
   })
 
@@ -131,10 +150,10 @@ const getMatches = (tournament, players) => new Promise((resolve, reject) => {
     }
     const nm = new Match(matchObj)
     try {
-      await nm.save().catch(callback)
+      await nm.save()
       return callback(null, nm)
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return callback(err)
     }
   })
@@ -152,8 +171,13 @@ const getResults = (tournament, players) => new Promise((resolve, reject) => {
       _playerId: p.player._id,
       rank: p.meta.final_rank
     })
-    await nr.save().catch(callback)
-    return callback(null, nr)
+    try {
+      await nr.save()
+      return callback(null, nr)
+    } catch (error) {
+      console.error(error)
+      return callback(error)
+    }
   })
 
   asyncNode.series(queue, (err, results) => {
@@ -285,7 +309,14 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
   const path = bracket.pathname.replace('/', '')
   const url = `${API_URL}/tournaments/${subdomain === 'challonge' ? '' : `${subdomain}-`}${path}.json?include_participants=1&include_matches=1&api_key=${challongeApiKey}`
 
-  const response = await axios(url)
+  let response
+
+  try {
+    response = await axios(url)
+  } catch (error) {
+    console.error(error)
+    return next(error)
+  }
 
   const tournament = response.data
 
@@ -296,7 +327,14 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     query.name = tournament.tournament.game_name
   }
 
-  const game = await Game.findOne(query)
+  let game
+
+  try {
+    game = await Game.findOne(query)
+  } catch (error) {
+    console.error(error)
+    return next(error)
+  }
 
   const updated = {
     name: tournament.tournament.name,
@@ -315,48 +353,54 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     delete updated.dateEnd
   }
 
-  let dbTournament = await Tournament.findById(params.id).catch(next)
-  dbTournament = await notFound(res)(dbTournament)
-  dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save().catch(next) : null
-  dbTournament = dbTournament ? dbTournament.view(true) : null
-  if (dbTournament) {
+  let dbTournament
+  try {
+    dbTournament = await Tournament.findById(params.id).catch(next)
+    if (!dbTournament) {
+      return res.sendStatus(404)
+    }
+    dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save().catch(next) : null
+    dbTournament = dbTournament ? dbTournament.view(true) : null
+    if (dbTournament) {
     // remove matches and results so they can me updated
-    const proms = []
-    // remove matches
-    proms.push(new Promise((resolve, reject) => Match
-      .remove({
-        _tournamentId: ObjectId(params.id)
-      })
-      .then(resolve)
-      .catch(reject)
-    ))
+      const proms = []
+      // remove matches
+      proms.push(new Promise((resolve, reject) => Match
+        .remove({
+          _tournamentId: ObjectId(params.id)
+        })
+        .then(resolve)
+        .catch(reject)
+      ))
 
-    // remove result
-    proms.push(new Promise((resolve, reject) => Result
-      .remove({
-        _tournamentId: ObjectId(params.id)
-      })
-      .then(resolve)
-      .catch(reject)
-    ))
+      // remove result
+      proms.push(new Promise((resolve, reject) => Result
+        .remove({
+          _tournamentId: ObjectId(params.id)
+        })
+        .then(resolve)
+        .catch(reject)
+      ))
 
-    await Promise
-      .all(proms)
-      .catch(next)
+      await Promise
+        .all(proms)
 
-    const players = await getPlayers(dbTournament).catch(next)
-    dbTournament = await Tournament
-      .findByIdAndUpdate(params.id, {
-        $set: {
-          players: _.map(players, p => p.player._id)
-        }
-      })
-      .catch(next)
+      const players = await getPlayers(dbTournament)
+      dbTournament = await Tournament
+        .findByIdAndUpdate(params.id, {
+          $set: {
+            players: _.map(players, p => p.player._id)
+          }
+        })
 
-    await getMatches(dbTournament, players).catch(next)
-    await getResults(dbTournament, players).catch(next)
+      await getMatches(dbTournament, players)
+      await getResults(dbTournament, players)
 
-    return success(res)(dbTournament)
+      return success(res)(dbTournament)
+    }
+  } catch (error) {
+    console.error(error)
+    return next(error)
   }
 }
 

@@ -33,12 +33,10 @@ const matchSchema = new Schema({
     required: true
   },
   startDate: {
-    type: Date,
-    required: true
+    type: Date
   },
   endDate: {
-    type: Date,
-    required: true
+    type: Date
   }
 }, {
   timestamps: true,

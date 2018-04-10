@@ -191,6 +191,8 @@ export const stats = async ({ params }, res, next) => {
       .find({ $or: [ { _player1Id: Types.ObjectId(params.id) }, { _player2Id: Types.ObjectId(params.id) } ] })
       .then(matches => matches.map(match => match.view()))
 
+    console.log('matches:', matches.length)
+
     return res.status(200).json({ tournaments, games, matches })
   } catch (error) {
     return next(error)
