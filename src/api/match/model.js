@@ -2,28 +2,43 @@ import mongoose, { Schema } from 'mongoose'
 
 const matchSchema = new Schema({
   _tournamentId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    required: true
   },
   _player1Id: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    required: true
   },
   _player2Id: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    required: true
   },
   _winnerId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    required: true
   },
   _loserId: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    required: true
   },
   score: {
     type: [Schema.Types.Mixed]
   },
   round: {
-    type: Number
+    type: Number,
+    required: true
   },
   challongeMatchObj: {
-    type: Schema.Types.Mixed
+    type: Schema.Types.Mixed,
+    required: true
+  },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
   }
 }, {
   timestamps: true,
@@ -45,12 +60,14 @@ matchSchema.methods = {
       _loserId: this._loserId,
       score: this.score,
       round: this.round,
-      challongeMatchObj: this.challongeMatchObj,
+      startDate: this.startDate,
+      endDate: this.endDate,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }
 
     return full ? {
+      challongeMatchObj: this.challongeMatchObj,
       ...view
       // add properties for a full view
     } : view

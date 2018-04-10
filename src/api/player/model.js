@@ -16,6 +16,9 @@ const playerSchema = new Schema({
   imageUrl: {
     type: String
   },
+  challongeImageUrl: {
+    type: String
+  },
   twitter: {
     type: String
   },
@@ -57,6 +60,7 @@ playerSchema.methods = {
     return full ? {
       meta: this.meta,
       challongeName: this.challongeName,
+      challongeImageUrl: this.challongeImageUrl,
       updatedAt: this.updatedAt,
       createdAt: this.createdAt,
       ...view

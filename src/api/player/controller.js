@@ -187,7 +187,11 @@ export const stats = async ({ params }, res, next) => {
 
     const games = _(tournaments).map(t => ({ name: t.game.name, _id: t.game._id.toString(), imageUrl: t.game.imageUrl })).uniqBy('_id').orderBy(['name'], ['asc']).value()
 
-    return res.status(200).json({ tournaments, games })
+    const matches = await Match
+      .find({ $or: [ { _player1Id: Types.ObjectId(params.id) }, { _player2Id: Types.ObjectId(params.id) } ] })
+      .then(matches => matches.map(match => match.view()))
+
+    return res.status(200).json({ tournaments, games, matches })
   } catch (error) {
     return next(error)
   }

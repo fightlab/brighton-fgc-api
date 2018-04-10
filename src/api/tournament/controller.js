@@ -3,6 +3,7 @@ import { URL } from 'url'
 import asyncNode from 'async'
 import { Types } from 'mongoose'
 import moment from 'moment-timezone'
+import cloudinary from 'cloudinary'
 import _, { map, find } from 'lodash'
 import { challongeApiKey } from '../../config'
 import { success, notFound } from '../../services/response/'
@@ -13,6 +14,12 @@ import { Game } from '../game'
 import { Result } from '../result'
 
 const ObjectId = Types.ObjectId
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+})
 
 const getPlayers = tournament => new Promise((resolve, reject) => {
   const queue = map(tournament.meta.participants, p => async callback => {
@@ -38,13 +45,49 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
       if (player.challongeName.indexOf(participant.display_name) === -1) {
         player.challongeName.push(participant.display_name)
         player.markModified('challongeName')
-        await player.save().catch(callback)
       }
+
+      if (player.emailHash !== participant.email_hash) {
+        player.emailHash = participant.email_hash
+        player.markModified('emailHash')
+      }
+
+      if (participant.attached_participatable_portrait_url && player.challongeImageUrl !== participant.attached_participatable_portrait_url) {
+        player.challongeImageUrl = participant.attached_participatable_portrait_url
+        let url
+        if (participant.attached_participatable_portrait_url.startsWith('//')) {
+          url = `https:${participant.attached_participatable_portrait_url}`
+        } else {
+          url = participant.attached_participatable_portrait_url
+        }
+
+        const result = await new Promise(resolve => cloudinary.uploader.upload(url, resolve))
+
+        player.imageUrl = result.secure_url
+        player.markModified('imageUrl')
+        player.markModified('challongeImageUrl')
+      }
+
+      await player.save().catch(callback)
 
       return callback(null, { player, id: participant.id, meta: participant })
     } else {
       const body = {}
       if (participant.challonge_username) {
+        if (participant.attached_participatable_portrait_url) {
+          body.challongeImageUrl = participant.attached_participatable_portrait_url
+
+          let url
+          if (participant.attached_participatable_portrait_url.startsWith('//')) {
+            url = `https:${participant.attached_participatable_portrait_url}`
+          } else {
+            url = participant.attached_participatable_portrait_url
+          }
+
+          const result = await new Promise(resolve => cloudinary.uploader.upload(url, resolve))
+          body.imageUrl = result.secure_url
+        }
+
         body.challongeUsername = participant.challonge_username
         body.handle = participant.challonge_username
         body.emailHash = participant.email_hash
@@ -69,18 +112,31 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
 const getMatches = (tournament, players) => new Promise((resolve, reject) => {
   const queue = map(tournament.meta.matches, m => async callback => {
     const match = m.match
-    const nm = new Match({
+    const matchObj = {
       _tournamentId: tournament._id,
       _player1Id: find(players, p => p.id === match.player1_id).player._id,
       _player2Id: find(players, p => p.id === match.player2_id).player._id,
       _winnerId: find(players, p => p.id === match.winner_id).player._id,
       _loserId: find(players, p => p.id === match.loser_id).player._id,
       score: getScore(match.scores_csv),
-      round: m.round,
-      challongeMatchObj: m
-    })
-    await nm.save().catch(callback)
-    return callback(null, nm)
+      round: match.round,
+      endDate: match.round,
+      challongeMatchObj: match
+    }
+    if (match.started_at) {
+      matchObj.startDate = moment(match.started_at).toDate()
+    }
+    if (match.completed_at) {
+      matchObj.endDate = moment(match.completed_at).toDate()
+    }
+    const nm = new Match(matchObj)
+    try {
+      await nm.save().catch(callback)
+      return callback(null, nm)
+    } catch (err) {
+      console.log(err)
+      return callback(err)
+    }
   })
 
   asyncNode.series(queue, (err, matches) => {
