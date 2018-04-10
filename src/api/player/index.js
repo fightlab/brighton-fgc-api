@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { middleware as query } from 'querymen'
 import { middleware as body } from 'bodymen'
 import { token } from '../../services/passport'
-import { create, index, show, update, destroy, indexPlayers } from './controller'
+import { create, index, show, update, destroy, indexPlayers, stats } from './controller'
 import { schema } from './model'
 export Player, { schema } from './model'
 
@@ -103,5 +103,16 @@ router.put('/:id',
 router.delete('/:id',
   token({ required: true, roles: ['admin'] }),
   destroy)
+
+/**
+ * @api {get} /players/:id Retrieve player
+ * @apiName RetrievePlayer
+ * @apiGroup Player
+ * @apiSuccess {Object} player Player's data.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 404 Player not found.
+ */
+router.get('/:id/statistics',
+  stats)
 
 export default router
