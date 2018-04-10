@@ -16,7 +16,7 @@ export const create = ({ bodymen: { body } }, res, next) =>
     .catch(next)
 
 export const index = ({ query }, res, next) => Player.find({})
-  .then((players) => players.map((player) => player.view()))
+  .then((players) => players.map((player) => player.view(true)))
   .then(success(res))
   .catch(next)
 
@@ -78,7 +78,7 @@ export const indexPlayers = ({ query }, res, next) => {
 export const show = ({ params }, res, next) =>
   Player.findById(params.id)
     .then(notFound(res))
-    .then((player) => player ? player.view() : null)
+    .then((player) => player ? player.view(true) : null)
     .then(success(res))
     .catch(next)
 
