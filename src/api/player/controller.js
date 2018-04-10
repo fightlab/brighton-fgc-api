@@ -187,13 +187,82 @@ export const stats = async ({ params }, res, next) => {
 
     const games = _(tournaments).map(t => ({ name: t.game.name, _id: t.game._id.toString(), imageUrl: t.game.imageUrl })).uniqBy('_id').orderBy(['name'], ['asc']).value()
 
-    const matches = await Match
-      .find({ $or: [ { _player1Id: Types.ObjectId(params.id) }, { _player2Id: Types.ObjectId(params.id) } ] })
-      .then(matches => matches.map(match => match.view()))
+    let matchAgg = await Match
+      .aggregate([{
+        $match: { $or: [ { _player1Id: Types.ObjectId(params.id) }, { _player2Id: Types.ObjectId(params.id) } ] }
+      }, {
+        $lookup: {
+          from: 'tournaments',
+          localField: '_tournamentId',
+          foreignField: '_id',
+          as: 'tournament'
+        }
+      }, {
+        $unwind: '$tournament'
+      }, {
+        $lookup: {
+          from: 'games',
+          localField: 'tournament._gameId',
+          foreignField: '_id',
+          as: 'game'
+        }
+      }, {
+        $unwind: '$game'
+      }, {
+        $project: {
+          tournament: {
+            _id: '$tournament._id',
+            name: '$tournament.name'
+          },
+          game: {
+            _id: '$game._id',
+            name: '$game.name'
+          },
+          _player1Id: '$_player1Id',
+          _player2Id: '$_player2Id',
+          _winnerId: '$_winnerId',
+          _loserId: '$_loserId',
+          score: '$score',
+          startDate: '$startDate',
+          endDate: '$endDate'
+        }
+      }])
 
-    console.log('matches:', matches.length)
+    const matches = _(matchAgg)
+      .groupBy('game._id')
+      .mapValues(game => ({
+        w: _(game)
+          .sumBy(match => match._winnerId.toString() === params.id ? 1 : 0),
+        l: _(game)
+          .sumBy(match => match._loserId.toString() === params.id ? 1 : 0),
+        t: game.length
+      }))
+      .value()
 
-    return res.status(200).json({ tournaments, games, matches })
+    matches.total = {
+      w: _(matchAgg)
+        .sumBy(match => match._winnerId.toString() === params.id ? 1 : 0),
+      l: _(matchAgg)
+        .sumBy(match => match._loserId.toString() === params.id ? 1 : 0),
+      t: matchAgg.length
+    }
+
+    const rounds = _(matchAgg)
+      .groupBy('game._id')
+      .mapValues(game => ({
+        w: _(game).sumBy(match => match._player1Id.toString() === params.id ? _(match.score).sumBy(score => Number(score.p1)) : _(match.score).sumBy(score => Number(score.p2))),
+        l: _(game).sumBy(match => match._player1Id.toString() === params.id ? _(match.score).sumBy(score => Number(score.p2)) : _(match.score).sumBy(score => Number(score.p1))),
+        t: _(game).sumBy(match => _(match.score).sumBy(score => Number(score.p1) + Number(score.p2)))
+      }))
+      .value()
+
+    rounds.total = {
+      w: _(matchAgg).sumBy(match => match._player1Id.toString() === params.id ? _(match.score).sumBy(score => Number(score.p1)) : _(match.score).sumBy(score => Number(score.p2))),
+      l: _(matchAgg).sumBy(match => match._player1Id.toString() === params.id ? _(match.score).sumBy(score => Number(score.p2)) : _(match.score).sumBy(score => Number(score.p1))),
+      t: _(matchAgg).sumBy(match => _(match.score).sumBy(score => Number(score.p1) + Number(score.p2)))
+    }
+
+    return res.status(200).json({ tournaments, games, matches, rounds })
   } catch (error) {
     return next(error)
   }
