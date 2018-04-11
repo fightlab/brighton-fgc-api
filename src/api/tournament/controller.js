@@ -421,7 +421,7 @@ export const getStandings = ({ params }, res, next) => {
     })
     .populate({
       path: '_playerId',
-      select: 'id handle emailHash'
+      select: 'id handle emailHash imageUrl'
     })
     .then(success(res))
     .catch(next)

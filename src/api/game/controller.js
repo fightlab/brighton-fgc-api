@@ -91,7 +91,8 @@ export const getStandings = async ({ params, query }, res, next) => {
         id: '$_id',
         _playerId: {
           handle: '$_playerId.handle',
-          emailHash: '$_playerId.emailHash'
+          emailHash: '$_playerId.emailHash',
+          imageUrl: '$_playerId.imageUrl'
         },
         rank: 1
       }

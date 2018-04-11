@@ -53,6 +53,7 @@ export const indexPlayers = ({ query }, res, next) => {
         handle: '$handle',
         challongeUsername: '$challongeUsername',
         emailHash: '$emailHash',
+        imageUrl: '$imageUrl',
         isStaff: '$isStaff',
         tournaments: {
           $size: '$tournaments'
