@@ -19,9 +19,6 @@ const playerSchema = new Schema({
   challongeImageUrl: {
     type: String
   },
-  twitter: {
-    type: String
-  },
   team: {
     type: String
   },
@@ -39,7 +36,10 @@ const playerSchema = new Schema({
     playstation: String,
     xbox: String,
     discord: String,
-    github: String
+    steam: String,
+    github: String,
+    twitch: String,
+    default: {}
   },
   meta: {
     type: Schema.Types.Mixed
@@ -61,7 +61,6 @@ playerSchema.methods = {
       handle: this.handle,
       challongeUsername: this.challongeUsername,
       imageUrl: this.imageUrl,
-      twitter: this.twitter,
       team: this.team,
       isStaff: this.isStaff,
       emailHash: this.emailHash,

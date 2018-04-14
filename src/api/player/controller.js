@@ -57,7 +57,8 @@ export const indexPlayers = ({ query }, res, next) => {
         isStaff: '$isStaff',
         tournaments: {
           $size: '$tournaments'
-        }
+        },
+        profile: '$profile'
       }
     }, {
       $match: {

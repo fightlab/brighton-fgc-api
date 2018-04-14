@@ -7,7 +7,7 @@ import { schema } from './model'
 export Player, { schema } from './model'
 
 const router = new Router()
-const { name, handle, challongeUsername, challongeName, imageUrl, twitter, team, isStaff } = schema.tree
+const { name, handle, challongeUsername, challongeName, imageUrl, twitter, team, isStaff, profile } = schema.tree
 
 /**
  * @api {post} /players Create player
@@ -30,7 +30,7 @@ const { name, handle, challongeUsername, challongeName, imageUrl, twitter, team,
  */
 router.post('/',
   token({ required: true, roles: ['admin'] }),
-  body({ name, handle, challongeUsername, challongeName, imageUrl, twitter, team, isStaff }),
+  body({ name, handle, challongeUsername, challongeName, imageUrl, twitter, team, isStaff, profile }),
   create)
 
 /**
@@ -87,7 +87,7 @@ router.get('/:id',
  */
 router.put('/:id',
   token({ required: true, roles: ['admin'] }),
-  body({ name, handle, challongeUsername, challongeName, imageUrl, twitter, team, isStaff }),
+  body({ name, handle, challongeUsername, challongeName, imageUrl, twitter, team, isStaff, profile }),
   update)
 
 /**

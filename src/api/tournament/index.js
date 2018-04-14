@@ -7,7 +7,7 @@ import { schema } from './model'
 export Tournament, { schema } from './model'
 
 const router = new Router()
-const { name, type, _gameId, dateStart, dateEnd, players, event, series, signUpUrl, bracket, bracketImage, meta } = schema.tree
+const { name, type, _gameId, dateStart, dateEnd, players, event, series, signUpUrl, bracket, bracketImage, meta, youtube } = schema.tree
 
 /**
  * @api {post} /tournaments Create tournament
@@ -34,7 +34,7 @@ const { name, type, _gameId, dateStart, dateEnd, players, event, series, signUpU
  */
 router.post('/',
   token({ required: true, roles: ['admin'] }),
-  body({ name, type, _gameId, dateStart, dateEnd, players, event, series, signUpUrl, bracket, bracketImage, meta }),
+  body({ name, type, _gameId, dateStart, dateEnd, players, event, series, signUpUrl, bracket, bracketImage, meta, youtube }),
   create)
 
 /**
@@ -107,7 +107,7 @@ router.get('/:id',
  */
 router.put('/:id',
   token({ required: true, roles: ['admin'] }),
-  body({ name, type, _gameId, dateStart, dateEnd, players, event, series, signUpUrl, bracket, bracketImage, meta }),
+  body({ name, type, _gameId, dateStart, dateEnd, players, event, series, signUpUrl, bracket, bracketImage, meta, youtube }),
   update)
 
 /**
