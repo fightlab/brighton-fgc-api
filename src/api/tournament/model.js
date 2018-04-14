@@ -43,6 +43,9 @@ const tournamentSchema = new Schema({
   },
   meta: {
     type: Schema.Types.Mixed
+  },
+  youtube: {
+    type: String
   }
 }, {
   timestamps: true,
@@ -70,7 +73,8 @@ tournamentSchema.methods = {
       challongeId: this.challongeId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
-      players: this.players
+      players: this.players,
+      youtube: this.youtube
     }
 
     return full ? {

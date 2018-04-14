@@ -31,6 +31,16 @@ const playerSchema = new Schema({
   emailHash: {
     type: String
   },
+  profile: {
+    facebook: String,
+    instagram: String,
+    twitter: String,
+    web: String,
+    playstation: String,
+    xbox: String,
+    discord: String,
+    github: String
+  },
   meta: {
     type: Schema.Types.Mixed
   }
@@ -54,7 +64,8 @@ playerSchema.methods = {
       twitter: this.twitter,
       team: this.team,
       isStaff: this.isStaff,
-      emailHash: this.emailHash
+      emailHash: this.emailHash,
+      profile: this.profile
     }
 
     return full ? {

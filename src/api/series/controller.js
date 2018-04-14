@@ -92,6 +92,7 @@ export const getStandings = async ({ params, query }, res, next) => {
       $project: {
         id: '$_id',
         _playerId: {
+          id: '$_playerId._id',
           handle: '$_playerId.handle',
           emailHash: '$_playerId.emailHash',
           imageUrl: '$_playerId.imageUrl'
