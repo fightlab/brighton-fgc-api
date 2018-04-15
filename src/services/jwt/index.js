@@ -1,13 +1,14 @@
-import jwt from 'jsonwebtoken'
-import Promise from 'bluebird'
-import { jwtSecret } from '../../config'
+import jwt from 'express-jwt'
+import jwks from 'jwks-rsa'
 
-const jwtSign = Promise.promisify(jwt.sign)
-const jwtVerify = Promise.promisify(jwt.verify)
-
-export const sign = (id, options, method = jwtSign) =>
-  method({ id }, jwtSecret, options)
-
-export const signSync = (id, options) => sign(id, options, jwt.sign)
-
-export const verify = (token) => jwtVerify(token, jwtSecret)
+export const jwtCheck = jwt({
+  secret: jwks.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: 'https://mkn-sh.eu.auth0.com/.well-known/jwks.json'
+  }),
+  audience: 'https://api.hbk.gg',
+  issuer: 'https://mkn-sh.eu.auth0.com/',
+  algorithms: ['RS256']
+})

@@ -30,6 +30,9 @@ const config = {
     masterKey: requireProcessEnv('MASTER_KEY'),
     jwtSecret: requireProcessEnv('JWT_SECRET'),
     challongeApiKey: requireProcessEnv('CHALLONGE_API_KEY'),
+    cloudinaryName: requireProcessEnv('CLOUDINARY_NAME'),
+    cloudinaryApiKey: requireProcessEnv('CLOUDINARY_API_KEY'),
+    cloudinarySecret: requireProcessEnv('CLOUDINARY_API_SECRET'),
     mongo: {
       options: {
         db: {
