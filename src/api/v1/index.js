@@ -6,6 +6,7 @@ const router = new Router()
 
 router.get('/auth', jwtCheck, (req, res) => {
   console.log('auth route')
+  console.log(req.user)
   return res.sendStatus(200)
 })
 
