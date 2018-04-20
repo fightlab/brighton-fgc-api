@@ -18,6 +18,7 @@ describe('view', () => {
     expect(view.venue).toBe(event.venue)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()
+    expect(view.meta).toBe(undefined)
   })
 
   it('returns full view', () => {

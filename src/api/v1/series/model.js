@@ -35,12 +35,12 @@ seriesSchema.methods = {
       _gameId: this._gameId,
       points: this.points,
       isCurrent: this.isCurrent,
-      meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }
 
     return full ? {
+      meta: this.meta,
       ...view
       // add properties for a full view
     } : view

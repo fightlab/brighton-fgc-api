@@ -31,12 +31,12 @@ resultSchema.methods = {
       _playerId: this._playerId,
       _tournamentId: this._tournamentId,
       rank: this.rank,
-      meta: this.meta,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }
 
     return full ? {
+      meta: this.meta,
       ...view
       // add properties for a full view
     } : view
