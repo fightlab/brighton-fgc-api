@@ -78,8 +78,8 @@ tournamentSchema.methods = {
     }
 
     return full ? {
-      ...view,
-      meta: this.meta
+      meta: this.meta,
+      ...view
       // add properties for a full view
     } : view
   }
