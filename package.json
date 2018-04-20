@@ -44,6 +44,7 @@
     "bcrypt": "^2.0.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
+    "boom": "^7.2.0",
     "cloudinary": "^1.11.0",
     "compression": "^1.7.1",
     "cors": "^2.8.4",
