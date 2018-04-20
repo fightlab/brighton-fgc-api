@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "backpack build && node ./build/main.js",
-    "test": "jest",
+    "test": "jest --forceExit",
     "dev": "backpack"
   },
   "jest": {
