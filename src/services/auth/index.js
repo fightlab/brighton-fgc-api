@@ -10,9 +10,13 @@ const isAuthenticated = [
         req.headers.authorization = 'Bearer ' + req.query.access_token
       }
     }
+
+    if (!req.headers.authorization || (process.env.NODE_ENV === 'test' && req.headers.authorization !== 'Bearer admin' && req.headers.authorization !== 'Bearer user')) {
+      return forbidden(res)()
+    }
     return next()
   },
-  jwtCheck,
+  process.env.NODE_ENV === 'test' ? (req, res, next) => next() : jwtCheck,
   (req, res, next) => {
     req.access_token = req.headers.authorization.replace('Bearer ', '')
     return next()
@@ -22,12 +26,23 @@ const isAuthenticated = [
 const isAuthenticatedWithProfile = [
   ...isAuthenticated,
   async (req, res, next) => {
-    try {
-      req.profile = await getProfile(req.access_token)
-      return next()
-    } catch (error) {
-      return next(error)
+    // for testing
+    if (process.env.NODE_ENV === 'test' && req.access_token === 'admin') {
+      req.profile = {
+        roles: ['user', 'admin']
+      }
+    } else if (process.env.NODE_ENV === 'test' && req.access_token === 'user') {
+      req.profile = {
+        roles: ['user']
+      }
+    } else {
+      try {
+        req.profile = await getProfile(req.access_token)
+      } catch (error) {
+        return next(error)
+      }
     }
+    return next()
   }
 ]
 
@@ -35,16 +50,16 @@ const isAdmin = [
   ...isAuthenticatedWithProfile,
   (req, res, next) => {
     if (!req.profile) {
-      return unauthorized(res)()
+      return forbidden(res)()
     }
-    const keys = Object.keys(this.profile)
+    const keys = Object.keys(req.profile)
     const key = find(keys, v => v.indexOf('roles') !== -1) || ''
-    const roles = get(this.profile, key, ['user'])
+    const roles = get(req.profile, key, ['user'])
     const isAdmin = !!find(roles, role => role === 'admin', false)
     if (isAdmin) {
       return next()
     }
-    return forbidden(res)()
+    return unauthorized(res)()
   }
 ]
 

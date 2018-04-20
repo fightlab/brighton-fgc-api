@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
-import { Mockgoose } from 'mockgoose'
+import MongodbMemoryServer from 'mongodb-memory-server'
 import mongoose from '../src/services/mongoose'
-import { mongo } from '../src/config'
-const mockgoose = new Mockgoose(mongoose)
+
+const mongoServer = new MongodbMemoryServer()
 
 EventEmitter.defaultMaxListeners = Infinity
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000
@@ -24,12 +24,15 @@ global.parseInt = parseInt
 global.parseFloat = parseFloat
 
 beforeAll(async () => {
-  await mockgoose.prepareStorage()
-  mongoose.connect(mongo.uri)
+  const mongoUri = await mongoServer.getConnectionString()
+  await mongoose.connect(mongoUri, {}, err => {
+    if (err) console.error(err)
+  })
 })
 
 afterAll(() => {
   mongoose.disconnect()
+  mongoServer.stop()
 })
 
 afterEach(async () => {

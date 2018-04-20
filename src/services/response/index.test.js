@@ -44,17 +44,17 @@ describe('notFound', () => {
 })
 
 describe('unauthorized', () => {
-  it('responds with status 401', () => {
+  it('responds with status 403', () => {
     expect(response.unauthorized(res)('Unauthorized')).toBeNull()
-    expect(res.status).toBeCalledWith(401)
+    expect(res.status).toBeCalledWith(403)
     expect(res.end).toHaveBeenCalledTimes(1)
   })
 })
 
 describe('forbidden', () => {
-  it('responds with status 403', () => {
+  it('responds with status 401', () => {
     expect(response.forbidden(res)('Forbidden')).toBeNull()
-    expect(res.status).toBeCalledWith(403)
+    expect(res.status).toBeCalledWith(401)
     expect(res.end).toHaveBeenCalledTimes(1)
   })
 })
