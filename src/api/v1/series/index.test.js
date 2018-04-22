@@ -167,8 +167,7 @@ test('GET /series/:id/tournaments 400', async () => {
 })
 
 test('GET /series/:id/standings 404', async () => {
-  const id = new Types.ObjectId().toString()
   const { status } = await request(app())
-    .get(`${apiRoot}/${id}/standings`)
+    .get(`${apiRoot}/123456789098765432123456/standings`)
   expect(status).toBe(404)
 })
