@@ -6,15 +6,21 @@ export const success = (res, status) => entity => {
   return null
 }
 
-// 403
-export const unauthorized = res => message => {
-  res.status(403).json(Boom.unauthorized(message)).end()
+// 400
+export const badRequest = res => message => {
+  res.status(400).json(Boom.badRequest(message)).end()
   return null
 }
 
 // 401
 export const forbidden = res => message => {
   res.status(401).json(Boom.forbidden(message)).end()
+  return null
+}
+
+// 403
+export const unauthorized = res => message => {
+  res.status(403).json(Boom.unauthorized(message)).end()
   return null
 }
 

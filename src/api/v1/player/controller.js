@@ -13,12 +13,12 @@ export const create = ({ bodymen: { body } }, res, next) =>
   Player.create(body)
     .then(player => player.view(true))
     .then(success(res, 201))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const index = (req, res, next) => Player.find({})
   .then(players => players.map(player => player.view(true)))
   .then(success(res))
-  .catch(badImplementation)
+  .catch(badImplementation(res))
 
 export const indexPlayers = ({ query }, res, next) => {
   // query
@@ -74,7 +74,7 @@ export const indexPlayers = ({ query }, res, next) => {
       $limit
     }])
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 }
 
 export const show = ({ params }, res, next) =>
@@ -82,7 +82,7 @@ export const show = ({ params }, res, next) =>
     .then(notFound(res))
     .then(player => player ? player.view(true) : null)
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const update = ({ bodymen: { body }, params }, res, next) =>
   Player.findById(params.id)
@@ -90,7 +90,7 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
     .then(player => player ? Object.assign(player, body).save() : null)
     .then(player => player ? player.view(true) : null)
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const destroy = ({ params }, res, next) =>
   Player.findById(params.id)
@@ -141,7 +141,7 @@ export const destroy = ({ params }, res, next) =>
         .catch(reject)
     }))
     .then(success(res, 204))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const stats = async ({ params }, res, next) => {
   try {

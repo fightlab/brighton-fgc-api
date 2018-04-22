@@ -10,20 +10,20 @@ export const create = ({ bodymen: { body } }, res, next) =>
   Game.create(body)
     .then((game) => game.view(true))
     .then(success(res, 201))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const index = (req, res, next) =>
   Game.find({})
     .then((games) => games.map((game) => game.view()))
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const show = ({ params }, res, next) =>
   Game.findById(params.id)
     .then(notFound(res))
     .then((game) => game ? game.view() : null)
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const update = ({ bodymen: { body }, params }, res, next) =>
   Game.findById(params.id)
@@ -31,14 +31,14 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
     .then((game) => game ? Object.assign(game, body).save() : null)
     .then((game) => game ? game.view(true) : null)
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const destroy = ({ params }, res, next) =>
   Game.findById(params.id)
     .then(notFound(res))
     .then((game) => game ? game.remove() : null)
     .then(success(res, 204))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const tournaments = ({ params }, res, next) =>
   Tournament.find({ _gameId: ObjectId(params.id) })

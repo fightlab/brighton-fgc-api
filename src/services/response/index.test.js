@@ -43,6 +43,14 @@ describe('notFound', () => {
   })
 })
 
+describe('badRequest', () => {
+  it('responds with status 403', () => {
+    expect(response.badRequest(res)('Unauthorized')).toBeNull()
+    expect(res.status).toBeCalledWith(400)
+    expect(res.end).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('unauthorized', () => {
   it('responds with status 403', () => {
     expect(response.unauthorized(res)('Unauthorized')).toBeNull()

@@ -18,7 +18,7 @@ export const index = ({ query }, res, next) => {
   Event.find({}, {}, cursor)
     .then((events) => events.map((event) => event.view()))
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 }
 
 export const show = ({ params }, res, next) =>
@@ -26,7 +26,7 @@ export const show = ({ params }, res, next) =>
     .then(notFound(res))
     .then((event) => event ? event.view() : null)
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const tournaments = ({ params }, res, next) =>
   Tournament.find({ event: ObjectId(params.id) })
@@ -36,7 +36,7 @@ export const tournaments = ({ params }, res, next) =>
     })
     .then(tournaments => tournaments.map(tournament => tournament.view()))
     .then(success(res))
-    .catch(badImplementation)
+    .catch(badImplementation(res))
 
 export const create = ({ bodymen: { body } }, res, next) =>
   Event.create(body)
