@@ -1,4 +1,5 @@
 import { AuthenticationClient } from 'auth0'
+import { find, get } from 'lodash'
 
 const auth0 = new AuthenticationClient({
   domain: process.env.AUTH0_DOMAIN,
@@ -11,3 +12,9 @@ export const getProfile = accessToken => new Promise((resolve, reject) => {
     return resolve(profile)
   })
 })
+
+export const getHashFromProfile = (profile = {}) => {
+  const keys = Object.keys(profile)
+  const key = find(keys, v => v.indexOf('emailHash') !== -1) || ''
+  return get(profile, key, '')
+}

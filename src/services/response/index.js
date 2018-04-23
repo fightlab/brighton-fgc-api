@@ -25,9 +25,9 @@ export const unauthorized = res => message => {
 }
 
 // 404
-export const notFound = res => entity => {
+export const notFound = (res, message) => entity => {
   if (entity) return entity
-  res.status(404).json(Boom.notFound()).end()
+  res.status(404).json(Boom.notFound(message)).end()
   return null
 }
 

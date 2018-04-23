@@ -1,6 +1,7 @@
+import { createHash } from 'crypto'
 import { find, get } from 'lodash'
 import { jwtCheck } from '../jwt'
-import { getProfile } from '../auth0'
+import { getProfile, getHashFromProfile } from '../auth0'
 import { forbidden, unauthorized } from '../response'
 
 const isAuthenticated = [
@@ -29,11 +30,13 @@ const isAuthenticatedWithProfile = [
     // for testing
     if (process.env.NODE_ENV === 'test' && req.access_token === 'admin') {
       req.profile = {
-        roles: ['user', 'admin']
+        roles: ['user', 'admin'],
+        emailHash: createHash('md5').update('admin').digest('hex')
       }
     } else if (process.env.NODE_ENV === 'test' && req.access_token === 'user') {
       req.profile = {
-        roles: ['user']
+        roles: ['user'],
+        emailHash: createHash('md5').update('user').digest('hex')
       }
     } else {
       try {
@@ -42,6 +45,7 @@ const isAuthenticatedWithProfile = [
         return next(error)
       }
     }
+    req.emailHash = getHashFromProfile(req.profile)
     return next()
   }
 ]

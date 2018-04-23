@@ -1,7 +1,7 @@
 import { Types } from 'mongoose'
 import _ from 'lodash'
 
-import { success, notFound, badImplementation } from '../../../services/response/'
+import { success, notFound, badImplementation, badRequest } from '../../../services/response/'
 import Player from '.'
 import Result from '../result'
 import Match from '../match'
@@ -268,4 +268,14 @@ export const stats = async ({ params }, res, next) => {
   } catch (error) {
     return next(error)
   }
+}
+
+export const me = ({ emailHash }, res, next) => {
+  if (!emailHash) return badRequest(res)('No Email Found')
+
+  return Player.findOne({ emailHash })
+    .then(notFound(res, 'No Player found for this Email'))
+    .then(player => player && player.view(true))
+    .then(success(res))
+    .catch(badImplementation(res))
 }

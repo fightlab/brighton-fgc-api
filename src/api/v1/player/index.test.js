@@ -1,3 +1,4 @@
+import { createHash } from 'crypto'
 import request from 'supertest'
 import { apiRoot } from '../../../config'
 import express from '../../../services/express'
@@ -6,7 +7,7 @@ import Tournament from '../tournament'
 
 const app = () => express(apiRoot, PlayerRouter)
 
-let player, player1, player2, player3
+let player, player1, player2, player3, user
 
 beforeEach(async () => {
   player = await Player.create({
@@ -20,6 +21,8 @@ beforeEach(async () => {
     challongeUsername: 'player2'
   })
   player3 = await Player.create({ })
+
+  user = await Player.create({ emailHash: createHash('md5').update('user').digest('hex') })
 
   // create 5 tournaments
   await Tournament.create({
@@ -74,7 +77,7 @@ test('GET /players 200', async () => {
     .get(`${apiRoot}`)
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
-  expect(body.length).toBe(4)
+  expect(body.length).toBe(5)
 })
 
 test('GET /players/index 200', async () => {
@@ -120,6 +123,21 @@ test('GET /players/:id 200', async () => {
 test('GET /players/:id 404', async () => {
   const { status } = await request(app())
     .get(apiRoot + '/123456789098765432123456')
+  expect(status).toBe(404)
+})
+
+test('GET /players/me 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/me?access_token=user`)
+  expect(status).toBe(200)
+  expect(typeof body).toEqual('object')
+  expect(body.id).toEqual(user.id)
+  expect(body.emailHash).toEqual(createHash('md5').update('user').digest('hex'))
+})
+
+test('GET /players/me 404', async () => {
+  const { status } = await request(app())
+    .get(apiRoot + '/me?access_token=admin')
   expect(status).toBe(404)
 })
 
