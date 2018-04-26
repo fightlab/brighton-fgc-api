@@ -279,3 +279,12 @@ export const me = ({ emailHash }, res, next) => {
     .then(success(res))
     .catch(badImplementation(res))
 }
+
+export const meUpdate = ({ bodymen: { body }, emailHash }, res, next) => {
+  Player.findOne({ emailHash })
+    .then(notFound(res))
+    .then(player => player ? Object.assign(player, body).save() : null)
+    .then(player => player ? player.view(true) : null)
+    .then(success(res))
+    .catch(badImplementation(res))
+}

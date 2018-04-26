@@ -22,7 +22,7 @@ beforeEach(async () => {
   })
   player3 = await Player.create({ })
 
-  user = await Player.create({ emailHash: createHash('md5').update('user').digest('hex') })
+  user = await Player.create({ name: 'user', emailHash: createHash('md5').update('user').digest('hex') })
 
   // create 5 tournaments
   await Tournament.create({
@@ -138,6 +138,25 @@ test('GET /players/me 200', async () => {
 test('GET /players/me 404', async () => {
   const { status } = await request(app())
     .get(apiRoot + '/me?access_token=admin')
+  expect(status).toBe(404)
+})
+
+test('PUT /players/me 200', async () => {
+  const { status, body } = await request(app())
+    .put(`${apiRoot}/me?access_token=user`)
+    .send({ name: 'test', handle: 'test2', profile: { facebook: 'test3' } })
+  expect(status).toBe(200)
+  expect(typeof body).toEqual('object')
+  expect(body.id).toEqual(user.id)
+  expect(body.name).toEqual('user')
+  expect(body.handle).toEqual('test2')
+  expect(body.profile.facebook).toEqual('test3')
+})
+
+test('PUT /players/me 404', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/me?access_token=admin`)
+    .send({ name: 'test', handle: 'test2', profile: { facebook: 'test3' } })
   expect(status).toBe(404)
 })
 
