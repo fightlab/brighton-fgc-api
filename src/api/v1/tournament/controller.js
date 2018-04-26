@@ -27,11 +27,11 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
 
     let player
 
-    if (participant.challonge_username) {
+    if (participant.email_hash) {
       try {
         player = await Player
           .findOne({
-            challongeUsername: new RegExp(`^${participant.challonge_username}$`, 'i')
+            emailHash: new RegExp(`^${participant.email_hash}$`, 'i')
           })
       } catch (error) {
         console.error(error)
@@ -85,7 +85,7 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
       }
     } else {
       const body = {}
-      if (participant.challonge_username) {
+      if (participant.email_hash) {
         if (participant.attached_participatable_portrait_url) {
           body.challongeImageUrl = participant.attached_participatable_portrait_url
 
