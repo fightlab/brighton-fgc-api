@@ -1,6 +1,6 @@
 {
   "name": "brighton-fgc-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "main": "src",
   "private": true,
@@ -17,8 +17,6 @@
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-jest": "^22.4.3",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-stage-0": "^6.24.1",
     "cross-env": "^5.0.5",
     "dotenv-safe": "^5.0.1",
     "eslint": "^4.4.1",
@@ -37,6 +35,8 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
     "async": "^2.6.0",
     "auth0": "^2.9.1",
     "axios": "^0.18.0",
