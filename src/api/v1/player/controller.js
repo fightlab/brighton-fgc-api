@@ -1,5 +1,5 @@
 import { Types } from 'mongoose'
-import _ from 'lodash'
+import _, { merge } from 'lodash'
 
 import { success, notFound, badImplementation, badRequest } from '../../../services/response/'
 import Player from '.'
@@ -87,7 +87,7 @@ export const show = ({ params }, res, next) =>
 export const update = ({ bodymen: { body }, params }, res, next) =>
   Player.findById(params.id)
     .then(notFound(res))
-    .then(player => player ? Object.assign(player, body).save() : null)
+    .then(player => player ? merge(player, body).save() : null)
     .then(player => player ? player.view(true) : null)
     .then(success(res))
     .catch(badImplementation(res))
@@ -283,7 +283,7 @@ export const me = ({ emailHash }, res, next) => {
 export const meUpdate = ({ bodymen: { body }, emailHash }, res, next) => {
   Player.findOne({ emailHash })
     .then(notFound(res))
-    .then(player => player ? Object.assign(player, body).save() : null)
+    .then(player => player ? merge(player, body).save() : null)
     .then(player => player ? player.view(true) : null)
     .then(success(res))
     .catch(badImplementation(res))

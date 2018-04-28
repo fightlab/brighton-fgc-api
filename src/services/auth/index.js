@@ -15,6 +15,7 @@ const isAuthenticated = [
     if (!req.headers.authorization || (process.env.NODE_ENV === 'test' && req.headers.authorization !== 'Bearer admin' && req.headers.authorization !== 'Bearer user')) {
       return forbidden(res)()
     }
+
     return next()
   },
   process.env.NODE_ENV === 'test' ? (req, res, next) => next() : jwtCheck,
