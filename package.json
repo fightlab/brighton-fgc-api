@@ -5,18 +5,20 @@
   "main": "src",
   "private": true,
   "scripts": {
-    "start": "node .",
-    "test": "jest",
-    "dev": "nodemon -i \"*.test.js\" .",
-    "prod": "cross-env NODE_ENV=production nodemon -i \"*.test.js\" -r dotenv-safe/config ."
+    "start": "backpack build && node ./build/main.js",
+    "test": "jest --forceExit",
+    "dev": "backpack"
   },
   "jest": {
     "testEnvironment": "node",
     "setupTestFrameworkScriptFile": "<rootDir>/test/setup.js"
   },
   "devDependencies": {
+    "babel-core": "^6.26.0",
     "babel-eslint": "^8.0.1",
     "babel-jest": "^22.4.3",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
     "cross-env": "^5.0.5",
     "dotenv-safe": "^5.0.1",
     "eslint": "^4.4.1",
@@ -26,7 +28,7 @@
     "eslint-plugin-promise": "^3.0.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest-cli": "^22.4.3",
-    "mockgoose": "^7.3.5",
+    "mongodb-memory-server": "^1.7.3",
     "nock": "^9.0.2",
     "nodemon": "^1.10.2",
     "opn-cli": "^3.1.0",
@@ -36,14 +38,13 @@
   },
   "dependencies": {
     "async": "^2.6.0",
+    "auth0": "^2.9.1",
     "axios": "^0.18.0",
-    "babel-core": "^6.26.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-runtime": "^6.26.0",
-    "bcrypt": "^2.0.0",
+    "backpack-core": "^0.7.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
+    "bodymen": "^1.0.3",
+    "boom": "^7.2.0",
     "cloudinary": "^1.11.0",
     "compression": "^1.7.1",
     "cors": "^2.8.4",
@@ -54,8 +55,6 @@
     "lodash": "^4.17.4",
     "moment-timezone": "^0.5.14",
     "mongoose": "5.0.14",
-    "mongoose-create-unique": "^0.4.4",
-    "mongoose-keywords": "^0.3.2",
     "morgan": "^1.7.0"
   }
 }
