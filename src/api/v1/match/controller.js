@@ -47,6 +47,6 @@ export const countGames = (req, res, next) =>
   Match
     .find()
     .select('score')
-    .then(matches => _(matches).sumBy(match => _(match.score).sumBy(score => score.p1 + score.p2)))
+    .then(matches => _(matches).sumBy(match => _(match.score).sumBy(score => parseInt(score.p1 || 0) + parseInt(score.p2 || 0))))
     .then(success(res))
     .catch(next)
