@@ -146,3 +146,10 @@ test('DELETE /events/:id 404 (admin)', async () => {
     .query({ })
   expect(status).toBe(404)
 })
+
+test('GET /events/count 200', async () => {
+  const { status, body } = await (request(app()))
+    .get(`${apiRoot}/count`)
+  expect(status).toBe(200)
+  expect(body).toBe(2)
+})

@@ -183,3 +183,10 @@ test('GET /tournaments/:id/standings 404', async () => {
     .get(`${apiRoot}/123456789098765432123456/standings`)
   expect(status).toBe(404)
 })
+
+test('GET /tournaments/count 200', async () => {
+  const { status, body } = await (request(app()))
+    .get(`${apiRoot}/count`)
+  expect(status).toBe(200)
+  expect(body).toBe(2)
+})

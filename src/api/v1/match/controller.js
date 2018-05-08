@@ -1,4 +1,5 @@
 
+import _ from 'lodash'
 import { success, notFound, badImplementation } from '../../../services/response/'
 import Match from '.'
 
@@ -35,3 +36,17 @@ export const destroy = ({ params }, res, next) =>
     .then((match) => match ? match.remove() : null)
     .then(success(res, 204))
     .catch(badImplementation(res))
+
+export const count = (req, res, next) =>
+  Match
+    .count()
+    .then(success(res))
+    .catch(next)
+
+export const countGames = (req, res, next) =>
+  Match
+    .find()
+    .select('score')
+    .then(matches => _(matches).sumBy(match => _(match.score).sumBy(score => score.p1 + score.p2)))
+    .then(success(res))
+    .catch(next)

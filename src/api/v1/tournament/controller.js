@@ -428,3 +428,9 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     return next(error)
   }
 }
+
+export const count = (req, res, next) =>
+  Tournament
+    .count()
+    .then(success(res))
+    .catch(next)

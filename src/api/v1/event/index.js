@@ -1,13 +1,15 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
 import Event, { schema } from './model'
-import { index, show, tournaments, create, update, destroy } from './controller'
+import { index, show, tournaments, create, update, destroy, count } from './controller'
 import { isAdmin } from '../../../services/auth'
 
 const EventRouter = new Router()
 const { number, name, date, url, meta, venue } = schema.tree
 
 EventRouter.get('/', index)
+
+EventRouter.get('/count', count)
 
 EventRouter.get('/:id', show)
 

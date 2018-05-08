@@ -17,7 +17,7 @@ beforeEach(async () => {
     _player2Id: id,
     _winnerId: id,
     _loserId: id,
-    score: 'test',
+    score: [{p1: 2, p2: 1}],
     round: 1,
     challongeMatchObj: 'test',
     startDate: date,
@@ -147,4 +147,18 @@ test('DELETE /matches/:id 404 (admin)', async () => {
     .delete(apiRoot + '/123456789098765432123456?access_token=admin')
     .query({ })
   expect(status).toBe(404)
+})
+
+test('GET /matches/count 200', async () => {
+  const { status, body } = await (request(app()))
+    .get(`${apiRoot}/count`)
+  expect(status).toBe(200)
+  expect(body).toBe(1)
+})
+
+test('GET /matches/count/games 200', async () => {
+  const { status, body } = await (request(app()))
+    .get(`${apiRoot}/count/games`)
+  expect(status).toBe(200)
+  expect(body).toBe(3)
 })

@@ -58,3 +58,9 @@ export const destroy = ({ params }, res, next) =>
     .then((event) => event ? event.remove() : null)
     .then(success(res, 204))
     .catch(next)
+
+export const count = (req, res, next) =>
+  Event
+    .count()
+    .then(success(res))
+    .catch(next)
