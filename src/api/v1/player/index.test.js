@@ -4,10 +4,12 @@ import { apiRoot } from '../../../config'
 import express from '../../../services/express'
 import Player, { PlayerRouter } from '.'
 import Tournament from '../tournament'
+import Match from '../match'
+import Game from '../game'
 
 const app = () => express(apiRoot, PlayerRouter)
 
-let player, player1, player2, player3, user
+let player, player1, player2, player3, user, tournament, game
 
 beforeEach(async () => {
   player = await Player.create({
@@ -24,9 +26,13 @@ beforeEach(async () => {
 
   user = await Player.create({ name: 'user', emailHash: createHash('md5').update('user').digest('hex') })
 
+  game = await Game.create({ name: 'game', imageUrl: 'game' })
+
   // create 5 tournaments
-  await Tournament.create({
-    players: [player._id, player1._id, player2._id, player3._id]
+  tournament = await Tournament.create({
+    players: [player._id, player1._id, player2._id, player3._id],
+    name: 'tournament',
+    _gameId: game._id
   })
   await Tournament.create({
     players: [player._id, player1._id, player2._id, player3._id]
@@ -39,6 +45,23 @@ beforeEach(async () => {
   })
   await Tournament.create({
     players: [player._id, player1._id, player3._id]
+  })
+
+  // create match
+  await Match.create({
+    _tournamentId: tournament._id,
+    _player1Id: player._id,
+    _player2Id: player2._id,
+    _winnerId: player._id,
+    _loserId: player2._id,
+    score: [{
+      p1: 2,
+      p2: 1
+    }],
+    round: 1,
+    challongeMatchObj: {},
+    startDate: new Date(),
+    endDate: new Date()
   })
 })
 
@@ -228,6 +251,19 @@ test('DELETE /players/:id 404 (admin)', async () => {
 test('GET /players/:id/statistics 200', async () => {
   const { status, body } = await request(app())
     .get(`${apiRoot}/${player.id}/statistics`)
+  expect(status).toBe(200)
+  expect(typeof body).toEqual('object')
+})
+
+test('GET /players/:player1/statistics/:player2 404', async () => {
+  const { status } = await request(app())
+    .get(`${apiRoot}/${player.id}/statistics/${player1.id}`)
+  expect(status).toBe(404)
+})
+
+test('GET /players/:player1/statistics/:player2 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/statistics/${player2.id}`)
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
 })

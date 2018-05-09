@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { middleware as body } from 'bodymen'
 
 import { isAdmin, isAuthenticatedWithProfile } from '../../../services/auth'
-import { create, index, indexPlayers, show, update, destroy, stats, me, meUpdate } from './controller'
+import { create, index, indexPlayers, show, update, destroy, stats, me, meUpdate, headToHead } from './controller'
 import Player, { schema } from './model'
 
 const PlayerRouter = new Router()
@@ -21,6 +21,8 @@ PlayerRouter.get('/index', indexPlayers)
 PlayerRouter.get('/:id', show)
 
 PlayerRouter.get('/:id/statistics', stats)
+
+PlayerRouter.get('/:player1/statistics/:player2', headToHead)
 
 PlayerRouter.put('/:id', isAdmin, body({ name, handle, challongeUsername, challongeName, imageUrl, team, isStaff, profile, emailHash }), update)
 

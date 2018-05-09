@@ -193,8 +193,8 @@ const getScore = scores => {
     .map(s => {
       const score = s.split('-')
       return {
-        p1: score[0],
-        p2: score[1]
+        p1: parseInt(score[0]),
+        p2: parseInt(score[1])
       }
     })
     .value()

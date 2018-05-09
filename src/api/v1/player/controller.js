@@ -1,3 +1,4 @@
+import moment from 'moment-timezone'
 import { Types } from 'mongoose'
 import _, { merge } from 'lodash'
 
@@ -287,4 +288,177 @@ export const meUpdate = ({ bodymen: { body }, emailHash }, res, next) => {
     .then(player => player ? player.view(true) : null)
     .then(success(res))
     .catch(badImplementation(res))
+}
+
+export const headToHead = async ({ params }, res, next) => {
+  // player holders
+  let player1
+  let player2
+
+  // get player1
+  try {
+    player1 = await Player.findById(params.player1)
+      .then(notFound(res, 'No Player found for this Email'))
+      .then(player => player && player.view())
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+
+  // get player2
+  try {
+    player2 = await Player.findById(params.player2)
+      .then(notFound(res, 'No Player found for this Email'))
+      .then(player => player && player.view())
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+
+  // get matches
+  let matches = []
+
+  try {
+    matches = await Match
+      .aggregate([{
+        $match: {
+          $or: [{
+            '_player1Id': ObjectId(player1.id),
+            '_player2Id': ObjectId(player2.id)
+          }, {
+            '_player1Id': ObjectId(player2.id),
+            '_player2Id': ObjectId(player1.id)
+          }]
+        }
+      }, {
+        $lookup: {
+          from: 'tournaments',
+          localField: '_tournamentId',
+          foreignField: '_id',
+          as: 'tournament'
+        }
+      }, {
+        $unwind: '$tournament'
+      }, {
+        $lookup: {
+          from: 'games',
+          localField: 'tournament._gameId',
+          foreignField: '_id',
+          as: 'game'
+        }
+      }, {
+        $unwind: '$game'
+      }, {
+        $project: {
+          tournament: {
+            _id: '$tournament._id',
+            name: '$tournament.name'
+          },
+          game: {
+            _id: '$game._id',
+            name: '$game.name',
+            imageUrl: '$game.imageUrl'
+          },
+          _player1Id: '$_player1Id',
+          _player2Id: '$_player2Id',
+          _winnerId: '$_winnerId',
+          _loserId: '$_loserId',
+          score: '$score',
+          startDate: '$startDate',
+          endDate: '$endDate'
+        }
+      }])
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+
+  // return early if no matches
+  if (!matches.length) return notFound(res, 'No matches found')()
+
+  // get tournaments
+  const tournamentIds = _(matches).map(m => m.tournament._id).uniqBy(_.toString).value()
+  let tournaments = []
+  try {
+    tournaments = await Tournament
+      .aggregate([{
+        $match: {
+          _id: {
+            $in: tournamentIds
+          }
+        }
+      }, {
+        $lookup: {
+          from: 'games',
+          localField: '_gameId',
+          foreignField: '_id',
+          as: 'game'
+        }
+      }, {
+        $lookup: {
+          from: 'events',
+          localField: 'event',
+          foreignField: '_id',
+          as: 'event'
+        }
+      }, {
+        $unwind: '$game'
+      }, {
+        $unwind: '$event'
+      }, {
+        $project: {
+          _id: '$_id',
+          name: '$name',
+          type: '$type',
+          game: {
+            _id: '$game._id',
+            name: '$game.name',
+            imageUrl: '$game.imageUrl'
+          },
+          event: {
+            _id: '$event._id',
+            name: '$event.name',
+            date: '$event.date'
+          },
+          dateStart: '$dateStart'
+        }
+      }])
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+  // add matches to tournaments
+  tournaments = _(tournaments).map(t => _.merge({}, t, { matches: _(matches).filter(m => m.tournament._id.toString() === t._id.toString()) })).orderBy([t => moment(t.dateStart).unix()], ['desc']).value()
+
+  // game matches
+  const games = _(matches).groupBy(m => m.game._id.toString()).map(g => ({ _id: g[0].game._id, name: g[0].game.name, imageUrl: g[0].game.imageUrl, matches: g })).orderBy(['name'], ['asc']).value()
+
+  // statistics time
+  const statistics = {}
+  statistics.matches = _(matches)
+    .groupBy('game._id')
+    .mapValues(game => ({
+      player1wins: _(game).sumBy(match => match._winnerId.toString() === player1.id.toString() ? 1 : 0),
+      player2wins: _(game).sumBy(match => match._winnerId.toString() === player2.id.toString() ? 1 : 0),
+      total: game.length
+    }))
+    .value() || {}
+  statistics.matches.total = {
+    player1wins: _(matches).sumBy(match => match._winnerId.toString() === player1.id.toString() ? 1 : 0),
+    player2wins: _(matches).sumBy(match => match._winnerId.toString() === player2.id.toString() ? 1 : 0),
+    total: matches.length
+  }
+
+  statistics.games = _(matches)
+    .groupBy('game._id')
+    .mapValues(game => ({
+      player1wins: _(game).sumBy(match => match._player1Id.toString() === player1.id.toString() ? _(match.score).sumBy(score => Number(score.p1)) : _(match.score).sumBy(score => Number(score.p2))),
+      player2wins: _(game).sumBy(match => match._player1Id.toString() === player2.id.toString() ? _(match.score).sumBy(score => Number(score.p1)) : _(match.score).sumBy(score => Number(score.p2))),
+      total: _(game).sumBy(match => _(match.score).sumBy(score => Number(score.p1) + Number(score.p2)))
+    }))
+    .value() || {}
+
+  statistics.games.total = {
+    player1wins: _(matches).sumBy(match => match._player1Id.toString() === player1.id.toString() ? _(match.score).sumBy(score => Number(score.p1)) : _(match.score).sumBy(score => Number(score.p2))),
+    player2wins: _(matches).sumBy(match => match._player1Id.toString() === player2.id.toString() ? _(match.score).sumBy(score => Number(score.p1)) : _(match.score).sumBy(score => Number(score.p2))),
+    total: _(matches).sumBy(match => _(match.score).sumBy(score => Number(score.p1) + Number(score.p2)))
+  }
+
+  return success(res)({ player1, player2, statistics, tournaments, games })
 }
