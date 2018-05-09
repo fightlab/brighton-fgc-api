@@ -462,3 +462,26 @@ export const headToHead = async ({ params }, res, next) => {
 
   return success(res)({ player1, player2, statistics, tournaments, games })
 }
+
+export const headToHeadOpponents = async ({ params }, res, next) => {
+  let player2s
+  let player1s
+
+  try {
+    player2s = await Match.find({ _player1Id: ObjectId(params.id) }).then(matches => matches.map(match => match._player2Id))
+    player1s = await Match.find({ _player2Id: ObjectId(params.id) }).then(matches => matches.map(match => match._player1Id))
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+
+  const playerIds = _([...player2s, ...player1s]).uniqBy(p => p.toString()).value()
+
+  let players
+  try {
+    players = await Player.find({ _id: { $in: playerIds } }).select('_id handle')
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+
+  return success(res)(players)
+}

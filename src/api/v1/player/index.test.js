@@ -267,3 +267,11 @@ test('GET /players/:player1/statistics/:player2 200', async () => {
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
 })
+
+test('GET /players/:player1/opponents 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/opponents`)
+  expect(status).toBe(200)
+  expect(typeof body).toEqual('object')
+  expect(body.length).toBe(1)
+})
