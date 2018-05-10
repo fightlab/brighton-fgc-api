@@ -63,6 +63,22 @@ beforeEach(async () => {
     startDate: new Date(),
     endDate: new Date()
   })
+
+  await Match.create({
+    _tournamentId: tournament._id,
+    _player1Id: player._id,
+    _player2Id: player3._id,
+    _winnerId: player._id,
+    _loserId: player3._id,
+    score: [{
+      p1: 2,
+      p2: 0
+    }],
+    round: 1,
+    challongeMatchObj: {},
+    startDate: new Date(),
+    endDate: new Date()
+  })
 })
 
 test('POST /players 201 (admin)', async () => {
@@ -274,4 +290,12 @@ test('GET /players/:player1/opponents 200', async () => {
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.length).toBe(1)
+})
+
+test('GET /players/:player1/opponents 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/opponents?all=true`)
+  expect(status).toBe(200)
+  expect(typeof body).toEqual('object')
+  expect(body.length).toBe(2)
 })

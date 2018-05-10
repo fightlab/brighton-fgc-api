@@ -463,7 +463,7 @@ export const headToHead = async ({ params }, res, next) => {
   return success(res)({ player1, player2, statistics, tournaments, games })
 }
 
-export const headToHeadOpponents = async ({ params }, res, next) => {
+export const headToHeadOpponents = async ({ params, query }, res, next) => {
   let player2s
   let player1s
 
@@ -478,7 +478,11 @@ export const headToHeadOpponents = async ({ params }, res, next) => {
 
   let players
   try {
-    players = await Player.find({ _id: { $in: playerIds } }).select('_id handle')
+    const q = { _id: { $in: playerIds }, challongeUsername: { $exists: true } }
+    if (query.all) {
+      delete q.challongeUsername
+    }
+    players = await Player.find(q).select('_id handle')
   } catch (error) {
     return badImplementation(res)(error)
   }
