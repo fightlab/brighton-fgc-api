@@ -476,7 +476,7 @@ export const headToHeadOpponents = async ({ params, query }, res, next) => {
 
   const playerIds = _([...player2s, ...player1s]).uniqBy(p => p.toString()).value()
 
-  let players
+  let players = []
   try {
     const q = { _id: { $in: playerIds }, challongeUsername: { $exists: true } }
     if (query.all) {
@@ -487,5 +487,5 @@ export const headToHeadOpponents = async ({ params, query }, res, next) => {
     return badImplementation(res)(error)
   }
 
-  return success(res)(players)
+  return success(res)(_(players).orderBy(['handle'], ['asc']).value())
 }
