@@ -487,5 +487,5 @@ export const headToHeadOpponents = async ({ params, query }, res, next) => {
     return badImplementation(res)(error)
   }
 
-  return success(res)(_(players).orderBy(['handle'], ['asc']).value())
+  return success(res)(_(players).orderBy([p => _.toLower(p.handle)], ['asc']).value())
 }
