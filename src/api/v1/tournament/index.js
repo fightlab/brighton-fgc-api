@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
 import Tournament, { schema } from './model'
-import { create, index, indexNoGame, show, update, destroy, getStandings, challongeUpdate, count } from './controller'
+import { create, index, indexNoGame, show, update, destroy, getStandings, challongeUpdate, count, matches } from './controller'
 import { isAdmin } from '../../../services/auth'
 
 const TournamentRouter = new Router()
@@ -16,6 +16,8 @@ TournamentRouter.get('/count', count)
 TournamentRouter.get('/nogame', indexNoGame)
 
 TournamentRouter.get('/:id/standings', getStandings)
+
+TournamentRouter.get('/:id/matches', matches)
 
 TournamentRouter.get('/:id', show)
 

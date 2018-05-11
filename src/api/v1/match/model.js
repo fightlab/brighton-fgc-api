@@ -3,23 +3,28 @@ import mongoose, { Schema } from 'mongoose'
 const matchSchema = new Schema({
   _tournamentId: {
     type: Schema.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Tournament'
   },
   _player1Id: {
     type: Schema.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Player'
   },
   _player2Id: {
     type: Schema.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Player'
   },
   _winnerId: {
     type: Schema.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Player'
   },
   _loserId: {
     type: Schema.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Player'
   },
   score: {
     type: [Schema.Types.Mixed]

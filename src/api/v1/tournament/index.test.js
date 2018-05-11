@@ -190,3 +190,17 @@ test('GET /tournaments/count 200', async () => {
   expect(status).toBe(200)
   expect(body).toBe(2)
 })
+
+test('GET /tournaments/:id/matches 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${tournament.id}/matches`)
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.length).toBe(0)
+})
+
+test('GET /tournaments/:id/matches 400', async () => {
+  const { status } = await request(app())
+    .get(`${apiRoot}/ksdjakdljklj1kl2j3kjkl123/matches`)
+  expect(status).toBe(400)
+})

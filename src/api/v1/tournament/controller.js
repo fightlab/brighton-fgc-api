@@ -257,7 +257,7 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
     .then(tournament => tournament ? Object.assign(tournament, body).save() : null)
     .then(tournament => tournament ? tournament.view(true) : null)
     .then(success(res))
-    .catch(next)
+    .catch(badImplementation(res))
 
 export const destroy = ({ params }, res, next) =>
   Tournament
@@ -290,7 +290,7 @@ export const destroy = ({ params }, res, next) =>
         .catch(reject)
     }))
     .then(success(res, 204))
-    .catch(next)
+    .catch(badImplementation(res))
 
 export const getStandings = async ({ params }, res, next) => {
   try {
@@ -314,7 +314,7 @@ export const getStandings = async ({ params }, res, next) => {
       select: 'id handle emailHash imageUrl'
     })
     .then(success(res))
-    .catch(next)
+    .catch(badImplementation(res))
 }
 
 export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) => {
@@ -384,7 +384,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     if (!dbTournament) {
       return res.sendStatus(404)
     }
-    dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save().catch(next) : null
+    dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save().catch(badImplementation(res)) : null
     dbTournament = dbTournament ? dbTournament.view(true) : null
     if (dbTournament) {
     // remove matches and results so they can me updated
@@ -433,4 +433,36 @@ export const count = (req, res, next) =>
   Tournament
     .count()
     .then(success(res))
-    .catch(next)
+    .catch(badImplementation(res))
+
+export const matches = async ({ params }, res, next) => {
+  try {
+    ObjectId(params.id)
+  } catch (e) {
+    return badRequest(res)('Bad ID Parameter')
+  }
+
+  await Tournament.findById(params.id).then(notFound(res))
+
+  Match
+    .find({ _tournamentId: ObjectId(params.id) })
+    .select('-challongeMatchObj')
+    .populate({
+      path: '_player1Id',
+      select: '_id handle imageUrl'
+    })
+    .populate({
+      path: '_player2Id',
+      select: '_id handle imageUrl'
+    })
+    .populate({
+      path: '_winnerId',
+      select: '_id handle imageUrl'
+    })
+    .populate({
+      path: '_loserId',
+      select: '_id handle imageUrl'
+    })
+    .then(success(res))
+    .catch(badImplementation(res))
+}
