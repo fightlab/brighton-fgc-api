@@ -8,6 +8,8 @@ beforeEach(async () => {
     _playerId: new Types.ObjectId(),
     _tournamentId: new Types.ObjectId(),
     rank: 1,
+    eloBefore: 1000,
+    eloAfter: 1001,
     meta: { test: 'test' }
   })
 })
@@ -20,6 +22,8 @@ describe('view', () => {
     expect(view._playerId).toBe(result._playerId)
     expect(view._tournamentId).toBe(result._tournamentId)
     expect(view.rank).toBe(result.rank)
+    expect(view.eloBefore).toBe(result.eloBefore)
+    expect(view.eloAfter).toBe(result.eloAfter)
     expect(view.meta).toBe(undefined)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()
@@ -33,6 +37,8 @@ describe('view', () => {
     expect(view._tournamentId).toBe(result._tournamentId)
     expect(view.rank).toBe(result.rank)
     expect(view.meta).toBe(result.meta)
+    expect(view.eloBefore).toBe(result.eloBefore)
+    expect(view.eloAfter).toBe(result.eloAfter)
     expect(view.createdAt).toBeTruthy()
     expect(view.updatedAt).toBeTruthy()
   })

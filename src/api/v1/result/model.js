@@ -12,6 +12,12 @@ const resultSchema = new Schema({
   rank: {
     type: Number
   },
+  eloBefore: {
+    type: Number
+  },
+  eloAfter: {
+    type: Number
+  },
   meta: {
     type: Schema.Types.Mixed
   }
@@ -31,6 +37,8 @@ resultSchema.methods = {
       _playerId: this._playerId,
       _tournamentId: this._tournamentId,
       rank: this.rank,
+      eloBefore: this.eloBefore,
+      eloAfter: this.eloAfter,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }

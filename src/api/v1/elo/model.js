@@ -15,19 +15,7 @@ const eloSchema = new Schema({
     type: Number,
     required: true,
     default: 1000
-  },
-  tournaments: [{
-    tournament: {
-      type: Schema.Types.ObjectId,
-      ref: 'Tournament'
-    },
-    eloStart: {
-      type: Number
-    },
-    eloEnd: {
-      type: Number
-    }
-  }]
+  }
 }, {
   timestamps: true,
   toJSON: {
@@ -48,7 +36,6 @@ eloSchema.methods = {
     }
 
     return full ? {
-      tournaments: this.tournaments,
       ...view
     } : view
   }
