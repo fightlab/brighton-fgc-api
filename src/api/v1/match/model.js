@@ -26,6 +26,18 @@ const matchSchema = new Schema({
     required: true,
     ref: 'Player'
   },
+  _player1EloBefore: {
+    type: Number
+  },
+  _player1EloAfter: {
+    type: Number
+  },
+  _player2EloBefore: {
+    type: Number
+  },
+  _player2EloAfter: {
+    type: Number
+  },
   score: {
     type: [Schema.Types.Mixed]
   },
@@ -61,6 +73,10 @@ matchSchema.methods = {
       _player2Id: this._player2Id,
       _winnerId: this._winnerId,
       _loserId: this._loserId,
+      _player1EloBefore: this._player1EloBefore,
+      _player2EloBefore: this._player2EloBefore,
+      _player2EloAfter: this._player2EloAfter,
+      _player1EloAfter: this._player1EloAfter,
       score: this.score,
       round: this.round,
       startDate: this.startDate,

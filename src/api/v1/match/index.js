@@ -5,9 +5,9 @@ import { create, index, show, update, destroy, count, countGames } from './contr
 import { isAdmin } from '../../../services/auth'
 
 const MatchRouter = new Router()
-const { _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate } = schema.tree
+const { _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter } = schema.tree
 
-MatchRouter.post('/', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate }), create)
+MatchRouter.post('/', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter }), create)
 
 MatchRouter.get('/', index)
 
@@ -17,7 +17,7 @@ MatchRouter.get('/count/games', countGames)
 
 MatchRouter.get('/:id', show)
 
-MatchRouter.put('/:id', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate }), update)
+MatchRouter.put('/:id', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter }), update)
 
 MatchRouter.delete('/:id', isAdmin, destroy)
 
