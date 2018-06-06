@@ -12,14 +12,49 @@ import Result from '../result'
 import Match from '../match'
 import Game from '../game'
 import Player from '../player'
+import Elo from '../elo'
+import Arpad from 'arpad'
 
 const ObjectId = Types.ObjectId
+
+const elo = new Arpad()
+
+const range = {
+  default: 30,
+  elo2400: 20,
+  game30: 60
+}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 })
+
+const getKFactor = (elo, matches) => {
+  if (elo >= 2400) return range.elo2400
+  if (matches <= 30) return range.game30
+  return range.default
+}
+
+// 0 to 0.49 - p1 loss, 0.5 - draw, 0.51 to 1 - p1 win
+const getScoreElo = scores => {
+  let score
+  if (scores.length > 1) {
+    score = _.reduce([{ p1: 2, p2: 1 }, { p1: 0, p2: 2 }, { p1: 2, p2: 0 }], (result, value) => {
+      if (value.p1 > value.p2) result.p1++
+      else if (value.p2 > value.p1) result.p2++
+
+      return result
+    }, { p1: 0, p2: 0 })
+  } else {
+    score = scores[0]
+  }
+
+  const total = score.p1 + score.p2
+  if (total === 0) return 0.5
+  return score.p1 / total
+}
 
 const getPlayers = tournament => new Promise((resolve, reject) => {
   const queue = map(tournament.meta.participants, p => async callback => {
@@ -184,6 +219,159 @@ const getResults = (tournament, players) => new Promise((resolve, reject) => {
     if (err) return reject(err)
     return resolve(results)
   })
+})
+
+const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
+  try {
+    const matches = await Match
+      .find({ _tournamentId: tournament._id })
+      .select('-challongeMatchObj')
+      .sort('endDate')
+
+    const pIds = _([
+      ..._(matches)
+        .map(match => match._player1Id)
+        .value(),
+      ..._(matches)
+        .map(match => match._player2Id)
+        .value()
+    ])
+      .uniqBy(id => id.toString())
+      .value()
+
+    const players = await Player
+      .find({
+        _id: {
+          $in: pIds
+        }
+      })
+      .select('_id')
+
+    const playerMatchTracking = {}
+    const elos = []
+
+    await new Promise((resolve, reject) => {
+      asyncNode.eachLimit(players, 5, async (player, callback) => {
+        const elo = await Elo.findOne({
+          player: player._id,
+          game
+        })
+
+        if (elo) elos.push(elo)
+        else elos.push(new Elo({ player: player._id, game }))
+
+        return callback()
+      }, err => {
+        if (err) return reject(err)
+        return resolve()
+      })
+    })
+
+    await new Promise((resolve, reject) => {
+      asyncNode.eachLimit(matches, 5, async (match, callback) => {
+        const p1id = match._player1Id.toString()
+        const p2id = match._player2Id.toString()
+        const p1 = _.find(elos, e => e.player.toString() === p1id)
+        const p2 = _.find(elos, e => e.player.toString() === p2id)
+
+        if (!p1 || !p2) return callback()
+
+        const p1Matches = _.get(playerMatchTracking, p1id, 0) + 1
+        const p2Matches = _.get(playerMatchTracking, p2id, 0) + 1
+
+        playerMatchTracking[p1id] = p1Matches
+        playerMatchTracking[p2id] = p2Matches
+
+        const p1elo = p1.elo
+        const p2elo = p2.elo
+
+        const p1k = getKFactor(p1elo, p1Matches)
+        const p2k = getKFactor(p1elo, p1Matches)
+
+        const p1odds = elo.expectedScore(p1elo, p2elo)
+        const p2odds = elo.expectedScore(p2elo, p1elo)
+
+        elo.setKFactor(p1k)
+        const p1elonew = elo.newRating(p1odds, getScoreElo(match.score), p1elo)
+
+        elo.setKFactor(p2k)
+        const p2elonew = elo.newRating(p2odds, 1 - getScoreElo(match.score), p2elo)
+
+        const p1i = _.findIndex(elos, e => e.player.toString() === p1id)
+        const p2i = _.findIndex(elos, e => e.player.toString() === p2id)
+        elos[p1i].elo = p1elonew
+        elos[p2i].elo = p2elonew
+
+        match._player1EloBefore = p1elo
+        match._player2EloBefore = p2elo
+        match._player1EloAfter = p1elonew
+        match._player2EloAfter = p2elonew
+
+        await match.save()
+        return callback()
+      }, err => {
+        if (err) return reject(err)
+        return resolve()
+      })
+    })
+
+    // save elos
+    await new Promise((resolve, reject) => {
+      asyncNode.eachLimit(elos, 5, async (elo, callback) => {
+        await elo.save()
+        return callback()
+      }, err => {
+        if (err) return reject(err)
+        return resolve()
+      })
+    })
+
+    // update standings
+    await new Promise(async (resolve, reject) => {
+      const results = await Result
+        .find({
+          _tournamentId: tournament._id
+        })
+        .select('-meta')
+
+      asyncNode.eachLimit(results, 5, async (result, callback) => {
+        const matches = await Match
+          .find({
+            $or: [{
+              _player1Id: result._playerId
+            }, {
+              _player2Id: result._playerId
+            }]
+          })
+          .sort('startDate')
+
+        const startMatch = _.head(matches)
+        const endMatch = _.last(matches)
+
+        if (startMatch._player1Id.toString() === result._playerId.toString()) {
+          result.eloBefore = startMatch._player1EloBefore
+        } else {
+          result.eloBefore = startMatch._player2EloBefore
+        }
+
+        if (endMatch._player1Id.toString() === result._playerId.toString()) {
+          result.eloAfter = endMatch._player1EloAfter
+        } else {
+          result.eloAfter = endMatch._player2EloAfter
+        }
+
+        await result.save()
+        return callback()
+      }, err => {
+        if (err) return reject(err)
+        return resolve()
+      })
+    })
+
+    return resolve(true)
+  } catch (error) {
+    return reject(error)
+  }
 })
 
 const getScore = scores => {
@@ -420,6 +608,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
 
       await getMatches(dbTournament, players)
       await getResults(dbTournament, players)
+      tournament.tournament.state === 'complete' && await updateElo(dbTournament, game._id)
 
       return success(res)(dbTournament)
     }

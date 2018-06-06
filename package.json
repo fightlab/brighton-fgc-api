@@ -38,6 +38,7 @@
     "supertest": "^3.0.0"
   },
   "dependencies": {
+    "arpad": "^1.0.2",
     "async": "^2.6.0",
     "auth0": "^2.9.1",
     "axios": "^0.18.0",

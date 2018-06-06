@@ -292,6 +292,10 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
+arpad@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/arpad/-/arpad-1.0.2.tgz#be940619ec16560fe8748b8f98fc3d48653c59e3"
+
 arr-diff@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/arr-diff/-/arr-diff-2.0.0.tgz#8f3b827f955a8bd669697e4a4256ac3ceae356cf"
