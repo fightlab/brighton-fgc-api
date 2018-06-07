@@ -85,6 +85,11 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
     }
 
     if (player) {
+      if (participant.challonge_username && player.handle !== participant.challonge_username) {
+        player.handle = participant.challonge_username
+        player.markModified('handle')
+      }
+
       if (player.challongeName.indexOf(participant.display_name) === -1) {
         player.challongeName.push(participant.display_name)
         player.markModified('challongeName')
