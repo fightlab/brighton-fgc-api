@@ -385,9 +385,27 @@ const getScore = scores => {
     .split(',')
     .map(s => {
       const score = s.split('-')
+      let p1 = 0
+      let p2 = 0
+      switch (score.length) {
+        case 2:
+          p1 =  parseInt(score[0]) || 0
+          p2 = parseInt(score[1]) || 0
+          break;
+        case 3:
+          if (score[0] === ''){
+            p1 = 0
+            p2 = parseInt(score[2]) || 0
+          } else if (score[1] === '') {
+            p1 = parseInt(score[0]) || 0
+            p2 = 0
+          }
+        default:
+          break;
+      }
       return {
-        p1: parseInt(score[0]),
-        p2: parseInt(score[1])
+        p1,
+        p2
       }
     })
     .value()
