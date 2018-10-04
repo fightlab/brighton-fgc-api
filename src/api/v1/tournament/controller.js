@@ -162,7 +162,7 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
     }
   })
 
-  asyncNode.series(queue, (err, players) => {
+  asyncNode.parallelLimit(queue, 5, (err, players) => {
     if (err) return reject(err)
     return resolve(players)
   })
@@ -198,7 +198,7 @@ const getMatches = (tournament, players) => new Promise((resolve, reject) => {
     }
   })
 
-  asyncNode.series(queue, (err, matches) => {
+  asyncNode.parallelLimit(queue, 5, (err, matches) => {
     if (err) return reject(err)
     return resolve(matches)
   })
@@ -220,7 +220,7 @@ const getResults = (tournament, players) => new Promise((resolve, reject) => {
     }
   })
 
-  asyncNode.series(queue, (err, results) => {
+  asyncNode.parallelLimit(queue, 5, (err, results) => {
     if (err) return reject(err)
     return resolve(results)
   })
@@ -252,7 +252,6 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
       })
       .select('_id')
 
-    const playerMatchTracking = {}
     const elos = []
 
     await new Promise((resolve, reject) => {
@@ -281,17 +280,11 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
 
         if (!p1 || !p2) return callback()
 
-        const p1Matches = _.get(playerMatchTracking, p1id, 0) + 1
-        const p2Matches = _.get(playerMatchTracking, p2id, 0) + 1
-
-        playerMatchTracking[p1id] = p1Matches
-        playerMatchTracking[p2id] = p2Matches
-
         const p1elo = p1.elo
         const p2elo = p2.elo
 
-        const p1k = getKFactor(p1elo, p1Matches)
-        const p2k = getKFactor(p1elo, p1Matches)
+        const p1k = getKFactor(p1elo, p1.matches)
+        const p2k = getKFactor(p2elo, p2.matches)
 
         const p1odds = elo.expectedScore(p1elo, p2elo)
         const p2odds = elo.expectedScore(p2elo, p1elo)
@@ -306,6 +299,8 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
         const p2i = _.findIndex(elos, e => e.player.toString() === p2id)
         elos[p1i].elo = p1elonew
         elos[p2i].elo = p2elonew
+        elos[p1i].matches++
+        elos[p2i].matches++
 
         match._player1EloBefore = p1elo
         match._player2EloBefore = p2elo

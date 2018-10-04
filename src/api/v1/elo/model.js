@@ -15,6 +15,11 @@ const eloSchema = new Schema({
     type: Number,
     required: true,
     default: 1000
+  },
+  matches: {
+    type: Number,
+    required: true,
+    default: 0
   }
 }, {
   timestamps: true,
