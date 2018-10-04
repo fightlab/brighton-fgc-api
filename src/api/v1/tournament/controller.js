@@ -389,19 +389,20 @@ const getScore = scores => {
       let p2 = 0
       switch (score.length) {
         case 2:
-          p1 =  parseInt(score[0]) || 0
+          p1 = parseInt(score[0]) || 0
           p2 = parseInt(score[1]) || 0
-          break;
+          break
         case 3:
-          if (score[0] === ''){
+          if (score[0] === '') {
             p1 = 0
             p2 = parseInt(score[2]) || 0
           } else if (score[1] === '') {
             p1 = parseInt(score[0]) || 0
             p2 = 0
           }
+          break
         default:
-          break;
+          break
       }
       return {
         p1,

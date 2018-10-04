@@ -1,8 +1,9 @@
 import { Types } from 'mongoose'
 
-import { success, notFound, badImplementation } from '../../../services/response/'
+import { success, notFound, badImplementation, badRequest } from '../../../services/response/'
 import Game from '.'
 import Tournament from '../tournament'
+import Elo from '../elo'
 
 const ObjectId = Types.ObjectId
 
@@ -49,3 +50,17 @@ export const tournaments = ({ params }, res, next) =>
     .then(tournaments => tournaments.map(tournament => tournament.view()))
     .then(success(res))
     .catch(next)
+
+export const elo = async ({ params: { id } }, res, next) => {
+  try {
+    ObjectId(id)
+  } catch (e) {
+    return badRequest(res)('Bad ID Parameter')
+  }
+
+  try {
+    return await Elo.find({ game: ObjectId(id) }).populate({ path: 'player', select: 'id handle imageUrl emailHash' }).sort({ elo: -1 }).then(notFound(res)).then(success(res))
+  } catch (error) {
+    return badRequest(res)(error)
+  }
+}
