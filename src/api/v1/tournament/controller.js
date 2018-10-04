@@ -32,8 +32,8 @@ cloudinary.config({
 })
 
 const getKFactor = (elo, matches) => {
-  if (elo >= 2400) return range.elo2400
-  if (matches <= 30) return range.game30
+  if (elo >= 1400) return range.elo1400
+  if (matches < 30) return range.game30
   return range.default
 }
 
@@ -272,7 +272,7 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
     })
 
     await new Promise((resolve, reject) => {
-      asyncNode.eachLimit(matches, 5, async (match, callback) => {
+      asyncNode.series(matches, async (match, callback) => {
         const p1id = match._player1Id.toString()
         const p2id = match._player2Id.toString()
         const p1 = _.find(elos, e => e.player.toString() === p1id)
@@ -297,15 +297,18 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
 
         const p1i = _.findIndex(elos, e => e.player.toString() === p1id)
         const p2i = _.findIndex(elos, e => e.player.toString() === p2id)
-        elos[p1i].elo = p1elonew
-        elos[p2i].elo = p2elonew
-        elos[p1i].matches++
-        elos[p2i].matches++
 
         match._player1EloBefore = p1elo
         match._player2EloBefore = p2elo
         match._player1EloAfter = p1elonew
         match._player2EloAfter = p2elonew
+        match._player1MatchesBefore = elos[p1i].matches
+        match._player2MatchesBefore = elos[p2i].matches
+
+        elos[p1i].elo = p1elonew
+        elos[p2i].elo = p2elonew
+        elos[p1i].matches++
+        elos[p2i].matches++
 
         await match.save()
         return callback()
@@ -594,7 +597,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
     dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save().catch(badImplementation(res)) : null
     dbTournament = dbTournament ? dbTournament.view(true) : null
     if (dbTournament) {
-    // remove matches and results so they can me updated
+      // remove matches and results so they can me updated
       const proms = []
       // remove matches
       proms.push(new Promise((resolve, reject) => Match

@@ -32,10 +32,16 @@ const matchSchema = new Schema({
   _player1EloAfter: {
     type: Number
   },
+  _player1MatchesBefore: {
+    type: Number
+  },
   _player2EloBefore: {
     type: Number
   },
   _player2EloAfter: {
+    type: Number
+  },
+  _player2MatchesBefore: {
     type: Number
   },
   score: {
