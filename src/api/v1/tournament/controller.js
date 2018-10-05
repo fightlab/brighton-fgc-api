@@ -272,7 +272,7 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
     })
 
     await new Promise((resolve, reject) => {
-      asyncNode.series(matches, async (match, callback) => {
+      asyncNode.eachSeries(matches, async (match, callback) => {
         const p1id = match._player1Id.toString()
         const p2id = match._player2Id.toString()
         const p1 = _.find(elos, e => e.player.toString() === p1id)
