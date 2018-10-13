@@ -60,6 +60,12 @@ const matchSchema = new Schema({
   },
   endDate: {
     type: Date
+  },
+  roundName: {
+    type: String
+  },
+  vodTime: {
+    type: String
   }
 }, {
   timestamps: true,
@@ -87,6 +93,8 @@ matchSchema.methods = {
       round: this.round,
       startDate: this.startDate,
       endDate: this.endDate,
+      roundName: this.roundName,
+      vodTime: this.vodTime,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }

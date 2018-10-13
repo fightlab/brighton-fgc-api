@@ -168,7 +168,72 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
   })
 })
 
+const getRounds = (matches, type) => {
+  console.log(type)
+  const rounds = _(matches).map(m => m.match.round).uniq().orderBy().value()
+  const roundsMap = new Map()
+  switch (type) {
+    case 'double elimination':
+      const winners = _(rounds).filter(n => n > 0).orderBy().reverse().value()
+      _.each(winners, (round, index) => {
+        switch (index) {
+          case 0:
+            roundsMap.set(round, 'Grand Final')
+            break
+          case 1:
+            roundsMap.set(round, 'Winners Final')
+            break
+          case 2:
+            roundsMap.set(round, 'Winners Semi-Final')
+            break
+          default:
+            roundsMap.set(round, `Round ${round}`)
+            break
+        }
+      })
+
+      const losers = _(rounds).filter(n => n < 0).orderBy().value()
+      _.each(losers, (round, index) => {
+        switch (index) {
+          case 0:
+            roundsMap.set(round, 'Losers Final')
+            break
+          case 1:
+            roundsMap.set(round, 'Losers Semi-Final')
+            break
+          default:
+            roundsMap.set(round, `Losers Round ${Math.abs(round)}`)
+            break
+        }
+      })
+      break
+    case 'single elimination':
+      _.each(rounds, (round, index) => {
+        switch (index) {
+          case 0:
+            roundsMap.set(round, 'Final')
+            break
+          case 1:
+            roundsMap.set(round, 'Semi-Final')
+            break
+          default:
+            roundsMap.set(round, `Round ${round}`)
+            break
+        }
+      })
+      break
+    default:
+      _.each(rounds, round => {
+        roundsMap.set(round, `Round ${round}`)
+      })
+      break
+  }
+  return roundsMap
+}
+
 const getMatches = (tournament, players) => new Promise((resolve, reject) => {
+  const roundsMap = getRounds(tournament.meta.matches, tournament.meta.tournament_type)
+
   const queue = map(tournament.meta.matches, m => async callback => {
     const match = m.match
     const matchObj = {
@@ -179,6 +244,7 @@ const getMatches = (tournament, players) => new Promise((resolve, reject) => {
       _loserId: find(players, p => p.id === match.loser_id).player._id,
       score: getScore(match.scores_csv),
       round: match.round,
+      roundName: roundsMap.get(match.round),
       endDate: match.round,
       challongeMatchObj: match
     }
