@@ -340,6 +340,7 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
       asyncNode.eachLimit(results, 5, async (result, callback) => {
         const matches = await Match
           .find({
+            _tournamentId: tournament._id,
             $or: [{
               _player1Id: result._playerId
             }, {
