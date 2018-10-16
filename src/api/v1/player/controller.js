@@ -504,3 +504,31 @@ export const elo = async ({ params: { id } }, res) => {
     return badRequest(res)(error)
   }
 }
+
+export const gameResults = async ({ params: { id, gameId } }, res) => {
+  try {
+    ObjectId(id)
+    ObjectId(gameId)
+  } catch (e) {
+    return badRequest(res)('Bad ID Parameter')
+  }
+
+  try {
+    const tournaments = await Tournament.find({ _gameId: ObjectId(gameId) }).select('id')
+
+    const results = await Result
+      .find({
+        _playerId: ObjectId(id),
+        _tournamentId: { $in: tournaments.map(t => t.id) }
+      })
+      .populate({
+        path: '_tournamentId',
+        select: 'id name dateStart'
+      })
+      .select('id _tournamentId rank eloBefore eloAfter')
+
+    return success(res)(_.orderBy(results, [o => new Date(o._tournamentId.dateStart)], ['asc']))
+  } catch (error) {
+    return badRequest(res)(error)
+  }
+}
