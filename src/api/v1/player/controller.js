@@ -7,6 +7,7 @@ import Player from '.'
 import Result from '../result'
 import Match from '../match'
 import Tournament from '../tournament'
+import Elo from '../elo'
 
 const ObjectId = Types.ObjectId
 
@@ -488,4 +489,18 @@ export const headToHeadOpponents = async ({ params, query }, res, next) => {
   }
 
   return success(res)(_(players).orderBy([p => _.toLower(p.handle)], ['asc']).value())
+}
+
+export const elo = async ({ params: { id } }, res) => {
+  try {
+    ObjectId(id)
+  } catch (e) {
+    return badRequest(res)('Bad ID Parameter')
+  }
+
+  try {
+    return await Elo.find({ player: ObjectId(id), matches: { $gte: 10 } }).populate({ path: 'game', select: 'id name imageUrl' }).sort({ elo: -1 }).then(notFound(res)).then(success(res))
+  } catch (error) {
+    return badRequest(res)(error)
+  }
 }
