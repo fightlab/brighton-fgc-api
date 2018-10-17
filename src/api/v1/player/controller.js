@@ -559,11 +559,11 @@ export const gameMatches = async ({ params: { id, gameId } }, res) => {
       })
       .populate({
         path: '_player1Id',
-        select: 'id handle imageUrl'
+        select: 'id handle imageUrl emailHash'
       })
       .populate({
         path: '_player2Id',
-        select: 'id handle imageUrl'
+        select: 'id handle imageUrl emailHash'
       })
       .select('-challongeMatchObj -createdAt -updatedAt -startdate')
       .sort('-endDate')
