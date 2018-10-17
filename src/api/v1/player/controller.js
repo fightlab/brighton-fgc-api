@@ -532,3 +532,43 @@ export const gameResults = async ({ params: { id, gameId } }, res) => {
     return badRequest(res)(error)
   }
 }
+
+export const gameMatches = async ({ params: { id, gameId } }, res) => {
+  try {
+    ObjectId(id)
+    ObjectId(gameId)
+  } catch (e) {
+    return badRequest(res)('Bad ID Parameter')
+  }
+
+  try {
+    const tournaments = await Tournament.find({ _gameId: ObjectId(gameId) }).select('id')
+
+    await Match
+      .find({
+        _tournamentId: { $in: tournaments.map(t => t.id) },
+        $or: [{
+          _player1Id: ObjectId(id)
+        }, {
+          _player2Id: ObjectId(id)
+        }]
+      })
+      .populate({
+        path: '_tournamentId',
+        select: 'id name dateStart'
+      })
+      .populate({
+        path: '_player1Id',
+        select: 'id handle imageUrl'
+      })
+      .populate({
+        path: '_player2Id',
+        select: 'id handle imageUrl'
+      })
+      .select('-challongeMatchObj -createdAt -updatedAt -startdate')
+      .sort('-endDate')
+      .then(success(res))
+  } catch (error) {
+    return badRequest(res)(error)
+  }
+}
