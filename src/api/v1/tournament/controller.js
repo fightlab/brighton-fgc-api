@@ -208,7 +208,7 @@ const getRounds = (matches, type) => {
       })
       break
     case 'single elimination':
-      _.each(rounds, (round, index) => {
+      _.each(_(rounds).orderBy().reverse().value(), (round, index) => {
         switch (index) {
           case 0:
             roundsMap.set(round, 'Final')
