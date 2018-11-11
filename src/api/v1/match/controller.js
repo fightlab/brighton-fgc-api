@@ -1,6 +1,6 @@
 
 import _ from 'lodash'
-import { success, notFound, badImplementation, badData } from '../../../services/response/'
+import { success, notFound, badImplementation, badData, unauthorized } from '../../../services/response/'
 import Match from '.'
 import Character from '../character'
 import Tournament from '../tournament'
@@ -74,8 +74,10 @@ export const countGames = (req, res, next) =>
     .then(success(res))
     .catch(next)
 
-export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, characters = '' } }, res) => {
+export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, characters = '', token } }, res) => {
   try {
+    if (!token || token !== process.env.CHALLONGE_API_KEY) return unauthorized(res)
+
     const match = await Match.findById(_id)
     if (!match) return notFound(res)
 

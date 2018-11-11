@@ -17,7 +17,7 @@ MatchRouter.get('/count/games', countGames)
 
 MatchRouter.get('/:id', show)
 
-MatchRouter.put('/youtube', isAdmin, googleSheetsMatches)
+MatchRouter.put('/youtube', googleSheetsMatches)
 
 MatchRouter.put('/:id', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName, vodTime }), update)
 
