@@ -64,8 +64,17 @@ const matchSchema = new Schema({
   roundName: {
     type: String
   },
-  vodTime: {
+  youtubeTimestamp: {
     type: String
+  },
+  youtubeId: {
+    type: String
+  },
+  youtubeSeconds: {
+    type: Number
+  },
+  characters: {
+    type: [Schema.Types.ObjectId]
   }
 }, {
   timestamps: true,

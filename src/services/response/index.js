@@ -31,6 +31,12 @@ export const notFound = (res, message) => entity => {
   return null
 }
 
+// 422
+export const badData = (res, message) => {
+  res.status(422).json(Boom.badData(message)).end()
+  return null
+}
+
 // 500
 export const badImplementation = res => err => {
   const error = Boom.boomify(err)
