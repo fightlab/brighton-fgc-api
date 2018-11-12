@@ -3,8 +3,7 @@ import v1 from './v1'
 
 const router = new Router()
 
-router.get('/', (req, res) => res.status(200).json({ v: process.env.npm_package_version
-}))
+router.get('/', (req, res) => res.status(200).send(process.env.npm_package_version))
 
 router.use('/v1', v1)
 
