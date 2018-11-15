@@ -73,12 +73,10 @@ const matchSchema = new Schema({
   youtubeSeconds: {
     type: Number
   },
-  characters: {
-    character: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Character'
-    }]
-  }
+  characters: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Character'
+  }]
 }, {
   timestamps: true,
   toJSON: {

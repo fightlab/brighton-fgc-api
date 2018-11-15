@@ -85,7 +85,7 @@ export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, cha
     if (!tournament) return notFound(res)
 
     if (!timestamp || !videoId) return badData(res, 'timestamp and videoId required')
-    console.log(timestamp, videoId)
+
     match.youtubeTimestamp = timestamp
     match.youtubeId = videoId
     match.youtubeSeconds = getYoutubeSeconds(timestamp)

@@ -566,14 +566,29 @@ export const gameMatches = async ({ params: { id, gameId } }, res) => {
         select: 'id handle imageUrl emailHash'
       })
       .populate({
-        path: 'characters.character'
+        path: 'characters'
       })
       .select('-challongeMatchObj -createdAt -updatedAt -startdate')
       .sort('-endDate')
-      .then(matches => {
-        console.log(matches)
-        success(res)(matches)
-      })
+      .then(matches => success(res)(_(matches).map(m => {
+        const opponent = id === m._player1Id.id ? m._player2Id : m._player1Id
+        const result = id === m._winnerId ? 'W' : 'L'
+        const eloChange = id === m._player1Id.id ? m._player1EloAfter - m._player1EloBefore : m._player2EloAfter - m._player2EloBefore
+        const eloAfter = id === m._player1Id.id ? m._player1EloAfter : m._player2EloAfter
+
+        return {
+          tournament: m._tournamentId,
+          date: m.endDate,
+          opponent,
+          round: m.roundName || `${m.round < 0 ? 'Losers' : ''} Round ${Math.abs(m.round)}`,
+          result,
+          score: `${m.score[0].p1} - ${m.score[0].p2}`,
+          eloChange,
+          eloAfter,
+          youtube: m.youtubeId ? `https://www.youtube.com/watch?v=${m.youtubeId}&t=${m.youtubeTimestamp}` : '',
+          characters: m.characters
+        }
+      }).value()))
   } catch (error) {
     return badRequest(res)(error)
   }
