@@ -571,10 +571,10 @@ export const gameMatches = async ({ params: { id, gameId } }, res) => {
       .select('-challongeMatchObj -createdAt -updatedAt -startdate')
       .sort('-endDate')
       .then(matches => success(res)(_(matches).map(m => {
-        const opponent = id === m._player1Id.id ? m._player2Id : m._player1Id
-        const result = id === m._winnerId ? 'W' : 'L'
-        const eloChange = id === m._player1Id.id ? m._player1EloAfter - m._player1EloBefore : m._player2EloAfter - m._player2EloBefore
-        const eloAfter = id === m._player1Id.id ? m._player1EloAfter : m._player2EloAfter
+        const opponent = id === m._player1Id.id.toString() ? m._player2Id : m._player1Id
+        const result = id === m._winnerId.toString() ? 'W' : 'L'
+        const eloChange = id === m._player1Id.id.toString() ? m._player1EloAfter - m._player1EloBefore : m._player2EloAfter - m._player2EloBefore
+        const eloAfter = id === m._player1Id.id.toString() ? m._player1EloAfter : m._player2EloAfter
 
         return {
           tournament: m._tournamentId,
