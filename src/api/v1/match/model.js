@@ -74,7 +74,10 @@ const matchSchema = new Schema({
     type: Number
   },
   characters: {
-    type: [Schema.Types.ObjectId]
+    character: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Character'
+    }]
   }
 }, {
   timestamps: true,
@@ -103,7 +106,10 @@ matchSchema.methods = {
       startDate: this.startDate,
       endDate: this.endDate,
       roundName: this.roundName,
-      vodTime: this.vodTime,
+      youtubeTimestamp: this.youtubeTimestamp,
+      youtubeId: this.youtubeId,
+      youtubeSeconds: this.youtubeSeconds,
+      characters: this.characters,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     }

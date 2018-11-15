@@ -5,9 +5,9 @@ import { create, index, show, update, destroy, count, countGames, googleSheetsMa
 import { isAdmin } from '../../../services/auth'
 
 const MatchRouter = new Router()
-const { _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName, vodTime } = schema.tree
+const { _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName } = schema.tree
 
-MatchRouter.post('/', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName, vodTime }), create)
+MatchRouter.post('/', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName }), create)
 
 MatchRouter.get('/', index)
 
@@ -19,7 +19,7 @@ MatchRouter.get('/:id', show)
 
 MatchRouter.put('/youtube', googleSheetsMatches)
 
-MatchRouter.put('/:id', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName, vodTime }), update)
+MatchRouter.put('/:id', isAdmin, body({ _tournamentId, _player1Id, _player2Id, _winnerId, _loserId, score, round, challongeMatchObj, startDate, endDate, _player1EloBefore, _player1EloAfter, _player2EloBefore, _player2EloAfter, roundName }), update)
 
 MatchRouter.delete('/:id', isAdmin, destroy)
 

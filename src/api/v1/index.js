@@ -8,6 +8,7 @@ import { ResultRouter } from './result'
 import { SeriesRouter } from './series'
 import { TournamentRouter } from './tournament'
 import { EloRouter } from './elo'
+import { CharacterRouter } from './character'
 
 const router = new Router()
 
@@ -19,5 +20,6 @@ router.use('/results', ResultRouter)
 router.use('/series', SeriesRouter)
 router.use('/tournaments', TournamentRouter)
 router.use('/elo', EloRouter)
+router.use('/characters', CharacterRouter)
 
 export default router

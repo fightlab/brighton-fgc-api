@@ -565,9 +565,15 @@ export const gameMatches = async ({ params: { id, gameId } }, res) => {
         path: '_player2Id',
         select: 'id handle imageUrl emailHash'
       })
+      .populate({
+        path: 'characters.character'
+      })
       .select('-challongeMatchObj -createdAt -updatedAt -startdate')
       .sort('-endDate')
-      .then(success(res))
+      .then(matches => {
+        console.log(matches)
+        success(res)(matches)
+      })
   } catch (error) {
     return badRequest(res)(error)
   }
