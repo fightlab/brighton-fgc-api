@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
 import Match, { schema } from './model'
-import { create, index, show, update, destroy, count, countGames, googleSheetsMatches } from './controller'
+import { create, index, show, update, destroy, count, countGames, googleSheetsMatches, getMatchesWithYoutube } from './controller'
 import { isAdmin } from '../../../services/auth'
 
 const MatchRouter = new Router()
@@ -14,6 +14,8 @@ MatchRouter.get('/', index)
 MatchRouter.get('/count', count)
 
 MatchRouter.get('/count/games', countGames)
+
+MatchRouter.get('/youtube', getMatchesWithYoutube)
 
 MatchRouter.get('/:id', show)
 

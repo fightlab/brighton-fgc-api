@@ -3,7 +3,9 @@ import _ from 'lodash'
 import { success, notFound, badImplementation, badData, unauthorized } from '../../../services/response/'
 import Match from '.'
 import Character from '../character'
+import Player from '../player'
 import Tournament from '../tournament'
+import Game from '../game'
 
 const getYoutubeSeconds = timestamp => {
   return _(timestamp)
@@ -124,6 +126,72 @@ export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, cha
       })
   } catch (error) {
     console.log(error)
+    return badImplementation(res)(error)
+  }
+}
+
+export const getMatchesWithYoutube = async (req, res) => {
+  try {
+    const matches = await Match
+      .find({
+        youtubeId: {
+          $exists: true
+        }
+      })
+      .select('-challongeMatchObj -createdAt -updatedAt -startdate')
+      .sort('-endDate')
+
+    const tournaments = await Tournament
+      .find({
+        _id: {
+          $in: _(matches).map(m => m._tournamentId).uniqBy(id => id.toString()).value()
+        }
+      })
+      .select('id name _gameId')
+
+    const players = await Player
+      .find({
+        _id: {
+          $in: _.uniqBy([..._(matches).map(m => m._player1Id).value(), ..._(matches).map(m => m._player2Id).value()], id => id.toString())
+        }
+      })
+      .select('id handle imageUrl emailHash')
+
+    const characters = await Character
+      .find({
+        _id: {
+          $in: _(matches).map(match => match.characters).flattenDeep().uniqBy(id => id.toString()).value()
+        }
+      })
+
+    const games = await Game
+      .find({
+        _id: {
+          $in: _(tournaments).map(t => t._gameId).uniqBy(id => id.toString()).value()
+        }
+      })
+      .select('id name imageUrl')
+
+    const returnObj = {
+      tournaments,
+      players,
+      characters,
+      games,
+      matches: _(matches).map(m => ({
+        tournament: m._tournamentId,
+        date: m.endDate,
+        player1: m._player1Id,
+        player2: m._player2Id,
+        winner: m._winnerId,
+        loser: m._loserId,
+        round: m.roundName || `${m.round < 0 ? 'Losers' : ''} Round ${Math.abs(m.round)}`,
+        score: `${m.score[0].p1} - ${m.score[0].p2}`,
+        youtube: m.youtubeId ? `https://www.youtube.com/watch?v=${m.youtubeId}&t=${m.youtubeTimestamp}` : '',
+        characters: m.characters
+      }))
+    }
+    return success(res)(returnObj)
+  } catch (error) {
     return badImplementation(res)(error)
   }
 }
