@@ -147,7 +147,7 @@ export const getMatchesWithYoutube = async (req, res) => {
           $in: _(matches).map(m => m._tournamentId).uniqBy(id => id.toString()).value()
         }
       })
-      .select('id name _gameId')
+      .select('id name _gameId dateStart')
 
     const players = await Player
       .find({
@@ -170,7 +170,7 @@ export const getMatchesWithYoutube = async (req, res) => {
           $in: _(tournaments).map(t => t._gameId).uniqBy(id => id.toString()).value()
         }
       })
-      .select('id name imageUrl')
+      .select('id name imageUrl short')
 
     const returnObj = {
       tournaments,
