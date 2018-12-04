@@ -148,6 +148,9 @@ export const getMatchesWithYoutube = async (req, res) => {
         }
       })
       .select('id name _gameId dateStart')
+      .sort({
+        dateStart: -1
+      })
 
     const players = await Player
       .find({
@@ -156,12 +159,20 @@ export const getMatchesWithYoutube = async (req, res) => {
         }
       })
       .select('id handle imageUrl emailHash')
+      .sort({
+        handle: 1
+      })
 
     const characters = await Character
       .find({
         _id: {
           $in: _(matches).map(match => match.characters).flattenDeep().uniqBy(id => id.toString()).value()
         }
+      })
+      .sort({
+        game: 1,
+        short: 1,
+        name: 1
       })
 
     const games = await Game
@@ -171,6 +182,7 @@ export const getMatchesWithYoutube = async (req, res) => {
         }
       })
       .select('id name imageUrl short')
+      .sort({ name: 1 })
 
     const returnObj = {
       tournaments,
