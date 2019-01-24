@@ -744,3 +744,41 @@ export const matches = async ({ params }, res, next) => {
     .then(success(res))
     .catch(badImplementation(res))
 }
+
+export const googleSheetsMatches = async ({ params: { tournamentId } }, res) => {
+  try {
+    ObjectId(tournamentId)
+  } catch (e) {
+    return badRequest(res)('Bad ID Parameter')
+  }
+
+  try {
+    const tournament = await Tournament
+      .findById(tournamentId)
+      .then(notFound(res))
+
+    const matches = await Match
+      .find({ _tournamentId: ObjectId(tournamentId) })
+      .populate({
+        path: '_winnerId',
+        select: 'handle'
+      })
+      .populate({
+        path: '_loserId',
+        select: 'handle'
+      })
+
+    return success(res)(matches.map(m => ({
+      _id: m._id,
+      endDate: m.endDate,
+      tournament: tournament.name,
+      roundName: m.roundName,
+      winner: m._winnerId.handle,
+      loser: m._loserId.handle,
+      score: m.challongeMatchObj.scores_csv,
+      youtube: tournament.youtube
+    })))
+  } catch (error) {
+    return badImplementation(res)(error)
+  }
+}
