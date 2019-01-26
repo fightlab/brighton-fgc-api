@@ -81,10 +81,10 @@ export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, cha
     if (!token || token !== process.env.CHALLONGE_API_KEY) return unauthorized(res)()
 
     const match = await Match.findById(_id)
-    if (!match) return notFound(res)
+    if (!match) return notFound(res)()
 
     const tournament = await Tournament.findById(match._tournamentId)
-    if (!tournament) return notFound(res)
+    if (!tournament) return notFound(res)()
 
     if (!timestamp || !videoId) return badData(res, 'timestamp and videoId required')
 
@@ -125,7 +125,6 @@ export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, cha
         return success(res)(match)
       })
   } catch (error) {
-    console.log(error)
     return badImplementation(res)(error)
   }
 }

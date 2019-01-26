@@ -33,7 +33,6 @@ test('POST /elo 201 (admin)', async () => {
       game: id,
       elo: 1001
     })
-  console.log(body)
   expect(status).toBe(201)
   expect(typeof body).toBe('object')
   expect(body.player).toEqual(id)

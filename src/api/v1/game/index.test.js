@@ -4,15 +4,33 @@ import { apiRoot } from '../../../config'
 import express from '../../../services/express'
 import Game, { GameRouter } from '.'
 import Tournament from '../tournament'
+import Elo from '../elo'
+import Player from '../player'
 
 const app = () => express(apiRoot, GameRouter)
 
-let game
+let game, player1, player2
 
 beforeEach(async () => {
   game = await Game.create({})
   await Tournament.create({
     _gameId: game._id
+  })
+  player1 = await Player.create({
+    handle: 'Ruler'
+  })
+  player2 = await Player.create({
+    handle: 'Saber'
+  })
+  await Elo.create({
+    game: game._id,
+    matches: 10,
+    player: player1._id
+  })
+  await Elo.create({
+    game: game._id,
+    matches: 5,
+    player: player2._id
   })
 })
 
@@ -130,4 +148,18 @@ test('GET /games/:id/tournaments 200', async () => {
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
   expect(body.length).toEqual(1)
+})
+
+test('GET /games/:id/elo 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${game.id}/elo`)
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.length).toEqual(1)
+})
+
+test('GET /games/:id/elo 400', async () => {
+  const { status } = await request(app())
+    .get(`${apiRoot}/123badid/elo`)
+  expect(status).toBe(400)
 })
