@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import request from 'supertest'
 import { Types } from 'mongoose'
 import { apiRoot } from '../../../config'
@@ -7,18 +8,35 @@ import Game from '../game'
 import Event from '../event'
 import Series from '../series'
 import Player from '../player'
+import Match from '../match'
 
 const app = () => express(apiRoot, TournamentRouter)
 
-let tournament, game, event, series, player
+let tournament, game, event, series, player, player2
 
 beforeEach(async () => {
-  game = Game.create({ name: 'test' })
-  event = Event.create({})
-  series = Series.create({ game: game._id })
-  player = Player.create({})
+  game = await Game.create({ name: 'test' })
+  event = await Event.create({})
+  series = await Series.create({ game: game._id })
+  player = await Player.create({
+    handle: 'Ruler'
+  })
+  player2 = await Player.create({
+    handle: 'Saber'
+  })
   tournament = await Tournament.create({ _gameId: game._id, event: event._id, series: series._Id, players: [player._id] })
   await Tournament.create({ _gameId: game._id })
+  await Match.create({
+    _tournamentId: tournament._id,
+    _player1Id: player._id,
+    _player2Id: player2._id,
+    _winnerId: player._id,
+    _loserId: player2._id,
+    round: 1,
+    challongeMatchObj: {
+      scores_csv: '2-1'
+    }
+  })
 })
 
 test('POST /tournaments 201 (admin)', async () => {
@@ -196,11 +214,89 @@ test('GET /tournaments/:id/matches 200', async () => {
     .get(`${apiRoot}/${tournament.id}/matches`)
   expect(status).toBe(200)
   expect(Array.isArray(body)).toBe(true)
-  expect(body.length).toBe(0)
+  expect(body.length).toBe(1)
 })
 
 test('GET /tournaments/:id/matches 400', async () => {
   const { status } = await request(app())
     .get(`${apiRoot}/ksdjakdljklj1kl2j3kjkl123/matches`)
   expect(status).toBe(400)
+})
+
+test('PUT /tournaments/:id/challonge 200', async () => {
+  const { status, body } = await request(app())
+    .put(`${apiRoot}/${tournament.id}/challonge?access_token=admin`)
+    .send({
+      bracket: process.env.CHALLONGE_TEST_URL,
+      _gameId: game._id.toString()
+    })
+
+  expect(status).toBe(200)
+  expect(typeof body).toBe('object')
+})
+
+test('PUT /tournaments/:id/challonge 404 - no bracket url', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/${tournament.id}/challonge?access_token=admin`)
+    .send({
+      _gameId: game._id.toString()
+    })
+
+  expect(status).toBe(404)
+})
+
+test('PUT /tournaments/:id/challonge 404 - tournament not found', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/123456789098765432123456/challonge?access_token=admin`)
+    .send({
+      bracket: process.env.CHALLONGE_TEST_URL,
+      _gameId: game._id.toString()
+    })
+
+  expect(status).toBe(404)
+})
+
+test('PUT /tournaments/:id/challonge 403 (user)', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/${tournament.id}/challonge?access_token=user`)
+    .send({
+      bracket: process.env.CHALLONGE_TEST_URL,
+      _gameId: game._id.toString()
+    })
+  expect(status).toBe(403)
+})
+
+test('PUT /tournaments/:id/challonge 401', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/${tournament.id}`)
+    .send({
+      bracket: process.env.CHALLONGE_TEST_URL,
+      _gameId: game._id.toString()
+    })
+  expect(status).toBe(401)
+})
+
+test('GET /tournaments/:tournamentId/sheets 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${tournament.id}/sheets`)
+
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.length).toBe(1)
+})
+
+test('GET /tournaments/:tournamentId/sheets 400', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/123badid123/sheets`)
+
+  expect(status).toBe(400)
+  expect(body.output.payload.message).toBe('Bad ID Parameter')
+})
+
+test('GET /tournaments/:tournamentId/sheets 404', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/123456789098765432123456/sheets`)
+
+  expect(status).toBe(404)
+  expect(body.output.payload.message).toBe('Not Found')
 })

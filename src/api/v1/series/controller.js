@@ -87,7 +87,7 @@ export const getTournaments = async ({ params, query }, res, next) => {
 
     return success(res)(tournaments)
   } catch (error) {
-    return badImplementation()(error)
+    return badImplementation(res)(error)
   }
 }
 
@@ -98,67 +98,71 @@ export const getStandings = async ({ params, query }, res, next) => {
     return badRequest(res)('Bad ID Parameter')
   }
 
-  const series = await Series
-    .findById(params.id)
-    .then(notFound(res))
-    .then(series => series ? series.view() : null)
-    .catch(badImplementation(res))
+  try {
+    const series = await Series
+      .findById(params.id)
+      .then(series => series ? series.view() : null)
 
-  const tournaments = await Tournament
-    .find({ series: ObjectId(params.id) })
-    .select('id')
-    .catch(badImplementation(res))
+    if (!series) {
+      return notFound(res)()
+    }
 
-  const results = await Result
-    .aggregate([{
-      $match: {
-        _tournamentId: {
-          $in: _.map(tournaments, t => ObjectId(t.id))
+    const tournaments = await Tournament
+      .find({ series: ObjectId(params.id) })
+      .select('id')
+
+    const results = await Result
+      .aggregate([{
+        $match: {
+          _tournamentId: {
+            $in: _.map(tournaments, t => ObjectId(t.id))
+          }
         }
-      }
-    }, {
-      $group: {
-        _id: '$_playerId',
-        rank: { $push: '$rank' }
-      }
-    }, {
-      $lookup: {
-        from: 'players',
-        localField: '_id',
-        foreignField: '_id',
-        as: '_playerId'
-      }
-    }, {
-      $unwind: '$_playerId'
-    }, {
-      $project: {
-        id: '$_id',
-        _playerId: {
-          id: '$_playerId._id',
-          handle: '$_playerId.handle',
-          emailHash: '$_playerId.emailHash',
-          imageUrl: '$_playerId.imageUrl'
-        },
-        rank: 1
-      }
-    }])
-    .exec()
-    .catch(badImplementation(res))
+      }, {
+        $group: {
+          _id: '$_playerId',
+          rank: { $push: '$rank' }
+        }
+      }, {
+        $lookup: {
+          from: 'players',
+          localField: '_id',
+          foreignField: '_id',
+          as: '_playerId'
+        }
+      }, {
+        $unwind: '$_playerId'
+      }, {
+        $project: {
+          id: '$_id',
+          _playerId: {
+            id: '$_playerId._id',
+            handle: '$_playerId.handle',
+            emailHash: '$_playerId.emailHash',
+            imageUrl: '$_playerId.imageUrl'
+          },
+          rank: 1
+        }
+      }])
+      .exec()
 
-  const points = [0, ...series.points || 0]
+    const points = [0, ...series.points || 0]
 
-  let standings = _(results)
-    .map(v => ({
-      id: v.id,
-      _playerId: v._playerId,
-      rank: _(v.rank).map(r => points[r] || 0).sum()
-    }))
-    .orderBy('rank', 'desc')
-    .value()
+    let standings = _(results)
+      .map(v => ({
+        id: v.id,
+        _playerId: v._playerId,
+        rank: _(v.rank).map(r => points[r] || 0).sum()
+      }))
+      .orderBy('rank', 'desc')
+      .value()
 
-  if (query.limit) {
-    standings = _.take(standings, parseInt(query.limit))
+    if (query.limit) {
+      standings = _.take(standings, parseInt(query.limit))
+    }
+
+    return success(res)(standings)
+  } catch (error) {
+    return badImplementation(res)(error)
   }
-
-  return success(res)(standings)
 }

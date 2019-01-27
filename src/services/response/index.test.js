@@ -69,8 +69,24 @@ describe('forbidden', () => {
 
 describe('badImplementation', () => {
   it('responds with status 500', () => {
-    expect(response.badImplementation(res)(new Error('Error'))).toBeNull()
+    expect(response.badImplementation(res)('Error')).toBeNull()
     expect(res.status).toBeCalledWith(500)
+    expect(res.end).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('badRequest', () => {
+  it('responds with status 400', () => {
+    expect(response.badRequest(res)('Bad Request')).toBeNull()
+    expect(res.status).toBeCalledWith(400)
+    expect(res.end).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('badData', () => {
+  it('responds with status 422', () => {
+    expect(response.badData(res)('Bad Data')).toBeNull()
+    expect(res.status).toBeCalledWith(422)
     expect(res.end).toHaveBeenCalledTimes(1)
   })
 })

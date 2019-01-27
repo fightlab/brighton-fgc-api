@@ -299,8 +299,11 @@ export const headToHead = async ({ params }, res, next) => {
   // get player1
   try {
     player1 = await Player.findById(params.player1)
-      .then(notFound(res, 'No Player found for this Email'))
       .then(player => player && player.view())
+
+    if (!player1) {
+      return notFound(res, 'No Player found for this Email')()
+    }
   } catch (error) {
     return badImplementation(res)(error)
   }
@@ -308,8 +311,11 @@ export const headToHead = async ({ params }, res, next) => {
   // get player2
   try {
     player2 = await Player.findById(params.player2)
-      .then(notFound(res, 'No Player found for this Email'))
       .then(player => player && player.view())
+
+    if (!player2) {
+      return notFound(res, 'No Player found for this Email')()
+    }
   } catch (error) {
     return badImplementation(res)(error)
   }

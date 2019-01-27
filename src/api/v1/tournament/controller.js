@@ -169,7 +169,6 @@ const getPlayers = tournament => new Promise((resolve, reject) => {
 })
 
 const getRounds = (matches, type) => {
-  console.log(type)
   const rounds = _(matches).map(m => m.match.round).uniq().orderBy().value()
   const roundsMap = new Map()
   switch (type) {
@@ -477,13 +476,13 @@ const getScore = scores => {
     .value()
 }
 
-export const create = ({ bodymen: { body } }, res, next) =>
+export const create = ({ bodymen: { body } }, res) =>
   Tournament.create(body)
     .then(tournament => tournament.view(true))
     .then(success(res, 201))
     .catch(badImplementation(res))
 
-export const index = ({ query }, res, next) => {
+export const index = ({ query }, res) => {
   const cursor = {
     sort: {
       dateStart: -1
@@ -502,13 +501,13 @@ export const index = ({ query }, res, next) => {
     .catch(badImplementation(res))
 }
 
-export const indexNoGame = ({ query }, res, next) =>
+export const indexNoGame = ({ query }, res) =>
   Tournament.find(query)
     .then(tournaments => tournaments.map(tournament => tournament.view()))
     .then(success(res))
     .catch(badImplementation(res))
 
-export const show = ({ params }, res, next) =>
+export const show = ({ params }, res) =>
   Tournament.findById(params.id)
     .populate({
       path: '_gameId'
@@ -528,7 +527,7 @@ export const show = ({ params }, res, next) =>
     .then(success(res))
     .catch(badImplementation(res))
 
-export const update = ({ bodymen: { body }, params }, res, next) =>
+export const update = ({ bodymen: { body }, params }, res) =>
   Tournament.findById(params.id)
     .then(notFound(res))
     .then(tournament => tournament ? Object.assign(tournament, body).save() : null)
@@ -536,7 +535,7 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
     .then(success(res))
     .catch(badImplementation(res))
 
-export const destroy = ({ params }, res, next) =>
+export const destroy = ({ params }, res) =>
   Tournament
     .findById(params.id)
     .then(notFound(res))
@@ -569,14 +568,18 @@ export const destroy = ({ params }, res, next) =>
     .then(success(res, 204))
     .catch(badImplementation(res))
 
-export const getStandings = async ({ params }, res, next) => {
+export const getStandings = async ({ params }, res) => {
   try {
     ObjectId(params.id)
   } catch (e) {
     return badRequest(res)('Bad ID Parameter')
   }
 
-  await Tournament.findById(params.id).then(notFound(res))
+  const tournament = await Tournament.findById(params.id)
+
+  if (!tournament) {
+    return notFound(res)()
+  }
 
   Result
     .find({
@@ -594,12 +597,8 @@ export const getStandings = async ({ params }, res, next) => {
     .catch(badImplementation(res))
 }
 
-export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) => {
+export const challongeUpdate = async ({ bodymen: { body }, params }, res) => {
   const API_URL = `https://api.challonge.com/v1`
-
-  if (process.env.NODE_ENV === 'test') {
-    return success(res, 201)(body)
-  }
 
   if (!body.bracket) {
     return res.sendStatus(404)
@@ -616,8 +615,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
   try {
     response = await axios(url)
   } catch (error) {
-    console.error(error)
-    return next(error)
+    return badImplementation(res)(error)
   }
 
   const tournament = response.data
@@ -634,8 +632,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
   try {
     game = await Game.findOne(query)
   } catch (error) {
-    console.error(error)
-    return next(error)
+    return badImplementation(res)(error)
   }
 
   const updated = {
@@ -657,11 +654,11 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
 
   let dbTournament
   try {
-    dbTournament = await Tournament.findById(params.id).catch(next)
+    dbTournament = await Tournament.findById(params.id)
     if (!dbTournament) {
       return res.sendStatus(404)
     }
-    dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save().catch(badImplementation(res)) : null
+    dbTournament = dbTournament ? await Object.assign(dbTournament, updated).save() : null
     dbTournament = dbTournament ? dbTournament.view(true) : null
     if (dbTournament) {
       // remove matches and results so they can me updated
@@ -702,25 +699,28 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res, next) 
       return success(res)(dbTournament)
     }
   } catch (error) {
-    console.error(error)
-    return next(error)
+    return badImplementation(res)(error)
   }
 }
 
-export const count = (req, res, next) =>
+export const count = (req, res) =>
   Tournament
     .count()
     .then(success(res))
     .catch(badImplementation(res))
 
-export const matches = async ({ params }, res, next) => {
+export const matches = async ({ params }, res) => {
   try {
     ObjectId(params.id)
   } catch (e) {
     return badRequest(res)('Bad ID Parameter')
   }
 
-  await Tournament.findById(params.id).then(notFound(res))
+  const tournament = await Tournament.findById(params.id)
+
+  if (!tournament) {
+    return notFound(res)()
+  }
 
   Match
     .find({ _tournamentId: ObjectId(params.id) })
@@ -755,7 +755,10 @@ export const googleSheetsMatches = async ({ params: { tournamentId } }, res) => 
   try {
     const tournament = await Tournament
       .findById(tournamentId)
-      .then(notFound(res))
+
+    if (!tournament) {
+      return notFound(res)()
+    }
 
     const matches = await Match
       .find({ _tournamentId: ObjectId(tournamentId) })

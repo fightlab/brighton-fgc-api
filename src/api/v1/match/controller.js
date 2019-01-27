@@ -86,13 +86,13 @@ export const googleSheetsMatches = async ({ body: { _id, timestamp, videoId, cha
     const tournament = await Tournament.findById(match._tournamentId)
     if (!tournament) return notFound(res)()
 
-    if (!timestamp || !videoId) return badData(res, 'timestamp and videoId required')
+    if (!timestamp || !videoId) return badData(res)('timestamp and videoId required')
 
     match.youtubeTimestamp = timestamp
     match.youtubeId = videoId
     match.youtubeSeconds = getYoutubeSeconds(timestamp)
 
-    if (!characters) return badData(res, 'characters required')
+    if (!characters) return badData(res)('characters required')
     characters = _.split(characters, ',')
     const proms = characters.map(c => new Promise(async (resolve, reject) => {
       try {
