@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import _ from 'lodash'
 import request from 'supertest'
 import { apiRoot } from '../../../config'
 import express from '../../../services/express'
@@ -6,10 +7,12 @@ import Player, { PlayerRouter } from '.'
 import Tournament from '../tournament'
 import Match from '../match'
 import Game from '../game'
+import Elo from '../elo'
+import Result from '../result'
 
 const app = () => express(apiRoot, PlayerRouter)
 
-let player, player1, player2, player3, user, tournament, game
+let player, player1, player2, player3, user, tournament, game, result
 
 beforeEach(async () => {
   player = await Player.create({
@@ -34,6 +37,15 @@ beforeEach(async () => {
     name: 'tournament',
     _gameId: game._id
   })
+
+  result = await Result.create({
+    _playerId: player._id,
+    _tournamentId: tournament._id,
+    rank: 1,
+    eloBefore: 1000,
+    eloAfter: 1100
+  })
+
   await Tournament.create({
     players: [player._id, player1._id, player2._id, player3._id]
   })
@@ -78,6 +90,13 @@ beforeEach(async () => {
     challongeMatchObj: {},
     startDate: new Date(),
     endDate: new Date()
+  })
+
+  await Elo.create({
+    player: player._id,
+    matches: 11,
+    elo: 1111,
+    game: game._id
   })
 })
 
@@ -298,4 +317,81 @@ test('GET /players/:player1/opponents 200', async () => {
   expect(status).toBe(200)
   expect(typeof body).toEqual('object')
   expect(body.length).toBe(2)
+})
+
+test('GET /players/:id/elo 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/elo`)
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.length).toBe(1)
+  expect(body[0].elo).toBe(1111)
+  expect(body[0].matches).toBe(11)
+  expect(body[0].player).toBe(player._id.toString())
+  expect(body[0].game.name).toBe(game.name)
+  expect(body[0].game.imageUrl).toBe(game.imageUrl)
+  expect(body[0].game.id).toBe(game._id.toString())
+})
+
+test('GET /players/:id/elo 400 - bad id parameter', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/asd456fsa4654f/elo`)
+  expect(status).toBe(400)
+  expect(body.output.payload.message).toBe('Bad ID Parameter')
+})
+
+test('GET /players/:id/results/:gameId 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/results/${game.id}`)
+
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.length).toBe(1)
+  expect(body[0]._tournamentId.name).toBe(tournament.name)
+  expect(body[0]._tournamentId.id).toBe(tournament._id.toString())
+  expect(body[0].rank).toBe(result.rank)
+  expect(body[0].eloBefore).toBe(result.eloBefore)
+  expect(body[0].eloAfter).toBe(result.eloAfter)
+  expect(body[0].id).toBe(result._id.toString())
+})
+
+test('GET /players/:id/results/:gameId 400 - bad id', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/asd456fsa4654f/results/${game.id}`)
+
+  expect(status).toBe(400)
+  expect(body.output.payload.message).toBe('Bad ID Parameter')
+})
+
+test('GET /players/:id/results/:gameId 400 - bad game id', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/results/asd456fsa4654f`)
+
+  expect(status).toBe(400)
+  expect(body.output.payload.message).toBe('Bad ID Parameter')
+})
+
+test('GET /players/:id/matches/:gameId 200', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/matches/${game.id}`)
+
+  expect(status).toBe(200)
+  expect(Array.isArray(body)).toBe(true)
+  expect(body.length).toBe(2)
+})
+
+test('GET /players/:id/matches/:gameId 400 - bad id', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/asd456fsa4654f/matches/${game.id}`)
+
+  expect(status).toBe(400)
+  expect(body.output.payload.message).toBe('Bad ID Parameter')
+})
+
+test('GET /players/:id/matches/:gameId 400 - bad game id', async () => {
+  const { status, body } = await request(app())
+    .get(`${apiRoot}/${player.id}/matches/asd456fsa4654f`)
+
+  expect(status).toBe(400)
+  expect(body.output.payload.message).toBe('Bad ID Parameter')
 })

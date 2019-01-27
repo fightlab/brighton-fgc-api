@@ -499,7 +499,11 @@ export const elo = async ({ params: { id } }, res) => {
   }
 
   try {
-    return await Elo.find({ player: ObjectId(id), matches: { $gte: 10 } }).populate({ path: 'game', select: 'id name imageUrl' }).sort({ elo: -1 }).then(notFound(res)).then(success(res))
+    return await Elo
+      .find({ player: ObjectId(id), matches: { $gte: 10 } })
+      .populate({ path: 'game', select: 'id name imageUrl' })
+      .sort({ elo: -1 })
+      .then(success(res))
   } catch (error) {
     return badRequest(res)(error)
   }
