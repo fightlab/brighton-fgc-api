@@ -6,9 +6,9 @@ export const jwtCheck = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: 'https://mkn-sh.eu.auth0.com/.well-known/jwks.json'
+    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
   }),
-  audience: 'https://api.hbk.gg',
-  issuer: 'https://mkn-sh.eu.auth0.com/',
+  audience: `${process.env.AUTH0_API_AUDIENCE}`,
+  issuer: `https://${process.env.AUTH0_DOMAIN}/`,
   algorithms: ['RS256']
 })
