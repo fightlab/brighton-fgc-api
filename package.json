@@ -8,7 +8,7 @@
     "build": "backpack build",
     "start": "backpack build && node ./build/main.js",
     "test": "jest --forceExit",
-    "dev": "backpack"
+    "dev": "backpack --inspect"
   },
   "jest": {
     "testEnvironment": "node",
