@@ -1,8 +1,3 @@
-
-  
-
-  
-
 # Brighton Fighting Game Community - API
 
 Brighton Fighting Game Community Website and Resource API
@@ -10,8 +5,6 @@ Brighton Fighting Game Community Website and Resource API
 [hbk.gg](https://hbk.gg)
 
 [api.hbk.gg](https://api.hbk.gg)
-
-  
 
 ## About
 
@@ -23,82 +16,54 @@ Everything is detailed below, as well as a setup guide to get you started on set
 
 Unfortunately it's also heavily tied to the [client](https://github.com/coldlink/brighton-fgc-client) it might as well be a monolithic app. So you should set up that as well. I've been meaning to properly separate them out, but it's going to take a while.
 
-  
-
 ## Issues
 
 Report issues here or contact me via [email](mailto:maheshmakani@mkn.sh) or [Twitter](https://twitter.com/coldlink_).
 
-  
-
 ## Setting Up
-
-  
 
 ### Technologies/Services
 
 We rely on very specific services and connections, so you'll need accounts or setups of all of the below to set up:
 
-  
-
 -  [Challonge](https://challonge.com/)
-
 - We use the Challonge application to run our tournaments, and therefore rely on their API heavily to get all of the information. It's free. You'll need admin access to any tournaments you want to include, otherwise everything breaks.
 
 -  [Cloudinary](https://cloudinary.com)
-
 - Cloudinary is used as the cloud storage application for hosting images, and dynamically storing player avatars for example. I should probably remove this as a dependency, but we rely on it at the moment. Free version is what we use, haven't used anywhere near the limits yet.
 
 -  [Auth0](https://auth0.com/)
-
 - Makes user management easy compared to writing your our authentication and authorisation layer. So this dependency is not going away soon. Also free version should be good, we haven't got anywhere near the limits yet. Check out the "Auth0 Setup Guide" below on getting this set up, as it was a bit of a pain.
 
 -  [Node.js](https://nodejs.org/en/)
-
 - It's our server and run-time environment. Everything runs on here. LTS versions should be good (v8 or v10 at time of writing). No Node, no server, no fun.
 
 -  [MongoDB](https://www.mongodb.com/)
-
 - The database we use to store everything. Community version is good for development, or set up a free hosted version on the MongoDB website which also works well.
-
-  
 
 ### Getting Started
 
 Once you have all the about signed up to and installed, we're good to set everything up! Just follow along, or skip ahead if you're confident.
 
-  
-
 Clone somewhere good:
 
 ```sh
-
 $ git clone https://github.com/coldlink/brighton-fgc-api.git #https
-
 $ #or
-
 $ git clone git@github.com:coldlink/brighton-fgc-api.git #ssh
-
 ```
 
 Change directory:
-
 ```sh
-
 $ cd brighton-fgc-api
-
 ```
 
 Install the dependencies (I use yarn, but npm also works):
 
 ```sh
-
 $ yarn #if using yarn
-
 $ #or
-
 $ npm install #if using npm
-
 ```
 
 Next we set up the Environment Variables, copy the `.env.example` file into a `.env` file. If you're working on the Brighton FGC site, and I **trust you**, I'll probably just send you my `.env` file to use for development.
@@ -127,8 +92,6 @@ Here's an explanation of the variables you will need:
 
 -  `PORT` - You may need to set this in some environments if it isn't automatically set up already. Defaults to 9000 for development.
 
-  
-
 ### Commands
 
 `yarn dev` or `npm run dev` - Starts the development server locally. Also runs `--inspect` so you can use your favourite debugger. You can start debugging straight away using Visual Studio Code by running the "Start Debugging - F5" command.
@@ -139,13 +102,9 @@ Here's an explanation of the variables you will need:
 
 `yarn start` or `npm start` - Builds a production version of the server, and starts the production server.
 
-  
-
 ### Auth0 Setup Guide
 
 As mentioned we use Auth0 to manage authentication stuff as it's much better than writing it ourselves. However it can be a bit of a pain to set up, so hopefully this will help.
-
-  
 
 1. Make sure you have an Auth0 account. Log in and go to the [dashboard](https://manage.auth0.com/#/).
 
@@ -174,55 +133,31 @@ As mentioned we use Auth0 to manage authentication stuff as it's much better tha
 ```js
 
 function (user, context, callback) {
-
 user.app_metadata  =  user.app_metadata  || {};
-
 var  addRolesToUser  =  function(user, cb) {
-
 if (!user.app_metadata.roles) {
-
 cb(null, ['user']);
-
 } else {
-
 cb(null, user.app_metadata.roles);
-
 }
-
 };
-
   
 
 addRolesToUser(user, function(err, roles) {
-
 if (err) {
-
 callback(err);
-
 } else {
-
 user.app_metadata.roles  =  roles;
-
 auth0.users.updateAppMetadata(user.user_id, user.app_metadata)
-
 .then(function(){
-
 context.idToken[auth0.baseUrl  +  '/roles'] =  user.app_metadata.roles;
-
 callback(null, user, context);
-
 })
-
 .catch(function(err){
-
 callback(err);
-
 });
-
 }
-
 });
-
 }
 
 ```
@@ -232,19 +167,12 @@ By default, this gives the user the role of `user`. You can give the user the ro
 ```json
 
 {
-
 "roles": [
-
 "user",
-
 "admin"
-
 ],
-
 "emailHash": "EMAILHASH"
-
 }
-
 ```
 
 This will give them admin privileges next time they log in to the site. You should set this for yourself after you've logged into the application for the first time.
@@ -252,33 +180,19 @@ This will give them admin privileges next time they log in to the site. You shou
 13. Make another rule with name "Add email hash to app metadata" and the following code:
 
 ```js
-
 function (user, context, callback) {
-
 user.app_metadata  =  user.app_metadata  || {};
-
 user.app_metadata.emailHash  =  user.email  ?  require('crypto').createHash('md5').update(user.email).digest("hex") :  '' ;
-
 context.idToken[auth0.baseUrl  +  '/emailHash'] =  user.app_metadata.emailHash;
 
-  
-
 auth0.users.updateAppMetadata(user.user_id, user.app_metadata)
-
 .then(function(){
-
 callback(null, user, context);
-
 })
-
 .catch(function(err){
-
 callback(err);
-
 });
-
 }
-
 ```
 
 This sets an md5 hash of the users email which we use to compare to a users email hash we get from Challonge. This allows a user when logging in to automatically get access to their player profile if they use the same email with Auth0 and Challonge when logging in.
@@ -289,78 +203,42 @@ This sets an md5 hash of the users email which we use to compare to a users emai
 
 16. Hopefully with all that Auth0 should all be set up. I've probably missed a step so if you have any auth issues in the future let me know!
 
-  
-
 ## Adding Data
-
-  
 
 At this point you're ready to start development. However the database is lacking in data to use. The easiest way to add data is through the admin interface on the client side, so if you've set up the client and an admin user you're good to go. I've been meaning to test out server side auth, but for now you need to log in using the client and use the JWT token from there.
 
-  
-
 I'll update this once I've implemented a better way for server side authentication.
 
-  
-
 If you're using the `.env` file I sent you, then data is already available in the dev db to play around with.
-
-  
 
 ## Folder Structure
 
 ```
-
 - brighton-fgc-api
-
-- src
-
-- api # main api folder, holds all controllers + routes + tests
-
-- v1 # v1 for now, can be expanded in future
-
-- character # character model + controller + routes + test
-
-- elo # elo model + controller + routes + test
-
-- event # event model + controller + routes + test
-
-- game # game model + controller + routes + test
-
-- match # match model + controller + routes + test
-
-- player # player model + controller + routes + test
-
-- result # result model + controller + routes + test
-
-- series # series model + controller + routes + test (deprecated/no longer used since elo)
-
-- tournament # tournament model + controller + routes + test
-
-- services # any reusable services
-
-- auth # useful authorisation methods
-
-- auth0 # auth0 connection
-
-- express # expressjs configuration
-
-- jwt # jwt helper functions
-
-- mongoose # mongoose configuration
-
-- response # helpful response methods
-
-app.js # main app file
-
-config.js # main configuration file
-
-index.js # entry file
-
-- test
-
-setup.js # set up file for running tests
-
+  - src
+    - api # main api folder, holds all controllers + routes + tests
+      - v1 # v1 for now, can be expanded in future
+        - character # character model + controller + routes + test
+        - elo # elo model + controller + routes + test
+        - event # event model + controller + routes + test
+        - game # game model + controller + routes + test
+        - match # match model + controller + routes + test
+        - player # player model + controller + routes + test
+        - result # result model + controller + routes + test
+        - series # series model + controller + routes + test (deprecated/no longer used since elo)
+        - tournament # tournament model + controller + routes + test
+    - services # any reusable services
+      - auth # useful authorisation methods
+      - auth0 # auth0 connection
+      - express # expressjs configuration
+      - jwt # jwt helper functions
+      - mongoose # mongoose configuration
+      - response # helpful response methods
+    app.js # main app file
+    config.js # main configuration file
+    index.js # entry file
+  - test
+    setup.js # set up file for running tests
 ```
 
 ## Models
