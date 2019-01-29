@@ -288,8 +288,6 @@ Final result for a player in a tournament. Also has their elo rating before and 
 A single tournament for a game. Can be part of an event. Also holds a  list of players, as well as other meta information, such as the Challonge page for the tournament.
   
 ## Coming Soon or Things That Need Working On
-- Adding an option to recalculate Elo ratings for a game.
-	- This is because if a tournament is updated from Challonge more than once after it is finished, the Elo ratings will be wrong since it will use the current ratings, rather than the ones at the start of the tournament.
 - Duplicate players
 	- Sometimes players are duplicated for some reason, usually because they signed up not using a challonge account.
 	- Need to have better checks to make sure that players are correctly assigned when a tournament is updated.
