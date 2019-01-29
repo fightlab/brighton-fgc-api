@@ -13,48 +13,15 @@ import Match from '../match'
 import Game from '../game'
 import Player from '../player'
 import Elo from '../elo'
-import Arpad from 'arpad'
+import EloClass from '../../../services/elo'
 
 const ObjectId = Types.ObjectId
-
-const elo = new Arpad()
-
-const range = {
-  default: 30,
-  elo2400: 20,
-  game30: 60
-}
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 })
-
-const getKFactor = (elo, matches) => {
-  if (elo >= 1400) return range.elo1400
-  if (matches < 30) return range.game30
-  return range.default
-}
-
-// 0 to 0.49 - p1 loss, 0.5 - draw, 0.51 to 1 - p1 win
-const getScoreElo = scores => {
-  let score
-  if (scores.length > 1) {
-    score = _.reduce([{ p1: 2, p2: 1 }, { p1: 0, p2: 2 }, { p1: 2, p2: 0 }], (result, value) => {
-      if (value.p1 > value.p2) result.p1++
-      else if (value.p2 > value.p1) result.p2++
-
-      return result
-    }, { p1: 0, p2: 0 })
-  } else {
-    score = scores[0]
-  }
-
-  const total = score.p1 + score.p2
-  if (total === 0) return 0.5
-  return score.p1 / total
-}
 
 const getPlayers = tournament => new Promise((resolve, reject) => {
   const queue = map(tournament.meta.participants, p => async callback => {
@@ -345,33 +312,28 @@ const updateElo = (tournament, game) => new Promise(async (resolve, reject) => {
 
         if (!p1 || !p2) return callback()
 
-        const p1elo = p1.elo
-        const p2elo = p2.elo
+        const p1elo = new EloClass({ elo: p1.elo, matches: p1.matches })
+        const p2elo = new EloClass({ elo: p2.elo, matches: p2.matches })
 
-        const p1k = getKFactor(p1elo, p1.matches)
-        const p2k = getKFactor(p2elo, p2.matches)
+        match._player1EloBefore = p1elo.getElo()
+        match._player2EloBefore = p2elo.getElo()
 
-        const p1odds = elo.expectedScore(p1elo, p2elo)
-        const p2odds = elo.expectedScore(p2elo, p1elo)
+        const p1odds = EloClass.expectedScore(p1elo.getElo(), p2elo.getElo())
+        const p2odds = EloClass.expectedScore(p2elo.getElo(), p1elo.getElo())
 
-        elo.setKFactor(p1k)
-        const p1elonew = elo.newRating(p1odds, getScoreElo(match.score), p1elo)
-
-        elo.setKFactor(p2k)
-        const p2elonew = elo.newRating(p2odds, 1 - getScoreElo(match.score), p2elo)
+        p1elo.setElo(p1odds, EloClass.eloScore(match.score))
+        p2elo.setElo(p2odds, 1 - EloClass.eloScore(match.score))
 
         const p1i = _.findIndex(elos, e => e.player.toString() === p1id)
         const p2i = _.findIndex(elos, e => e.player.toString() === p2id)
 
-        match._player1EloBefore = p1elo
-        match._player2EloBefore = p2elo
-        match._player1EloAfter = p1elonew
-        match._player2EloAfter = p2elonew
+        match._player1EloAfter = p1elo.getElo()
+        match._player2EloAfter = p2elo.getElo()
         match._player1MatchesBefore = elos[p1i].matches
         match._player2MatchesBefore = elos[p2i].matches
 
-        elos[p1i].elo = p1elonew
-        elos[p2i].elo = p2elonew
+        elos[p1i].elo = p1elo.getElo()
+        elos[p2i].elo = p2elo.getElo()
         elos[p1i].matches++
         elos[p2i].matches++
 

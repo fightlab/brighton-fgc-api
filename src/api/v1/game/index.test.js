@@ -6,14 +6,15 @@ import Game, { GameRouter } from '.'
 import Tournament from '../tournament'
 import Elo from '../elo'
 import Player from '../player'
+import Match from '../match'
 
 const app = () => express(apiRoot, GameRouter)
 
-let game, player1, player2
+let game, player1, player2, tournament
 
 beforeEach(async () => {
   game = await Game.create({})
-  await Tournament.create({
+  tournament = await Tournament.create({
     _gameId: game._id
   })
   player1 = await Player.create({
@@ -31,6 +32,35 @@ beforeEach(async () => {
     game: game._id,
     matches: 5,
     player: player2._id
+  })
+  await Match.create({
+    _tournamentId: tournament._id,
+    _player1Id: player1._id,
+    _player2Id: player2._id,
+    _winnerId: player1._id,
+    _loserId: player2._id,
+    score: [{p1: 2, p2: 1}],
+    round: 1,
+    challongeMatchObj: 'test',
+    startDate: new Date(),
+    endDate: new Date(),
+    youtubeId: 'test',
+    characters: [],
+    youtubeTimestamp: '1s',
+    youtubeSeconds: 1
+  })
+
+  await Match.create({
+    _tournamentId: tournament._id,
+    _player1Id: player1._id,
+    _player2Id: player2._id,
+    _winnerId: player1._id,
+    _loserId: player2._id,
+    score: [{p1: 2, p2: 1}],
+    round: 2,
+    challongeMatchObj: 'test',
+    startDate: new Date(),
+    endDate: new Date()
   })
 })
 
@@ -162,4 +192,39 @@ test('GET /games/:id/elo 400', async () => {
   const { status } = await request(app())
     .get(`${apiRoot}/123badid/elo`)
   expect(status).toBe(400)
+})
+
+test('PUT /games/:id/elo 200', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/${game.id}/elo?access_token=admin`)
+    .send({})
+  expect(status).toBe(200)
+})
+
+test('PUT /games/:id/elo 404', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/123456789098765432123456/elo?access_token=admin`)
+    .send({})
+  expect(status).toBe(404)
+})
+
+test('PUT /games/:id/elo 400', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/123badid/elo?access_token=admin`)
+    .send({})
+  expect(status).toBe(400)
+})
+
+test('PUT /games/:id/elo 403 user', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/${game.id}/elo?access_token=user`)
+    .send({})
+  expect(status).toBe(403)
+})
+
+test('PUT /games/:id/elo 401', async () => {
+  const { status } = await request(app())
+    .put(`${apiRoot}/${game.id}/elo`)
+    .send({})
+  expect(status).toBe(401)
 })
