@@ -41,6 +41,8 @@ export const merge = async ({ params: { correct, wrong } }, res) => {
       $set: {
         'characters.$': ObjectId(correct)
       }
+    }, {
+      multi: true
     })
 
   Character
