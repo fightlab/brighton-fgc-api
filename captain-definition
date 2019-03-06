@@ -1,4 +1,4 @@
-{
-  "schemaVersion" :1 ,
-  "templateId" :"node/8"
+ {
+  "schemaVersion": 2,
+  "templateId": "node/10"
  }
