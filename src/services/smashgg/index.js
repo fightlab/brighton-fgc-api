@@ -67,11 +67,111 @@ export default class SmashGG {
             }
             state
             startAt
+            numEntrants
           }
         }
       `,
       variables: {
         event: id
+      }
+    })
+  }
+
+  static getEntrants (id, { page = 1, perPage = 25 }) {
+    return callSmashGraphQL({
+      query: gql`
+        query Entrants($event: ID!, $page:Int!, $perPage:Int!){
+          event(id: $event){
+            id
+            name
+            slug
+            entrants(
+              page: $page
+              perPage: $perPage
+              sortType: ADMIN
+            ) {
+              pageInfo {
+                total
+                totalPages
+                page
+                perPage
+              }
+              nodes {
+                id
+                name
+                participants {
+                  id
+                  gamerTag
+                  prefix
+                  userId
+                  contactInfo {
+                    name
+                    nameFirst
+                    nameLast
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        event: id,
+        page,
+        perPage
+      }
+    })
+  }
+
+  static getSets (id, { page = 1, perPage = 25 }) {
+    return callSmashGraphQL({
+      query: gql`
+        query EventSets($event: ID!, $page:Int!, $perPage:Int!) {
+          event(id:$event) {
+            id
+            name
+            sets(
+              page: $page
+              perPage: $perPage
+              sortType: ADMIN
+            ) {
+              pageInfo {
+                total
+                totalPages
+                page
+                perPage
+              }
+              nodes {
+                id
+                winnerId
+                completedAt
+                slots {
+                  id
+                  entrant {
+                    id
+                    participants {
+                      id
+                      userId
+                    }
+                  }
+                  standing {
+                    placement
+                    stats {
+                      score {
+                        value
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        event: id,
+        page,
+        perPage
       }
     })
   }
