@@ -4,8 +4,8 @@ export default gql`
   type Game {
     id: ID!
     name: String
-    short: String
-    imageUrl: String
-    bgUrl: String
+    shortName: String
+    image: String
+    backgroundImage: String
   }
 `
