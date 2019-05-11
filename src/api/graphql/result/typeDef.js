@@ -4,7 +4,9 @@ export default gql`
   type Result {
     id: ID!
     rank: Int
-    eloBefore: Int
-    eloAfter: Int
+    eloBeforeTournament: Int
+    eloAfterTournament: Int
+    playerId: ID
+    tournamentId: ID
   }
 `

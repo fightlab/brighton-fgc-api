@@ -35,7 +35,7 @@ const linkTypeDefs = gql`
   }
 
   extend type Tournament {
-    _gameId: Game
+    game: Game
     players: [Player]
     event: Event
   }
@@ -143,6 +143,14 @@ export default mergeSchemas({
       winner: playerResolver('winnerId'),
       loser: playerResolver('loserId'),
       characters: charactersResolver()
+    },
+    Result: {
+      player: {
+        resolve: playerResolver()
+      },
+      tournament: {
+        resolve: tournamentResolver()
+      }
     }
   }
 })
