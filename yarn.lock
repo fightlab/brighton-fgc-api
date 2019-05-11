@@ -2602,6 +2602,13 @@ debug@3.1.0, debug@^3.1.0:
   dependencies:
     ms "2.0.0"
 
+debug@^3.0.1:
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.6.tgz#e83d17de16d8a7efb7717edbe5fb10135eee629b"
+  integrity sha512-mel+jf7nrtEl5Pn1Qx46zARXKDpBbvzezse7p7LqINmdoIk8PYP5SySaxEmYv6TZ0JyEKA1hsCId6DIhgITtWQ==
+  dependencies:
+    ms "^2.1.1"
+
 decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
@@ -3946,6 +3953,14 @@ graceful-fs@^4.1.10, graceful-fs@^4.1.11, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
   integrity sha1-TK+tdrxi8C+gObL5Tpo906ORpyU=
+
+graphql-advanced-projection@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/graphql-advanced-projection/-/graphql-advanced-projection-1.0.2.tgz#bdaff8049c78ab6eece6038c79e9229cdc7c40b8"
+  integrity sha512-BHAc6nE1QzcIMFq1N4Gu1nha1A57hiTEDFeQFw8nwnHkn+j9CbZ0vkN8JW5rrcvZh97xOTC6KWhrWt/8E4EHJQ==
+  dependencies:
+    debug "^3.0.1"
+    lodash "^4.17.4"
 
 graphql-extensions@0.6.0:
   version "0.6.0"
