@@ -29,9 +29,9 @@ const linkTypeDefs = gql`
     characters: [Character]
   }
 
-  extend type Player {
-    _playerId: Player
-    _tournamentId: Tournament
+  extend type Result {
+    player: Player
+    tournament: Tournament
   }
 
   extend type Tournament {
@@ -90,7 +90,6 @@ const tournamentResolver = (tournamentKey = 'tournamentId') => (parent, args, co
 }
 
 const charactersResolver = (characterKey = 'characterIds') => (parent, args, context, info) => {
-  console.log(parent)
   if (parent[characterKey]) {
     return info.mergeInfo.delegateToSchema({
       schema: CharacterSchema,

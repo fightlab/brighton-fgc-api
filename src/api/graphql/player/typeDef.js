@@ -18,11 +18,11 @@ export default gql`
     id: ID!
     handle: String
     challongeUsername: String
-    challongeName: [String]
-    imageUrl: String
+    tournamentNames: [String]
+    image: String
     team: String
     isStaff: Boolean
-    emailHash: String
+    hash: String
     profile: Profile
   }
 `
