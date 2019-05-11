@@ -21,12 +21,11 @@ const linkTypeDefs = gql`
   }
 
   extend type Match {
-    _tournamentId: Tournament!
-    _player1Id: Player!
-    _player2Id: Player!
-    _winnerId: Player!
-    _loserId: Player!
-    score: [Score]
+    tournament: Tournament!
+    player1: Player!
+    player2: Player!
+    winner: Player!
+    loser: Player!
     characters: [Character]
   }
 
@@ -42,14 +41,14 @@ const linkTypeDefs = gql`
   }
 `
 
-const gameResolver = ({ gameId }, args, context, info) => {
-  if (gameId) {
+const gameResolver = (gameKey = 'gameId') => (parent, args, context, info) => {
+  if (parent[gameKey]) {
     return info.mergeInfo.delegateToSchema({
       schema: GameSchema,
       operation: 'query',
       fieldName: 'game',
       args: {
-        id: gameId
+        id: parent[gameKey]
       },
       context,
       info
@@ -58,14 +57,14 @@ const gameResolver = ({ gameId }, args, context, info) => {
   return {}
 }
 
-const playerResolver = ({ playerId }, args, context, info) => {
-  if (playerId) {
+const playerResolver = (playerKey = 'playerId') => (parent, args, context, info) => {
+  if (parent[playerKey]) {
     return info.mergeInfo.delegateToSchema({
       schema: PlayerSchema,
       operation: 'query',
       fieldName: 'player',
       args: {
-        id: playerId
+        id: parent[playerKey]
       },
       context,
       info
@@ -74,6 +73,38 @@ const playerResolver = ({ playerId }, args, context, info) => {
   return {}
 }
 
+const tournamentResolver = (tournamentKey = 'tournamentId') => (parent, args, context, info) => {
+  if (parent[tournamentKey]) {
+    return info.mergeInfo.delegateToSchema({
+      schema: TournamentSchema,
+      operation: 'query',
+      fieldName: 'tournament',
+      args: {
+        id: parent[tournamentKey]
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
+
+const charactersResolver = (characterKey = 'characterIds') => (parent, args, context, info) => {
+  console.log(parent)
+  if (parent[characterKey]) {
+    return info.mergeInfo.delegateToSchema({
+      schema: CharacterSchema,
+      operation: 'query',
+      fieldName: 'characters',
+      args: {
+        ids: parent[characterKey]
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
 export default mergeSchemas({
   schemas: [
     PlayerSchema,
@@ -89,16 +120,30 @@ export default mergeSchemas({
   resolvers: {
     Character: {
       game: {
-        resolve: gameResolver
+        resolve: gameResolver()
       }
     },
     Elo: {
       player: {
-        resolve: playerResolver
+        resolve: playerResolver()
       },
       game: {
-        resolve: gameResolver
+        resolve: gameResolver()
       }
+    },
+    Match: {
+      tournament: {
+        resolve: tournamentResolver()
+      },
+      player1: {
+        resolve: playerResolver('player1Id')
+      },
+      player2: {
+        resolve: playerResolver('player2Id')
+      },
+      winner: playerResolver('winnerId'),
+      loser: playerResolver('loserId'),
+      characters: charactersResolver()
     }
   }
 })

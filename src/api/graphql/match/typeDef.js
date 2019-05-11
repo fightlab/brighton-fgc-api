@@ -8,12 +8,12 @@ export default gql`
 
   type Match {
     id: ID!
-    _player1EloBefore: Int
-    _player1EloAfter: Int
-    _player1MatchesBefore: Int
-    _player2EloBefore: Int
-    _player2EloAfter: Int
-    _player2MatchesBefore: Int
+    player1EloBeforeMatch: Int
+    player1EloAfterMatch: Int
+    player1MatchesBefore: Int
+    player2EloBeforeMatch: Int
+    player2EloAfterMatch: Int
+    player2MatchesBefore: Int
     round: Int!
     startDate: String
     endDate: String
@@ -21,5 +21,12 @@ export default gql`
     youtubeTimestamp: String
     youtubeId: String
     youtubeSeconds: Int
+    tournamentId: ID!
+    player1Id: ID!
+    player2Id: ID!
+    winnerId: ID!
+    loserId: ID!
+    score: [Score]
+    characterIds: [ID]
   }
 `
