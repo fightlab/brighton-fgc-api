@@ -5,5 +5,7 @@ export default gql`
     id: ID!
     elo: Int
     matches: Int
+    playerId: ID
+    gameId: ID
   }
 `

@@ -42,6 +42,38 @@ const linkTypeDefs = gql`
   }
 `
 
+const gameResolver = ({ gameId }, args, context, info) => {
+  if (gameId) {
+    return info.mergeInfo.delegateToSchema({
+      schema: GameSchema,
+      operation: 'query',
+      fieldName: 'game',
+      args: {
+        id: gameId
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
+
+const playerResolver = ({ playerId }, args, context, info) => {
+  if (playerId) {
+    return info.mergeInfo.delegateToSchema({
+      schema: PlayerSchema,
+      operation: 'query',
+      fieldName: 'player',
+      args: {
+        id: playerId
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
+
 export default mergeSchemas({
   schemas: [
     PlayerSchema,
@@ -57,20 +89,15 @@ export default mergeSchemas({
   resolvers: {
     Character: {
       game: {
-        resolve (character, args, context, info) {
-          console.log(character)
-          console.log(args)
-          return info.mergeInfo.delegateToSchema({
-            schema: GameSchema,
-            operation: 'query',
-            fieldName: 'game',
-            args: {
-              id: character.gameId
-            },
-            context,
-            info
-          })
-        }
+        resolve: gameResolver
+      }
+    },
+    Elo: {
+      player: {
+        resolve: playerResolver
+      },
+      game: {
+        resolve: gameResolver
       }
     }
   }
