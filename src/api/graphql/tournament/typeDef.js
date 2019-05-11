@@ -5,12 +5,15 @@ export default gql`
     id: ID!
     name: String
     type: String
-    dateStart: String
-    dateEnd: String
+    dateTimeStart: String
+    dateTimeEnd: String
     bracket: String
     bracketImage: String
     signUpUrl: String
     challongeId: Int
     youtube: String
+    gameId: ID
+    playerIds: [ID]
+    eventId: ID
   }
 `

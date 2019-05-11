@@ -89,6 +89,22 @@ const tournamentResolver = (tournamentKey = 'tournamentId') => (parent, args, co
   return {}
 }
 
+const eventResolver = (eventKey = 'eventId') => (parent, args, context, info) => {
+  if (parent[eventKey]) {
+    return info.mergeInfo.delegateToSchema({
+      schema: EventSchema,
+      operation: 'query',
+      fieldName: 'event',
+      args: {
+        id: parent[eventKey]
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
+
 const charactersResolver = (characterKey = 'characterIds') => (parent, args, context, info) => {
   if (parent[characterKey]) {
     return info.mergeInfo.delegateToSchema({
@@ -104,6 +120,23 @@ const charactersResolver = (characterKey = 'characterIds') => (parent, args, con
   }
   return {}
 }
+
+const playersResolver = (playerKey = 'playerIds') => (parent, args, context, info) => {
+  if (parent[playerKey]) {
+    return info.mergeInfo.delegateToSchema({
+      schema: PlayerSchema,
+      operation: 'query',
+      fieldName: 'players',
+      args: {
+        ids: parent[playerKey]
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
+
 export default mergeSchemas({
   schemas: [
     PlayerSchema,
@@ -151,6 +184,11 @@ export default mergeSchemas({
       tournament: {
         resolve: tournamentResolver()
       }
+    },
+    Tournament: {
+      game: gameResolver(),
+      players: playersResolver(),
+      event: eventResolver()
     }
   }
 })
