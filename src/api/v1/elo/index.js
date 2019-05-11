@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
-import Elo, { schema } from './model'
+import Elo, { schema } from '../../../common/elo/model'
 import { create } from './controller'
 import { isAdmin } from '../../../services/auth'
 

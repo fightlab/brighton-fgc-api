@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
-import Character, { schema } from './model'
+import Character, { schema } from '../../../common/character/model'
 import { index, show, merge, update } from './controller'
 import { isAdmin } from '../../../services/auth'
 
