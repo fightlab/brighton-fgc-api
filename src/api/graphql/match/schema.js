@@ -2,7 +2,8 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge } from 'lodash'
+import { merge, isArray } from 'lodash'
+import mongoose from 'mongoose'
 import Match from '../../../common/match/model'
 
 const { project, resolvers } = gqlProjection({
@@ -37,7 +38,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async matches (parent, { search }, context, info) {
+      matches (parent, { search }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -45,13 +46,29 @@ export default makeExecutableSchema({
             $search: search
           }
         }
-        const matches = await Match.find(q, proj)
-        return matches
+        return Match.find(q, proj)
       },
-      async match (parent, { id }, context, info) {
+      match (parent, { id }, context, info) {
         const proj = project(info)
-        const match = await Match.findById(id, proj)
-        return match
+        return Match.findById(id, proj)
+      },
+      async matchesByCharacters (parent, { ids }, context, info) {
+        const proj = project(info)
+        if (isArray(ids)) {
+          ids = ids.map(id => mongoose.Types.ObjectId(id))
+        } else {
+          ids = [mongoose.Types.ObjectId(ids)]
+        }
+        console.log(await Match.find({
+          characters: {
+            $in: ids
+          }
+        }, proj))
+        return Match.find({
+          characters: {
+            $in: ids
+          }
+        }, proj)
       }
     }
   })

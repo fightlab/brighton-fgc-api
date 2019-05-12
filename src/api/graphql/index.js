@@ -13,6 +13,7 @@ import TournamentSchema from './tournament'
 const linkTypeDefs = gql`
   extend type Character {
     game: Game
+    matches: [Match]
   }
 
   extend type Elo {
@@ -41,14 +42,15 @@ const linkTypeDefs = gql`
   }
 `
 
-const gameResolver = (gameKey = 'gameId') => (parent, args, context, info) => {
-  if (parent[gameKey]) {
+const gameResolver = ({ key = 'id', fieldName
+= 'game' } = {}) => (parent, args, context, info) => {
+  if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: GameSchema,
       operation: 'query',
-      fieldName: 'game',
+      fieldName: fieldName,
       args: {
-        id: parent[gameKey]
+        id: parent[key]
       },
       context,
       info
@@ -137,6 +139,22 @@ const playersResolver = (playerKey = 'playerIds') => (parent, args, context, inf
   return {}
 }
 
+const matchesResolver = ({ key = 'ids', fieldName = 'matches' }) => (parent, args, context, info) => {
+  if (parent[key]) {
+    return info.mergeInfo.delegateToSchema({
+      schema: MatchSchema,
+      operation: 'query',
+      fieldName,
+      args: {
+        ids: parent[key]
+      },
+      context,
+      info
+    })
+  }
+  return {}
+}
+
 export default mergeSchemas({
   schemas: [
     PlayerSchema,
@@ -152,7 +170,10 @@ export default mergeSchemas({
   resolvers: {
     Character: {
       game: {
-        resolve: gameResolver()
+        resolve: gameResolver({ fieldName: 'gameForCharacter' })
+      },
+      matches: {
+        resolve: matchesResolver({ fieldName: 'matchesByCharacters', key: 'id' })
       }
     },
     Elo: {

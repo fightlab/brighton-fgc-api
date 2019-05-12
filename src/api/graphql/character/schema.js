@@ -21,7 +21,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async characters (parent, { search, ids }, context, info) {
+      characters (parent, { search, ids }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -34,13 +34,11 @@ export default makeExecutableSchema({
             $in: ids.map(id => mongoose.Types.ObjectId(id))
           }
         }
-        const characters = await Character.find(q, proj)
-        return characters
+        return Character.find(q, proj)
       },
-      async character (parent, { id }, context, info) {
+      character (parent, { id }, context, info) {
         const proj = project(info)
-        const character = await Character.findById(id, proj)
-        return character
+        return Character.findById(id, proj)
       }
     }
   })

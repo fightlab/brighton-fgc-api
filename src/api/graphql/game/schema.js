@@ -4,6 +4,7 @@ import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
 import { merge } from 'lodash'
 import Game from '../../../common/game/model'
+import Character from '../../../common/character/model'
 
 const { project, resolvers } = gqlProjection({
   Game: {
@@ -21,7 +22,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async games (parent, { search }, context, info) {
+      games (parent, { search }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -29,13 +30,19 @@ export default makeExecutableSchema({
             $search: search
           }
         }
-        const games = await Game.find(q, proj)
-        return games
+        return Game.find(q, proj)
       },
-      async game (parent, { id }, context, info) {
+      game (parent, { id }, context, info) {
         const proj = project(info)
-        const game = await Game.findById(id, proj)
-        return game
+        return Game.findById(id, proj)
+      },
+      async gameForCharacter (parent, { id }, context, info) {
+        const proj = project(info)
+        const { game = null } = await Character.findById(id, { game: 1 })
+        if (game) {
+          return Game.findById(game, proj)
+        }
+        return {}
       }
     }
   })
