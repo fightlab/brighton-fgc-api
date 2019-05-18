@@ -42,7 +42,7 @@ const linkTypeDefs = gql`
   }
 `
 
-const gameResolver = ({ key = 'id', fieldName
+const gameResolver = ({ key = 'gameId', fieldName
 = 'game' } = {}) => (parent, args, context, info) => {
   if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
@@ -59,14 +59,15 @@ const gameResolver = ({ key = 'id', fieldName
   return {}
 }
 
-const playerResolver = (playerKey = 'playerId') => (parent, args, context, info) => {
-  if (parent[playerKey]) {
+const playerResolver = ({ key = 'playerId', fieldName
+= 'player' } = {}) => (parent, args, context, info) => {
+  if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: PlayerSchema,
       operation: 'query',
-      fieldName: 'player',
+      fieldName,
       args: {
-        id: parent[playerKey]
+        id: parent[key]
       },
       context,
       info
@@ -75,14 +76,15 @@ const playerResolver = (playerKey = 'playerId') => (parent, args, context, info)
   return {}
 }
 
-const tournamentResolver = (tournamentKey = 'tournamentId') => (parent, args, context, info) => {
-  if (parent[tournamentKey]) {
+const tournamentResolver = ({ key = 'tournamentId', fieldName
+= 'tournament' } = {}) => (parent, args, context, info) => {
+  if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: TournamentSchema,
       operation: 'query',
-      fieldName: 'tournament',
+      fieldName,
       args: {
-        id: parent[tournamentKey]
+        id: parent[key]
       },
       context,
       info
@@ -91,14 +93,15 @@ const tournamentResolver = (tournamentKey = 'tournamentId') => (parent, args, co
   return {}
 }
 
-const eventResolver = (eventKey = 'eventId') => (parent, args, context, info) => {
-  if (parent[eventKey]) {
+const eventResolver = ({ key = 'eventId', fieldName
+= 'event' } = {}) => (parent, args, context, info) => {
+  if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: EventSchema,
       operation: 'query',
-      fieldName: 'event',
+      fieldName,
       args: {
-        id: parent[eventKey]
+        id: parent[key]
       },
       context,
       info
@@ -107,14 +110,14 @@ const eventResolver = (eventKey = 'eventId') => (parent, args, context, info) =>
   return {}
 }
 
-const charactersResolver = (characterKey = 'characterIds') => (parent, args, context, info) => {
-  if (parent[characterKey]) {
+const charactersResolver = ({ key = 'characterIds', fieldName = 'characters' } = {}) => (parent, args, context, info) => {
+  if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: CharacterSchema,
       operation: 'query',
-      fieldName: 'characters',
+      fieldName,
       args: {
-        ids: parent[characterKey]
+        ids: parent[key]
       },
       context,
       info
@@ -123,14 +126,14 @@ const charactersResolver = (characterKey = 'characterIds') => (parent, args, con
   return {}
 }
 
-const playersResolver = (playerKey = 'playerIds') => (parent, args, context, info) => {
-  if (parent[playerKey]) {
+const playersResolver = ({ key = 'playerIds', fieldName = 'players' } = {}) => (parent, args, context, info) => {
+  if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: PlayerSchema,
       operation: 'query',
-      fieldName: 'players',
+      fieldName,
       args: {
-        ids: parent[playerKey]
+        ids: parent[key]
       },
       context,
       info
@@ -139,7 +142,7 @@ const playersResolver = (playerKey = 'playerIds') => (parent, args, context, inf
   return {}
 }
 
-const matchesResolver = ({ key = 'ids', fieldName = 'matches' }) => (parent, args, context, info) => {
+const matchesResolver = ({ key = 'ids', fieldName = 'matches' } = {}) => (parent, args, context, info) => {
   if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema: MatchSchema,
@@ -170,46 +173,73 @@ export default mergeSchemas({
   resolvers: {
     Character: {
       game: {
-        resolve: gameResolver({ fieldName: 'gameForCharacter' })
+        fragment: `... on Character { gameId }`,
+        resolve: gameResolver()
       },
       matches: {
+        fragment: `... on Character { id }`,
         resolve: matchesResolver({ fieldName: 'matchesByCharacters', key: 'id' })
       }
     },
     Elo: {
       player: {
+        fragment: `... on Elo { playerId }`,
         resolve: playerResolver()
       },
       game: {
+        fragment: `... on Elo { gameId }`,
         resolve: gameResolver()
       }
     },
     Match: {
       tournament: {
+        fragment: `... on Match { tournamentId }`,
         resolve: tournamentResolver()
       },
       player1: {
-        resolve: playerResolver('player1Id')
+        fragment: `... on Match { player1Id }`,
+        resolve: playerResolver({ key: 'player1Id' })
       },
       player2: {
-        resolve: playerResolver('player2Id')
+        fragment: `... on Match { player2Id }`,
+        resolve: playerResolver({ key: 'player2Id' })
       },
-      winner: playerResolver('winnerId'),
-      loser: playerResolver('loserId'),
-      characters: charactersResolver()
+      winner: {
+        fragment: `... on Match { winnerId }`,
+        resolve: playerResolver({ key: 'winnerId' })
+      },
+      loser: {
+        fragment: `... on Match { loserId }`,
+        resolve: playerResolver({ key: 'loserId' })
+      },
+      characters: {
+        fragment: `... on Match { characterIds }`,
+        resolve: charactersResolver()
+      }
     },
     Result: {
       player: {
+        fragment: `... on Result { playerId }`,
         resolve: playerResolver()
       },
       tournament: {
+        fragment: `... on Result { tournamentId }`,
         resolve: tournamentResolver()
       }
     },
     Tournament: {
-      game: gameResolver(),
-      players: playersResolver(),
-      event: eventResolver()
+      game: {
+        fragment: `... on Tournament { gameId }`,
+        resolve: gameResolver()
+      },
+      players: {
+        fragment: `... on Tournament { playerIds }`,
+        resolve: playersResolver()
+      },
+      event: {
+        fragment: `... on Tournament { eventId }`,
+        resolve: eventResolver()
+      }
     }
   }
 })

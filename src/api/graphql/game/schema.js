@@ -35,14 +35,6 @@ export default makeExecutableSchema({
       game (parent, { id }, context, info) {
         const proj = project(info)
         return Game.findById(id, proj)
-      },
-      async gameForCharacter (parent, { id }, context, info) {
-        const proj = project(info)
-        const { game = null } = await Character.findById(id, { game: 1 })
-        if (game) {
-          return Game.findById(game, proj)
-        }
-        return {}
       }
     }
   })

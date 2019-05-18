@@ -52,18 +52,13 @@ export default makeExecutableSchema({
         const proj = project(info)
         return Match.findById(id, proj)
       },
-      async matchesByCharacters (parent, { ids }, context, info) {
+      matchesByCharacters (parent, { ids }, context, info) {
         const proj = project(info)
         if (isArray(ids)) {
           ids = ids.map(id => mongoose.Types.ObjectId(id))
         } else {
           ids = [mongoose.Types.ObjectId(ids)]
         }
-        console.log(await Match.find({
-          characters: {
-            $in: ids
-          }
-        }, proj))
         return Match.find({
           characters: {
             $in: ids
