@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
-import Event, { schema } from './model'
+import Event, { schema } from '../../../common/event/model'
 import { index, show, tournaments, create, update, destroy, count } from './controller'
 import { isAdmin } from '../../../services/auth'
 

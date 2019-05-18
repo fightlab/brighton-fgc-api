@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
-import Result, { schema } from './model'
+import Result, { schema } from '../../../common/result/model'
 import { isAdmin } from '../../../services/auth'
 import { create, index, show, update, destroy } from './controller'
 const { _playerId, _tournamentId, rank, meta, eloBefore, eloAfter } = schema.tree

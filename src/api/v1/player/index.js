@@ -3,7 +3,7 @@ import { middleware as body } from 'bodymen'
 
 import { isAdmin, isAuthenticatedWithProfile } from '../../../services/auth'
 import { create, index, indexPlayers, show, update, destroy, stats, me, meUpdate, headToHead, headToHeadOpponents, elo, gameResults, gameMatches } from './controller'
-import Player, { schema } from './model'
+import Player, { schema } from '../../../common/player/model'
 
 const PlayerRouter = new Router()
 const { name, handle, challongeUsername, challongeName, imageUrl, team, isStaff, profile, emailHash } = schema.tree

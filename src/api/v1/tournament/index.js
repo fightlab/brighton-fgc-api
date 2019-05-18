@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { middleware as body } from 'bodymen'
-import Tournament, { schema } from './model'
+import Tournament, { schema } from '../../../common/tournament/model'
 import { create, index, indexNoGame, show, update, destroy, getStandings, challongeUpdate, count, matches, googleSheetsMatches } from './controller'
 import { isAdmin } from '../../../services/auth'
 
