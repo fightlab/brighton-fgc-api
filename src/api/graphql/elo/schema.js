@@ -21,21 +21,14 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async elos (parent, { search }, context, info) {
+      elos (parent, args, context, info) {
         const proj = project(info)
         const q = {}
-        if (search) {
-          q.$text = {
-            $search: search
-          }
-        }
-        const elos = await Elo.find(q, proj)
-        return elos
+        return Elo.find(q, proj)
       },
-      async elo (parent, { id }, context, info) {
+      elo (parent, { id }, context, info) {
         const proj = project(info)
-        const elo = await Elo.findById(id, proj)
-        return elo
+        return Elo.findById(id, proj)
       }
     }
   })

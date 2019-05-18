@@ -2,7 +2,7 @@ import { gql } from 'apollo-server-express'
 
 export default gql`
   type Query {
-    characters(search: String, ids: [ID]): [Character]
+    characters(search: String, ids: [ID], gameId: ID, sort: Sort): [Character]
     character(id: ID!): Character
   }
 `

@@ -29,7 +29,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async tournaments (parent, { search }, context, info) {
+      tournaments (parent, { search }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -39,7 +39,7 @@ export default makeExecutableSchema({
         }
         return Tournament.find(q, proj)
       },
-      async tournament (parent, { id }, context, info) {
+      tournament (parent, { id }, context, info) {
         const proj = project(info)
         return Tournament.findById(id, proj)
       }

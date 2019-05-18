@@ -38,14 +38,9 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      matches (parent, { search }, context, info) {
+      matches (parent, args, context, info) {
         const proj = project(info)
         const q = {}
-        if (search) {
-          q.$text = {
-            $search: search
-          }
-        }
         return Match.find(q, proj)
       },
       match (parent, { id }, context, info) {
@@ -54,11 +49,13 @@ export default makeExecutableSchema({
       },
       matchesByCharacters (parent, { ids }, context, info) {
         const proj = project(info)
+
         if (isArray(ids)) {
           ids = ids.map(id => mongoose.Types.ObjectId(id))
         } else {
           ids = [mongoose.Types.ObjectId(ids)]
         }
+
         return Match.find({
           characters: {
             $in: ids

@@ -21,7 +21,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async events (parent, { search }, context, info) {
+      events (parent, { search }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -29,13 +29,11 @@ export default makeExecutableSchema({
             $search: search
           }
         }
-        const events = await Event.find(q, proj)
-        return events
+        return Event.find(q, proj)
       },
-      async event (parent, { id }, context, info) {
+      event (parent, { id }, context, info) {
         const proj = project(info)
-        const event = await Event.findById(id, proj)
-        return event
+        return Event.findById(id, proj)
       }
     }
   })

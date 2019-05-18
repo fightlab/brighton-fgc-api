@@ -24,24 +24,17 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async results (parent, { search }, context, info) {
+      results (parent, args, context, info) {
         const proj = project(info)
         const q = {}
-        if (search) {
-          q.$text = {
-            $search: search
-          }
-        }
-        const results = await Result.find(q, proj)
-        return results
+        return Result.find(q, proj)
       },
-      async result (parent, { id }, context, info) {
+      result (parent, { id }, context, info) {
         const proj = merge(project(info), {
           _tournamentId: 1,
           _playerId: 1
         })
-        const result = await Result.findById(id, proj)
-        return result
+        return Result.findById(id, proj)
       }
     }
   })
