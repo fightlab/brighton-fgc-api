@@ -1,9 +1,12 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef from './typeDef'
+import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge } from 'lodash'
+import { merge, map, join } from 'lodash'
+import mongoose from 'mongoose'
 import Elo from '../../../common/elo/model'
+
+const { ObjectId } = mongoose.Types
 
 const { project, resolvers } = gqlProjection({
   Elo: {
@@ -21,10 +24,30 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      elos (parent, args, context, info) {
+      elos (parent, { playerId, gameId, elo_gte: eloGte, elo_lte: eloLte, sort = [] }, context, info) {
         const proj = project(info)
         const q = {}
-        return Elo.find(q, proj)
+
+        if (playerId) {
+          q.player = ObjectId(playerId)
+        }
+
+        if (gameId) {
+          q.game = ObjectId(gameId)
+        }
+
+        if (eloGte || eloLte) {
+          q.elo = {}
+          if (eloGte) {
+            q.elo.$gte = eloGte
+          }
+
+          if (eloLte) {
+            q.elo.$lte = eloLte
+          }
+        }
+
+        return Elo.find(q, proj).sort(join(map(sort, mapSort), ' '))
       },
       elo (parent, { id }, context, info) {
         const proj = project(info)

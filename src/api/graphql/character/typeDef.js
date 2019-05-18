@@ -1,7 +1,7 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  enum Sort {
+  enum CharacterSort {
     NAME_ASC
     NAME_DESC
     GAMEID

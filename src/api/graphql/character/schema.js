@@ -2,7 +2,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge } from 'lodash'
+import { merge, join, map } from 'lodash'
 import mongoose from 'mongoose'
 import Character from '../../../common/character/model'
 
@@ -43,7 +43,7 @@ export default makeExecutableSchema({
           q.game = ObjectId(gameId)
         }
 
-        return Character.find(q, proj).sort(mapSort(sort))
+        return Character.find(q, proj).sort(join(map(sort, mapSort), ' '))
       },
       character (parent, { id }, context, info) {
         const proj = project(info)
