@@ -3,7 +3,9 @@ import Schemas from '../../api/graphql'
 
 export default () => {
   const server = new ApolloServer({
-    schema: Schemas
+    schema: Schemas,
+    introspection: true,
+    playground: true
   })
 
   return server
