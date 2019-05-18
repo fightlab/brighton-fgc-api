@@ -42,114 +42,15 @@ const linkTypeDefs = gql`
   }
 `
 
-const gameResolver = ({ key = 'gameId', fieldName
-= 'game' } = {}) => (parent, args, context, info) => {
+const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = 'id' }) => (parent, args, context, info) => {
   if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
-      schema: GameSchema,
-      operation: 'query',
-      fieldName: fieldName,
-      args: {
-        id: parent[key]
-      },
-      context,
-      info
-    })
-  }
-  return {}
-}
-
-const playerResolver = ({ key = 'playerId', fieldName
-= 'player' } = {}) => (parent, args, context, info) => {
-  if (parent[key]) {
-    return info.mergeInfo.delegateToSchema({
-      schema: PlayerSchema,
-      operation: 'query',
+      schema,
+      operation,
       fieldName,
       args: {
-        id: parent[key]
-      },
-      context,
-      info
-    })
-  }
-  return {}
-}
-
-const tournamentResolver = ({ key = 'tournamentId', fieldName
-= 'tournament' } = {}) => (parent, args, context, info) => {
-  if (parent[key]) {
-    return info.mergeInfo.delegateToSchema({
-      schema: TournamentSchema,
-      operation: 'query',
-      fieldName,
-      args: {
-        id: parent[key]
-      },
-      context,
-      info
-    })
-  }
-  return {}
-}
-
-const eventResolver = ({ key = 'eventId', fieldName
-= 'event' } = {}) => (parent, args, context, info) => {
-  if (parent[key]) {
-    return info.mergeInfo.delegateToSchema({
-      schema: EventSchema,
-      operation: 'query',
-      fieldName,
-      args: {
-        id: parent[key]
-      },
-      context,
-      info
-    })
-  }
-  return {}
-}
-
-const charactersResolver = ({ key = 'characterIds', fieldName = 'characters' } = {}) => (parent, args, context, info) => {
-  if (parent[key]) {
-    return info.mergeInfo.delegateToSchema({
-      schema: CharacterSchema,
-      operation: 'query',
-      fieldName,
-      args: {
-        ids: parent[key]
-      },
-      context,
-      info
-    })
-  }
-  return {}
-}
-
-const playersResolver = ({ key = 'playerIds', fieldName = 'players' } = {}) => (parent, args, context, info) => {
-  if (parent[key]) {
-    return info.mergeInfo.delegateToSchema({
-      schema: PlayerSchema,
-      operation: 'query',
-      fieldName,
-      args: {
-        ids: parent[key]
-      },
-      context,
-      info
-    })
-  }
-  return {}
-}
-
-const matchesResolver = ({ key = 'ids', fieldName = 'matches' } = {}) => (parent, args, context, info) => {
-  if (parent[key]) {
-    return info.mergeInfo.delegateToSchema({
-      schema: MatchSchema,
-      operation: 'query',
-      fieldName,
-      args: {
-        ids: parent[key]
+        [arg]: parent[key],
+        ...args
       },
       context,
       info
@@ -174,71 +75,71 @@ export default mergeSchemas({
     Character: {
       game: {
         fragment: `... on Character { gameId }`,
-        resolve: gameResolver()
+        resolve: delegateToSchema({ key: 'gameId', fieldName: 'game', schema: GameSchema })
       },
       matches: {
         fragment: `... on Character { id }`,
-        resolve: matchesResolver({ fieldName: 'matchesByCharacters', key: 'id' })
+        resolve: delegateToSchema({ fieldName: 'matchesByCharacters', key: 'id', schema: MatchSchema, arg: 'ids' })
       }
     },
     Elo: {
       player: {
         fragment: `... on Elo { playerId }`,
-        resolve: playerResolver()
+        resolve: delegateToSchema({ fieldName: 'player', key: 'playerId', schema: PlayerSchema })
       },
       game: {
         fragment: `... on Elo { gameId }`,
-        resolve: gameResolver()
+        resolve: delegateToSchema({ key: 'gameId', fieldName: 'game', schema: GameSchema })
       }
     },
     Match: {
       tournament: {
         fragment: `... on Match { tournamentId }`,
-        resolve: tournamentResolver()
+        resolve: delegateToSchema({ key: 'tournamentId', fieldName: 'tournament', schema: TournamentSchema })
       },
       player1: {
         fragment: `... on Match { player1Id }`,
-        resolve: playerResolver({ key: 'player1Id' })
+        resolve: delegateToSchema({ key: 'player1Id', schema: PlayerSchema, fieldName: 'player' })
       },
       player2: {
         fragment: `... on Match { player2Id }`,
-        resolve: playerResolver({ key: 'player2Id' })
+        resolve: delegateToSchema({ key: 'player2Id', schema: PlayerSchema, fieldName: 'player' })
       },
       winner: {
         fragment: `... on Match { winnerId }`,
-        resolve: playerResolver({ key: 'winnerId' })
+        resolve: delegateToSchema({ key: 'winnerId', schema: PlayerSchema, fieldName: 'player' })
       },
       loser: {
         fragment: `... on Match { loserId }`,
-        resolve: playerResolver({ key: 'loserId' })
+        resolve: delegateToSchema({ key: 'loserId', schema: PlayerSchema, fieldName: 'player' })
       },
       characters: {
         fragment: `... on Match { characterIds }`,
-        resolve: charactersResolver()
+        resolve: delegateToSchema({ key: 'characterIds', schema: CharacterSchema, fieldName: 'characters', arg: 'ids' })
       }
     },
     Result: {
       player: {
         fragment: `... on Result { playerId }`,
-        resolve: playerResolver()
+        resolve: delegateToSchema({ fieldName: 'player', key: 'playerId', schema: PlayerSchema })
       },
       tournament: {
         fragment: `... on Result { tournamentId }`,
-        resolve: tournamentResolver()
+        resolve: delegateToSchema({ key: 'tournamentId', fieldName: 'tournament', schema: TournamentSchema })
       }
     },
     Tournament: {
       game: {
         fragment: `... on Tournament { gameId }`,
-        resolve: gameResolver()
+        resolve: delegateToSchema({ key: 'gameId', fieldName: 'game', schema: GameSchema })
       },
       players: {
         fragment: `... on Tournament { playerIds }`,
-        resolve: playersResolver()
+        resolve: delegateToSchema({ key: 'playerIds', fieldName: 'players', schema: PlayerSchema, arg: 'ids' })
       },
       event: {
         fragment: `... on Tournament { eventId }`,
-        resolve: eventResolver()
+        resolve: delegateToSchema({ key: 'eventId', fieldName: 'event', schema: EventSchema })
       }
     }
   }
