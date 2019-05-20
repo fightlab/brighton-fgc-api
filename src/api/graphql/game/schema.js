@@ -1,10 +1,9 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef from './typeDef'
+import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge } from 'lodash'
+import { merge, join, map } from 'lodash'
 import Game from '../../../common/game/model'
-import Character from '../../../common/character/model'
 
 const { project, resolvers } = gqlProjection({
   Game: {
@@ -22,7 +21,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      games (parent, { search }, context, info) {
+      games (parent, { search, sort }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -30,11 +29,14 @@ export default makeExecutableSchema({
             $search: search
           }
         }
-        return Game.find(q, proj)
+        return Game.find(q, proj).sort(join(map(sort, mapSort), ' '))
       },
       game (parent, { id }, context, info) {
         const proj = project(info)
         return Game.findById(id, proj)
+      },
+      gamesCount () {
+        return Game.count()
       }
     }
   })

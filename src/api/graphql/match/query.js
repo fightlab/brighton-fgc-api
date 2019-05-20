@@ -4,6 +4,7 @@ export default gql`
   type Query {
     matches(search: String): [Match]
     match(id: ID!): Match
+    matchesCount: Int
     matchesByCharacters(ids: [ID]!): [Match]
   }
 `

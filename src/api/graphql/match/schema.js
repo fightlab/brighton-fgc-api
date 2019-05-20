@@ -47,6 +47,9 @@ export default makeExecutableSchema({
         const proj = project(info)
         return Match.findById(id, proj)
       },
+      matchesCount () {
+        return Match.count()
+      },
       matchesByCharacters (parent, { ids }, context, info) {
         const proj = project(info)
 

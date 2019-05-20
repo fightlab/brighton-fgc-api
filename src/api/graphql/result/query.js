@@ -4,5 +4,6 @@ export default gql`
   type Query {
     results(search: String): [Result]
     result(id: ID!): Result
+    resultsCount: Int
   }
 `

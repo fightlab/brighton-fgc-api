@@ -35,6 +35,9 @@ export default makeExecutableSchema({
           _playerId: 1
         })
         return Result.findById(id, proj)
+      },
+      resultsCount () {
+        return Result.count()
       }
     }
   })

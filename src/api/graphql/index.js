@@ -26,6 +26,10 @@ const linkTypeDefs = gql`
     tournaments: [Tournament]
   }
 
+  extend type Game {
+    tournaments: [Tournament]
+  }
+
   extend type Match {
     tournament: Tournament!
     player1: Player!
@@ -47,7 +51,7 @@ const linkTypeDefs = gql`
   }
 `
 
-const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = 'id' }) => (parent, args, context, info) => {
+const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = 'id', field }) => (parent, args, context, info) => {
   if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema,
@@ -55,6 +59,7 @@ const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = '
       fieldName,
       args: {
         [arg]: parent[key],
+        field,
         ...args
       },
       context,
@@ -101,7 +106,13 @@ export default mergeSchemas({
     Event: {
       tournaments: {
         fragment: `... on Event { id }`,
-        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByEvent', schema: TournamentSchema })
+        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'EVENTID' })
+      }
+    },
+    Game: {
+      tournaments: {
+        fragment: `... on Game { id }`,
+        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'GAMEID' })
       }
     },
     Match: {

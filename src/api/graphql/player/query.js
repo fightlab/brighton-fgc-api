@@ -4,5 +4,6 @@ export default gql`
   type Query {
     players(search: String, ids: [ID]): [Player]
     player(id: ID!): Player
+    playersCount: Int
   }
 `

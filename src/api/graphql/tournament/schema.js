@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef from './typeDef'
+import typeDef, { mapField } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
 import { merge } from 'lodash'
@@ -46,12 +46,16 @@ export default makeExecutableSchema({
         const proj = project(info)
         return Tournament.findById(id, proj)
       },
-      tournamentsByEvent (parent, { id }, context, info) {
+      tournamentsCount () {
+        return Tournament.count()
+      },
+      tournamentsByField (parent, { id, field }, context, info) {
         const proj = project(info)
 
         const q = {
-          event: Object(id)
+          [mapField(field)]: ObjectId(id)
         }
+
         return Tournament.find(q, proj)
       }
     }

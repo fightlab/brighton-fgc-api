@@ -1,6 +1,12 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
+  enum TournamentField {
+    GAMEID
+    PLAYERID
+    EVENTID
+  }
+
   type Tournament {
     id: ID!
     name: String
@@ -17,3 +23,16 @@ export default gql`
     eventId: ID
   }
 `
+
+export const mapField = field => {
+  switch (field) {
+    case 'GAMEID':
+      return '_gameId'
+    case 'EVENTID':
+      return 'event'
+    case 'PLAYERID':
+      return 'players'
+    default:
+      return ''
+  }
+}

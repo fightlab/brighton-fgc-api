@@ -48,6 +48,9 @@ export default makeExecutableSchema({
       character (parent, { id }, context, info) {
         const proj = project(info)
         return Character.findById(id, proj)
+      },
+      charactersCount () {
+        return Character.count()
       }
     }
   })

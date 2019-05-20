@@ -4,6 +4,7 @@ export default gql`
   type Query {
     tournaments(search: String): [Tournament]
     tournament(id: ID!): Tournament
-    tournamentsByEvent(id: ID!): [Tournament]
+    tournamentsCount: Int
+    tournamentsByField(id: ID!, field: TournamentField!): [Tournament]
   }
 `

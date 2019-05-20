@@ -52,6 +52,9 @@ export default makeExecutableSchema({
       elo (parent, { id }, context, info) {
         const proj = project(info)
         return Elo.findById(id, proj)
+      },
+      elosCount () {
+        return Elo.count()
       }
     }
   })

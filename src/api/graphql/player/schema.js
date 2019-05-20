@@ -44,6 +44,9 @@ export default makeExecutableSchema({
       player (parent, { id }, context, info) {
         const proj = project(info)
         return Player.findById(id, proj)
+      },
+      playersCount () {
+        return Player.count()
       }
     }
   })

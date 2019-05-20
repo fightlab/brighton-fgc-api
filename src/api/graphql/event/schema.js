@@ -46,6 +46,9 @@ export default makeExecutableSchema({
       event (parent, { id }, context, info) {
         const proj = project(info)
         return Event.findById(id, proj)
+      },
+      eventsCount () {
+        return Event.count()
       }
     }
   })
