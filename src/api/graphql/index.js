@@ -9,6 +9,7 @@ import EventSchema from './event'
 import MatchSchema from './match'
 import ResultSchema from './result'
 import TournamentSchema from './tournament'
+import DateSchema from './scalars/date'
 
 const linkTypeDefs = gql`
   extend type Character {
@@ -19,6 +20,10 @@ const linkTypeDefs = gql`
   extend type Elo {
     player: Player
     game: Game
+  }
+
+  extend type Event {
+    tournaments: [Tournament]
   }
 
   extend type Match {
@@ -61,6 +66,7 @@ const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = '
 
 export default mergeSchemas({
   schemas: [
+    DateSchema,
     PlayerSchema,
     GameSchema,
     EloSchema,
@@ -90,6 +96,12 @@ export default mergeSchemas({
       game: {
         fragment: `... on Elo { gameId }`,
         resolve: delegateToSchema({ key: 'gameId', fieldName: 'game', schema: GameSchema })
+      }
+    },
+    Event: {
+      tournaments: {
+        fragment: `... on Event { id }`,
+        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByEvent', schema: TournamentSchema })
       }
     },
     Match: {

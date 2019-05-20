@@ -1,9 +1,10 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef from './typeDef'
+import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge } from 'lodash'
+import { merge, join, map } from 'lodash'
 import Event from '../../../common/event/model'
+import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
 
 const { project, resolvers } = gqlProjection({
   Event: {
@@ -18,10 +19,10 @@ const { project, resolvers } = gqlProjection({
 })
 
 export default makeExecutableSchema({
-  typeDefs: [typeDef, query],
-  resolvers: merge(resolvers, {
+  typeDefs: [dateTypeDef, typeDef, query],
+  resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      events (parent, { search }, context, info) {
+      events (parent, { search, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
         const proj = project(info)
         const q = {}
         if (search) {
@@ -29,7 +30,18 @@ export default makeExecutableSchema({
             $search: search
           }
         }
-        return Event.find(q, proj)
+
+        if (dateGte || dateLte) {
+          q.date = {}
+          if (dateGte) {
+            q.date.$gte = dateGte.toDate()
+          }
+          if (dateLte) {
+            q.date.$lte = dateLte.toDate()
+          }
+        }
+
+        return Event.find(q, proj).sort(join(map(sort, mapSort), ' '))
       },
       event (parent, { id }, context, info) {
         const proj = project(info)
