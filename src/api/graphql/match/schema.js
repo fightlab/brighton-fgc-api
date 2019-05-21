@@ -1,10 +1,13 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef from './typeDef'
+import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, isArray } from 'lodash'
-import mongoose from 'mongoose'
+import { merge, isArray, join, map } from 'lodash'
+import { Types } from 'mongoose'
 import Match from '../../../common/match/model'
+import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
+
+const { ObjectId } = Types
 
 const { project, resolvers } = gqlProjection({
   Match: {
@@ -35,13 +38,48 @@ const { project, resolvers } = gqlProjection({
 })
 
 export default makeExecutableSchema({
-  typeDefs: [typeDef, query],
-  resolvers: merge(resolvers, {
+  typeDefs: [dateTypeDef, typeDef, query],
+  resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      matches (parent, args, context, info) {
+      matches (parent, { tournamentId, playerId, winnerId, loserId, characterId, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
         const proj = project(info)
         const q = {}
-        return Match.find(q, proj)
+
+        if (tournamentId) {
+          q._tournamentId = ObjectId(tournamentId)
+        }
+
+        if (playerId) {
+          q.$or = [{
+            _player1Id: ObjectId(playerId)
+          }, {
+            _player2Id: ObjectId(playerId)
+          }]
+        }
+
+        if (winnerId) {
+          q.winnerId = ObjectId(winnerId)
+        }
+
+        if (loserId) {
+          q.loserId = ObjectId(loserId)
+        }
+
+        if (characterId) {
+          q.characters = ObjectId(characterId)
+        }
+
+        if (dateGte || dateLte) {
+          q.date = {}
+          if (dateGte) {
+            q.date.$gte = dateGte.toDate()
+          }
+          if (dateLte) {
+            q.date.$lte = dateLte.toDate()
+          }
+        }
+
+        return Match.find(q, proj).sort(join(map(sort, mapSort), ' '))
       },
       match (parent, { id }, context, info) {
         const proj = project(info)
@@ -54,9 +92,9 @@ export default makeExecutableSchema({
         const proj = project(info)
 
         if (isArray(ids)) {
-          ids = ids.map(id => mongoose.Types.ObjectId(id))
+          ids = ids.map(id => ObjectId(id))
         } else {
-          ids = [mongoose.Types.ObjectId(ids)]
+          ids = [ObjectId(ids)]
         }
 
         return Match.find({

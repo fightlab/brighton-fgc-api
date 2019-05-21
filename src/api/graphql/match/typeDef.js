@@ -1,6 +1,12 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
+  enum MatchSort {
+    ID
+    DATE_ASC
+    DATE_DESC
+  }
+
   type Score {
     p1: Int
     p2: Int
@@ -15,8 +21,8 @@ export default gql`
     player2EloAfterMatch: Int
     player2MatchesBefore: Int
     round: Int!
-    startDate: String
-    endDate: String
+    startDate: Date
+    endDate: Date
     roundName: String
     youtubeTimestamp: String
     youtubeId: String
@@ -30,3 +36,14 @@ export default gql`
     characterIds: [ID]
   }
 `
+
+export const mapSort = sort => {
+  switch (sort) {
+    case 'DATE_ASC':
+      return 'endDate'
+    case 'DATE_DESC':
+      return '-endDate'
+    default:
+      return '_id'
+  }
+}

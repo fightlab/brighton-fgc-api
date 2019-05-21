@@ -27,7 +27,8 @@ const linkTypeDefs = gql`
   }
 
   extend type Game {
-    tournaments: [Tournament]
+    tournaments: [Tournament],
+    characters: [Character]
   }
 
   extend type Match {
@@ -113,6 +114,10 @@ export default mergeSchemas({
       tournaments: {
         fragment: `... on Game { id }`,
         resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'GAMEID' })
+      },
+      characters: {
+        fragment: `... on Game { id }`,
+        resolve: delegateToSchema({ key: 'id', fieldName: 'charactersByField', schema: CharacterSchema, field: 'GAMEID' })
       }
     },
     Match: {

@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef, { mapSort } from './typeDef'
+import typeDef, { mapSort, mapField } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
 import { merge, join, map } from 'lodash'
@@ -51,6 +51,15 @@ export default makeExecutableSchema({
       },
       charactersCount () {
         return Character.count()
+      },
+      charactersByField (parent, { id, field, sort }, context, info) {
+        const proj = project(info)
+        console.log(field)
+        const q = {
+          [mapField(field)]: ObjectId(id)
+        }
+
+        return Character.find(q, proj).sort(join(map(sort, mapSort), ' '))
       }
     }
   })
