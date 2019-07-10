@@ -40,6 +40,11 @@ const linkTypeDefs = gql`
     characters: [Character]
   }
 
+  extend type Player {
+    tournaments: [Tournament]
+    elo: [Elo]
+  }
+
   extend type Result {
     player: Player
     tournament: Tournament
@@ -144,6 +149,16 @@ export default mergeSchemas({
       characters: {
         fragment: `... on Match { characterIds }`,
         resolve: delegateToSchema({ key: 'characterIds', schema: CharacterSchema, fieldName: 'characters', arg: 'ids' })
+      }
+    },
+    Player: {
+      tournaments: {
+        fragment: `... on Player { id }`,
+        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'PLAYERID' })
+      },
+      elo: {
+        fragment: `... on Player { id }`,
+        resolve: delegateToSchema({ key: 'id', fieldName: 'elosByField', schema: EloSchema, field: 'PLAYERID' })
       }
     },
     Result: {

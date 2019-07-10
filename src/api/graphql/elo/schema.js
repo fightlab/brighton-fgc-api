@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef, { mapSort } from './typeDef'
+import typeDef, { mapSort, mapField } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
 import { merge, map, join } from 'lodash'
@@ -24,7 +24,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      elos (parent, { playerId, gameId, elo_gte: eloGte, elo_lte: eloLte, sort = [] }, context, info) {
+      elos (parent, { playerId, gameId, elo_gte: eloGte, elo_lte: eloLte, sort }, context, info) {
         const proj = project(info)
         const q = {}
 
@@ -55,6 +55,15 @@ export default makeExecutableSchema({
       },
       elosCount () {
         return Elo.count()
+      },
+      elosByField (parent, { id, field }, context, info) {
+        const proj = project(info)
+
+        const q = {
+          [mapField(field)]: ObjectId(id)
+        }
+
+        return Elo.find(q, proj)
       }
     }
   })

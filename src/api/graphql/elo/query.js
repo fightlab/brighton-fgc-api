@@ -4,6 +4,7 @@ export default gql`
   type Query {
     elos(playerId: ID, gameId: ID, elo_gte: Int, elo_lte: Int, elo: Int, sort: [EloSort]): [Elo]
     elo(id: ID!): Elo,
-    elosCount: Int
+    elosCount: Int,
+    elosByField(id: ID!, field: EloField!): [Elo]
   }
 `
