@@ -23,7 +23,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      characters (parent, { search, ids, gameId, sort }, context, info) {
+      characters (parent, { search, ids, games, sort }, context, info) {
         const proj = project(info)
         const q = {}
 
@@ -39,8 +39,10 @@ export default makeExecutableSchema({
           }
         }
 
-        if (gameId) {
-          q.game = ObjectId(gameId)
+        if (games) {
+          q.game = {
+            $in: games.map(g => ObjectId(g))
+          }
         }
 
         return Character.find(q, proj).sort(join(map(sort, mapSort), ' '))

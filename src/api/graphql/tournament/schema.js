@@ -33,9 +33,15 @@ export default makeExecutableSchema({
   typeDefs: [dateTypeDef, typeDef, query],
   resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      tournaments (parent, { events, games, players, sort, date_start_gte: dateStartGte, date_start_lte: dateStartLte, date_end_gte: dateEndGte, date_end_lte: dateEndLte }, context, info) {
+      tournaments (parent, { ids, events, games, players, sort, date_start_gte: dateStartGte, date_start_lte: dateStartLte, date_end_gte: dateEndGte, date_end_lte: dateEndLte }, context, info) {
         const proj = project(info)
         const q = {}
+
+        if (ids) {
+          q._id = {
+            $in: ids.map(i => ObjectId(i))
+          }
+        }
 
         if (dateStartGte || dateStartLte) {
           q.dateStart = {}

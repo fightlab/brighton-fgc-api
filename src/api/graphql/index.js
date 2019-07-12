@@ -14,7 +14,7 @@ import DateSchema from './scalars/date'
 const linkTypeDefs = gql`
   extend type Character {
     game: Game
-    matches: [Match]
+    matches(ids: [ID], tournaments: [ID], players: [ID], winners: [ID], losers: [ID], date_gte: Date, date_lte: Date, sort: [MatchSort]): [Match]
   }
 
   extend type Elo {
@@ -23,12 +23,13 @@ const linkTypeDefs = gql`
   }
 
   extend type Event {
-    tournaments: [Tournament]
+    tournaments(sort: [TournamentSort], ids: [ID], players: [ID], games: [ID]): [Tournament]
   }
 
   extend type Game {
-    tournaments: [Tournament],
-    characters: [Character]
+    tournaments(sort: [TournamentSort], ids: [ID], events: [ID], players: [ID]): [Tournament],
+    characters(search: String, ids: [ID], sort: [CharacterSort]): [Character]
+    elo(players: [ID], elo_gte: Int, elo_lte: Int, elo: Int, sort: [EloSort]): [Elo]
   }
 
   extend type Match {
@@ -37,12 +38,13 @@ const linkTypeDefs = gql`
     player2: Player!
     winner: Player!
     loser: Player!
-    characters: [Character]
+    characters(search: String, sort: [CharacterSort]): [Character]
   }
 
   extend type Player {
-    tournaments(sort: [TournamentSort], events: [ID], games: [ID]): [Tournament]
-    elo: [Elo]
+    tournaments(sort: [TournamentSort], ids: [ID], events: [ID], games: [ID]): [Tournament]
+    elo(games: [ID], elo_gte: Int, elo_lte: Int, elo: Int, sort: [EloSort]): [Elo]
+    matches(ids: [ID], tournaments: [ID], winners: [ID], losers: [ID], characters: [ID], date_gte: Date, date_lte: Date, sort: [MatchSort]): [Match]
   }
 
   extend type Result {
@@ -52,12 +54,14 @@ const linkTypeDefs = gql`
 
   extend type Tournament {
     game: Game
-    players: [Player]
+    players(search: String, sort: [PlayerSort]): [Player]
     event: Event
+    matches(ids: [ID], players: [ID], winners: [ID], losers: [ID], characters: [ID], date_gte: Date, date_lte: Date, sort: [MatchSort]): [Match]
+
   }
 `
 
-const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = 'id', field }) => (parent, args, context, info) => {
+const delegateToSchema = ({ key, fieldName, schema, operation = 'query', arg = 'id', field = undefined, args = {} }) => (parent, _, context, info) => {
   if (parent[key]) {
     return info.mergeInfo.delegateToSchema({
       schema,
@@ -96,7 +100,12 @@ export default mergeSchemas({
       },
       matches: {
         fragment: `... on Character { id }`,
-        resolve: delegateToSchema({ fieldName: 'matchesByCharacters', key: 'id', schema: MatchSchema, arg: 'ids' })
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'characters',
+          schema: MatchSchema,
+          fieldName: 'matches'
+        })
       }
     },
     Elo: {
@@ -112,17 +121,41 @@ export default mergeSchemas({
     Event: {
       tournaments: {
         fragment: `... on Event { id }`,
-        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'EVENTID' })
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'events',
+          schema: TournamentSchema,
+          fieldName: 'tournaments'
+        })
       }
     },
     Game: {
       tournaments: {
         fragment: `... on Game { id }`,
-        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'GAMEID' })
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'games',
+          schema: TournamentSchema,
+          fieldName: 'tournaments'
+        })
       },
       characters: {
         fragment: `... on Game { id }`,
-        resolve: delegateToSchema({ key: 'id', fieldName: 'charactersByField', schema: CharacterSchema, field: 'GAMEID' })
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'games',
+          schema: CharacterSchema,
+          fieldName: 'characters'
+        })
+      },
+      elo: {
+        fragment: `... on Game { id }`,
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'games',
+          schema: EloSchema,
+          fieldName: 'elos'
+        })
       }
     },
     Match: {
@@ -148,28 +181,41 @@ export default mergeSchemas({
       },
       characters: {
         fragment: `... on Match { characterIds }`,
-        resolve: delegateToSchema({ key: 'characterIds', schema: CharacterSchema, fieldName: 'characters', arg: 'ids' })
+        resolve: delegateToSchema({
+          key: 'characterIds',
+          arg: 'ids',
+          schema: CharacterSchema,
+          fieldName: 'characters'
+        })
       }
     },
     Player: {
       tournaments: {
         fragment: `... on Player { id }`,
-        resolve: (parent, args, context, info) => {
-          return info.mergeInfo.delegateToSchema({
-            schema: TournamentSchema,
-            operation: 'query',
-            fieldName: 'tournaments',
-            args: {
-              players: parent.id
-            },
-            context,
-            info
-          })
-        }
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'players',
+          schema: TournamentSchema,
+          fieldName: 'tournaments'
+        })
       },
       elo: {
         fragment: `... on Player { id }`,
-        resolve: delegateToSchema({ key: 'id', fieldName: 'elosByField', schema: EloSchema, field: 'PLAYERID' })
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'players',
+          schema: EloSchema,
+          fieldName: 'elos'
+        })
+      },
+      matches: {
+        fragment: `... on Player { id }`,
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'players',
+          schema: MatchSchema,
+          fieldName: 'matches'
+        })
       }
     },
     Result: {
@@ -189,11 +235,28 @@ export default mergeSchemas({
       },
       players: {
         fragment: `... on Tournament { playerIds }`,
-        resolve: delegateToSchema({ key: 'playerIds', fieldName: 'players', schema: PlayerSchema, arg: 'ids' })
+        resolve: delegateToSchema({
+          key: 'playerIds',
+          arg: 'ids',
+          schema: PlayerSchema,
+          fieldName: 'players',
+          args: {
+            all: true
+          }
+        })
       },
       event: {
         fragment: `... on Tournament { eventId }`,
         resolve: delegateToSchema({ key: 'eventId', fieldName: 'event', schema: EventSchema })
+      },
+      matches: {
+        fragment: `... on Tournament { id }`,
+        resolve: delegateToSchema({
+          key: 'id',
+          arg: 'matches',
+          schema: MatchSchema,
+          fieldName: 'matches'
+        })
       }
     }
   }

@@ -41,32 +41,50 @@ export default makeExecutableSchema({
   typeDefs: [dateTypeDef, typeDef, query],
   resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      matches (parent, { tournamentId, playerId, winnerId, loserId, characterId, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
+      matches (parent, { ids, tournaments, players, winners, losers, characters, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
         const proj = project(info)
         const q = {}
 
-        if (tournamentId) {
-          q._tournamentId = ObjectId(tournamentId)
+        if (ids) {
+          q._id = {
+            $in: ids.map(i => ObjectId(i))
+          }
         }
 
-        if (playerId) {
+        if (tournaments) {
+          q._tournamentId = {
+            $in: tournaments.map(t => ObjectId(t))
+          }
+        }
+
+        if (players) {
           q.$or = [{
-            _player1Id: ObjectId(playerId)
+            _player1Id: {
+              $in: players.map(p => ObjectId(p))
+            }
           }, {
-            _player2Id: ObjectId(playerId)
+            _player2Id: {
+              $in: players.map(p => ObjectId(p))
+            }
           }]
         }
 
-        if (winnerId) {
-          q.winnerId = ObjectId(winnerId)
+        if (winners) {
+          q._winnerId = {
+            $in: winners.map(w => ObjectId(w))
+          }
         }
 
-        if (loserId) {
-          q.loserId = ObjectId(loserId)
+        if (losers) {
+          q._loserId = {
+            $in: losers.map(l => ObjectId(l))
+          }
         }
 
-        if (characterId) {
-          q.characters = ObjectId(characterId)
+        if (characters) {
+          q.characters = {
+            $in: characters.map(c => ObjectId(c))
+          }
         }
 
         if (dateGte || dateLte) {

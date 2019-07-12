@@ -24,16 +24,20 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      elos (parent, { playerId, gameId, elo_gte: eloGte, elo_lte: eloLte, sort }, context, info) {
+      elos (parent, { players, games, elo_gte: eloGte, elo_lte: eloLte, sort }, context, info) {
         const proj = project(info)
         const q = {}
 
-        if (playerId) {
-          q.player = ObjectId(playerId)
+        if (players) {
+          q.player = {
+            $in: players.map(p => ObjectId(p))
+          }
         }
 
-        if (gameId) {
-          q.game = ObjectId(gameId)
+        if (games) {
+          q.game = {
+            $in: games.map(g => ObjectId(g))
+          }
         }
 
         if (eloGte || eloLte) {
