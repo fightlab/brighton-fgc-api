@@ -41,7 +41,7 @@ const linkTypeDefs = gql`
   }
 
   extend type Player {
-    tournaments: [Tournament]
+    tournaments(sort: [TournamentSort], events: [ID], games: [ID]): [Tournament]
     elo: [Elo]
   }
 
@@ -154,7 +154,18 @@ export default mergeSchemas({
     Player: {
       tournaments: {
         fragment: `... on Player { id }`,
-        resolve: delegateToSchema({ key: 'id', fieldName: 'tournamentsByField', schema: TournamentSchema, field: 'PLAYERID' })
+        resolve: (parent, args, context, info) => {
+          return info.mergeInfo.delegateToSchema({
+            schema: TournamentSchema,
+            operation: 'query',
+            fieldName: 'tournaments',
+            args: {
+              players: parent.id
+            },
+            context,
+            info
+          })
+        }
       },
       elo: {
         fragment: `... on Player { id }`,

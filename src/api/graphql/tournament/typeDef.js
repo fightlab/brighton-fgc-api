@@ -7,12 +7,20 @@ export default gql`
     EVENTID
   }
 
+  enum TournamentSort {
+    DATETIME_START_ASC
+    DATETIME_START_DESC
+    DATETIME_END_ASC
+    DATETIME_END_DESC
+    ID
+  }
+
   type Tournament {
     id: ID!
     name: String
     type: String
-    dateTimeStart: String
-    dateTimeEnd: String
+    dateTimeStart: Date
+    dateTimeEnd: Date
     bracket: String
     bracketImage: String
     signUpUrl: String
@@ -34,5 +42,22 @@ export const mapField = field => {
       return 'players'
     default:
       return ''
+  }
+}
+
+export const mapSort = sort => {
+  switch (sort) {
+    case 'DATETIME_START_ASC':
+      return 'dateStart'
+    case 'DATETIME_START_DESC':
+      return '-dateStart'
+    case 'DATETIME_END_ASC':
+      return 'dateEnd'
+    case 'DATETIME_END_DESC':
+      return '-dateEnd'
+    case 'ID':
+      return '_id'
+    default:
+      return '-dateEnd'
   }
 }

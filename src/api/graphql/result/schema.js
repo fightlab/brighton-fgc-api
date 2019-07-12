@@ -1,9 +1,12 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import typeDef from './typeDef'
+import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge } from 'lodash'
+import { merge, join, map } from 'lodash'
 import Result from '../../../common/result/model'
+import mongoose from 'mongoose'
+
+const { ObjectId } = mongoose.Types
 
 const { project, resolvers } = gqlProjection({
   Result: {
@@ -24,10 +27,29 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      results (parent, args, context, info) {
+      results (parent, { sort, players, tournaments, rank }, context, info) {
         const proj = project(info)
         const q = {}
-        return Result.find(q, proj)
+
+        if (players) {
+          q._playerId = {
+            $in: players.map(p => ObjectId(p))
+          }
+        }
+
+        if (tournaments) {
+          q._tournamentId = {
+            $in: tournaments.map(t => ObjectId(t))
+          }
+        }
+
+        if (rank) {
+          q.rank = {
+            $lte: rank
+          }
+        }
+
+        return Result.find(q, proj).sort(join(map(sort, mapSort), ' '))
       },
       result (parent, { id }, context, info) {
         const proj = merge(project(info), {
