@@ -5,6 +5,9 @@ import gqlProjection from 'graphql-advanced-projection'
 import { merge, join, map } from 'lodash'
 import Event from '../../../common/event/model'
 import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
+import { Types } from 'mongoose'
+
+const { ObjectId } = Types
 
 const { project, resolvers } = gqlProjection({
   Event: {
@@ -22,9 +25,16 @@ export default makeExecutableSchema({
   typeDefs: [dateTypeDef, typeDef, query],
   resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      events (parent, { search, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
+      events (parent, { search, ids, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
         const proj = project(info)
         const q = {}
+
+        if (ids) {
+          q._id = {
+            $in: ids.map(i => ObjectId(i))
+          }
+        }
+
         if (search) {
           q.$text = {
             $search: search
