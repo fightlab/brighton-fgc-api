@@ -59,7 +59,7 @@
     "graphql-tools": "^4.0.4",
     "gql-tag": "^1.0.1",
     "jwks-rsa": "^1.2.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.13",
     "moment-timezone": "^0.5.14",
     "mongoose": "5.0.14",
     "morgan": "^1.7.0"
