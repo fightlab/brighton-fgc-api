@@ -1,10 +1,6 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  enum CharacterFields {
-    GAMEID
-  }
-
   enum CharacterSort {
     NAME_ASC
     NAME_DESC
@@ -30,14 +26,5 @@ export const mapSort = sort => {
       return 'game'
     default:
       return '_id'
-  }
-}
-
-export const mapField = field => {
-  switch (field) {
-    case 'GAMEID':
-      return 'game'
-    default:
-      return ''
   }
 }

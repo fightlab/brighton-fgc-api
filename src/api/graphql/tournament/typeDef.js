@@ -1,12 +1,6 @@
 import { gql } from 'apollo-server-express'
 
 export default gql`
-  enum TournamentField {
-    GAMEID
-    PLAYERID
-    EVENTID
-  }
-
   enum TournamentSort {
     DATETIME_START_ASC
     DATETIME_START_DESC
@@ -31,19 +25,6 @@ export default gql`
     eventId: ID
   }
 `
-
-export const mapField = field => {
-  switch (field) {
-    case 'GAMEID':
-      return '_gameId'
-    case 'EVENTID':
-      return 'event'
-    case 'PLAYERID':
-      return 'players'
-    default:
-      return ''
-  }
-}
 
 export const mapSort = sort => {
   switch (sort) {

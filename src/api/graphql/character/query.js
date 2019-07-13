@@ -5,6 +5,5 @@ export default gql`
     characters(search: String, ids: [ID], games: [ID], sort: [CharacterSort]): [Character]
     character(id: ID!): Character
     charactersCount: Int
-    charactersByField(id: ID!, field: CharacterFields, sort: [CharacterSort]): [Character]
   }
 `

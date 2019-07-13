@@ -2,7 +2,7 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, isArray, join, map } from 'lodash'
+import { merge, join, map } from 'lodash'
 import { Types } from 'mongoose'
 import Match from '../../../common/match/model'
 import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
@@ -105,21 +105,6 @@ export default makeExecutableSchema({
       },
       matchesCount () {
         return Match.count()
-      },
-      matchesByCharacters (parent, { ids }, context, info) {
-        const proj = project(info)
-
-        if (isArray(ids)) {
-          ids = ids.map(id => ObjectId(id))
-        } else {
-          ids = [ObjectId(ids)]
-        }
-
-        return Match.find({
-          characters: {
-            $in: ids
-          }
-        }, proj)
       }
     }
   })

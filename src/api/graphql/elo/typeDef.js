@@ -11,11 +11,6 @@ export default gql`
     ID
   }
 
-  enum EloField {
-    GAMEID
-    PLAYERID
-  }
-
   type Elo {
     id: ID!
     elo: Int
@@ -41,16 +36,5 @@ export const mapSort = sort => {
       return 'player'
     default:
       return '_id'
-  }
-}
-
-export const mapField = field => {
-  switch (field) {
-    case 'GAMEID':
-      return 'game'
-    case 'PLAYERID':
-      return 'player'
-    default:
-      return ''
   }
 }
