@@ -2,13 +2,13 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, join, map } from 'lodash'
+import { merge, map, orderBy, unzip } from 'lodash'
 import Result from '../../../common/result/model'
 import mongoose from 'mongoose'
 
 const { ObjectId } = mongoose.Types
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Result: {
     proj: {
       id: '_id',
@@ -27,8 +27,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      results (parent, { sort, ids, players, tournaments, rank }, context, info) {
-        const proj = project(info)
+      async results (parent, { sort = '_id', ids, players, tournaments, rank }, { loaders }, info) {
         const q = {}
 
         if (ids) {
@@ -55,14 +54,12 @@ export default makeExecutableSchema({
           }
         }
 
-        return Result.find(q, proj).sort(join(map(sort, mapSort), ' '))
+        const results = await loaders.ResultsLoader.load(q)
+        const [iteratees, orders] = unzip(map(sort, mapSort))
+        return orderBy(results, iteratees, orders)
       },
       result (parent, { id }, context, info) {
-        const proj = merge(project(info), {
-          _tournamentId: 1,
-          _playerId: 1
-        })
-        return Result.findById(id, proj)
+        return Result.findById(id)
       },
       resultsCount () {
         return Result.count()

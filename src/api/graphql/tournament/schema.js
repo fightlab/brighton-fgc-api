@@ -2,14 +2,14 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, join, map } from 'lodash'
+import { merge, map, orderBy, unzip } from 'lodash'
 import { Types } from 'mongoose'
 import Tournament from '../../../common/tournament/model'
 import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
 
 const { ObjectId } = Types
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Tournament: {
     proj: {
       id: '_id',
@@ -33,8 +33,7 @@ export default makeExecutableSchema({
   typeDefs: [dateTypeDef, typeDef, query],
   resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      tournaments (parent, { ids, events, games, players, sort, date_start_gte: dateStartGte, date_start_lte: dateStartLte, date_end_gte: dateEndGte, date_end_lte: dateEndLte }, context, info) {
-        const proj = project(info)
+      async tournaments (parent, { ids, events, games, players, sort = ['DATETIME_END_DESC'], date_start_gte: dateStartGte, date_start_lte: dateStartLte, date_end_gte: dateEndGte, date_end_lte: dateEndLte }, { loaders }, info) {
         const q = {}
 
         if (ids) {
@@ -81,11 +80,12 @@ export default makeExecutableSchema({
           }
         }
 
-        return Tournament.find(q, proj).sort(join(map(sort, mapSort), ' '))
+        const tournaments = await loaders.TournamentsLoader.load(q)
+        const [iteratees, orders] = unzip(map(sort, mapSort))
+        return orderBy(tournaments, iteratees, orders)
       },
       tournament (parent, { id }, context, info) {
-        const proj = project(info)
-        return Tournament.findById(id, proj)
+        return Tournament.findById(id)
       },
       tournamentsCount () {
         return Tournament.count()

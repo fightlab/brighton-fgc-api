@@ -2,14 +2,14 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, join, map } from 'lodash'
+import { merge, map, orderBy, unzip } from 'lodash'
 import Event from '../../../common/event/model'
 import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
 import { Types } from 'mongoose'
 
 const { ObjectId } = Types
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Event: {
     proj: {
       id: '_id',
@@ -25,8 +25,7 @@ export default makeExecutableSchema({
   typeDefs: [dateTypeDef, typeDef, query],
   resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      events (parent, { search, ids, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
-        const proj = project(info)
+      async events (parent, { search, ids, date_gte: dateGte, date_lte: dateLte, sort = 'DATE_DESC' }, { loaders }, info) {
         const q = {}
 
         if (ids) {
@@ -51,11 +50,12 @@ export default makeExecutableSchema({
           }
         }
 
-        return Event.find(q, proj).sort(join(map(sort, mapSort), ' '))
+        const events = await loaders.EventsLoader.load(q)
+        const [iteratees, orders] = unzip(map(sort, mapSort))
+        return orderBy(events, iteratees, orders)
       },
       event (parent, { id }, context, info) {
-        const proj = project(info)
-        return Event.findById(id, proj)
+        return Event.findById(id)
       },
       eventsCount () {
         return Event.count()

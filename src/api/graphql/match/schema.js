@@ -2,14 +2,14 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, join, map } from 'lodash'
+import { merge, map, orderBy, unzip } from 'lodash'
 import { Types } from 'mongoose'
 import Match from '../../../common/match/model'
 import { typeDefs as dateTypeDef, resolvers as dateResolvers } from '../scalars/date'
 
 const { ObjectId } = Types
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Match: {
     proj: {
       id: '_id',
@@ -41,8 +41,7 @@ export default makeExecutableSchema({
   typeDefs: [dateTypeDef, typeDef, query],
   resolvers: merge(resolvers, dateResolvers, {
     Query: {
-      matches (parent, { ids, tournaments, players, winners, losers, characters, date_gte: dateGte, date_lte: dateLte, sort }, context, info) {
-        const proj = project(info)
+      async matches (parent, { ids, tournaments, players, winners, losers, characters, date_gte: dateGte, date_lte: dateLte, sort = '_id' }, { loaders }, info) {
         const q = {}
 
         if (ids) {
@@ -97,11 +96,12 @@ export default makeExecutableSchema({
           }
         }
 
-        return Match.find(q, proj).sort(join(map(sort, mapSort), ' '))
+        const matches = await loaders.MatchesLoader.load(q)
+        const [iteratees, orders] = unzip(map(sort, mapSort))
+        return orderBy(matches, iteratees, orders)
       },
       match (parent, { id }, context, info) {
-        const proj = project(info)
-        return Match.findById(id, proj)
+        return Match.findById(id)
       },
       matchesCount () {
         return Match.count()

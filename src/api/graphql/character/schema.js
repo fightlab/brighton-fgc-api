@@ -2,13 +2,13 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, join, map } from 'lodash'
+import { merge, map, orderBy, unzip } from 'lodash'
 import mongoose from 'mongoose'
 import Character from '../../../common/character/model'
 
 const { ObjectId } = mongoose.Types
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Character: {
     proj: {
       id: '_id',
@@ -23,8 +23,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      characters (parent, { search, ids, games, sort }, context, info) {
-        const proj = project(info)
+      async characters (parent, { search, ids, games, sort = '_id' }, { loaders }, info) {
         const q = {}
 
         if (search) {
@@ -45,11 +44,12 @@ export default makeExecutableSchema({
           }
         }
 
-        return Character.find(q, proj).sort(join(map(sort, mapSort), ' '))
+        const characters = await loaders.CharactersLoader.load(q)
+        const [iteratees, orders] = unzip(map(sort, mapSort))
+        return orderBy(characters, iteratees, orders)
       },
       character (parent, { id }, context, info) {
-        const proj = project(info)
-        return Character.findById(id, proj)
+        return Character.findById(id)
       },
       charactersCount () {
         return Character.count()

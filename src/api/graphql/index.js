@@ -1,6 +1,8 @@
 import { gql } from 'apollo-server-express'
 import { mergeSchemas } from 'graphql-tools'
 
+import _loaders from './loaders'
+
 import PlayerSchema from './player'
 import GameSchema from './game'
 import CharacterSchema from './character'
@@ -261,3 +263,5 @@ export default mergeSchemas({
     }
   }
 })
+
+export const loaders = _loaders

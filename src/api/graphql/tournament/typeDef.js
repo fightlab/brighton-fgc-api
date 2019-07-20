@@ -29,16 +29,16 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'DATETIME_START_ASC':
-      return 'dateStart'
+      return ['dateStart', 'asc']
     case 'DATETIME_START_DESC':
-      return '-dateStart'
+      return ['dateStart', 'desc']
     case 'DATETIME_END_ASC':
-      return 'dateEnd'
+      return ['dateEnd', 'asc']
     case 'DATETIME_END_DESC':
-      return '-dateEnd'
+      return ['dateEnd', 'desc']
     case 'ID':
-      return '_id'
+      return ['_id', 'asc']
     default:
-      return '-dateEnd'
+      return ['dateEnd', 'desc']
   }
 }

@@ -24,18 +24,18 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'ELO_AFTER_ASC':
-      return 'eloAfterTournament'
+      return ['eloAfterTournament', 'asc']
     case 'ELO_BEFORE_ASC':
-      return 'eloBeforeTournament'
+      return ['eloBeforeTournament', 'asc']
     case 'ELO_AFTER_DESC':
-      return '-eloAfterTournament'
+      return ['eloAfterTournament', 'desc']
     case 'ELO_BEFORE_DESC':
-      return '-eloBeforeTournament'
+      return ['eloBeforeTournament', 'desc']
     case 'RANK_ASC':
-      return 'rank'
+      return ['rank', 'asc']
     case 'RANK_DESC':
-      return '-rank'
+      return ['rank', 'desc']
     default:
-      return '_id'
+      return ['_id', 'asc']
   }
 }

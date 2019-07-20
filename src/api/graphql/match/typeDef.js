@@ -40,10 +40,10 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'DATE_ASC':
-      return 'endDate'
+      return ['endDate', 'asc']
     case 'DATE_DESC':
-      return '-endDate'
+      return ['endDate', 'desc']
     default:
-      return '_id'
+      return ['_id', 'asc']
   }
 }

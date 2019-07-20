@@ -2,11 +2,11 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, join, map, fromPairs } from 'lodash'
+import { merge, map, fromPairs, orderBy, unzip } from 'lodash'
 import mongoose from 'mongoose'
 import Player from '../../../common/player/model'
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Player: {
     proj: {
       id: '_id',
@@ -26,8 +26,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      players (parent, { search, ids, sort, all }, context, info) {
-        const proj = project(info)
+      async players (parent, { search, ids, sort = '_id', all = true }, { loaders }, info) {
         const q = {}
         if (search) {
           q.$text = {
@@ -41,7 +40,9 @@ export default makeExecutableSchema({
         }
 
         if (all) {
-          return Player.find(q, proj).sort(join(map(sort, mapSort), ' '))
+          const players = await loaders.PlayersLoader.load(q)
+          const [iteratees, orders] = unzip(map(sort, mapSort))
+          return orderBy(players, iteratees, orders)
         } else {
           const agg = [{
             $match: q
@@ -72,17 +73,14 @@ export default makeExecutableSchema({
               }
             }
           }, {
-            $sort: fromPairs(map(map(sort, mapSort), v => [v.replace('-', ''), v.charAt(0) === '-' ? -1 : 1]))
-          }, {
-            $project: proj
+            $sort: fromPairs(map(map(sort, mapSort), v => [v[0], v[1] === 'desc' ? -1 : 1]))
           }]
           return Player
             .aggregate(agg)
         }
       },
       player (parent, { id }, context, info) {
-        const proj = project(info)
-        return Player.findById(id, proj)
+        return Player.findById(id)
       },
       playersCount () {
         return Player.count()

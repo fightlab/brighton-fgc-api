@@ -21,14 +21,14 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'DATE_ASC':
-      return 'date'
+      return ['date', 'asc']
     case 'NAME_ASC':
-      return 'name'
+      return ['name', 'asc']
     case 'NAME_DESC':
-      return '-name'
+      return ['name', 'desc']
     case 'ID':
-      return '_id'
+      return ['_id', 'desc']
     default:
-      return '-date'
+      return ['date', 'desc']
   }
 }

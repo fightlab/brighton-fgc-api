@@ -19,12 +19,12 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'NAME_ASC':
-      return 'short'
+      return ['short', 'asc']
     case 'NAME_DESC':
-      return '-short'
+      return ['short', 'desc']
     case 'GAMEID':
-      return 'game'
+      return ['game', 'asc']
     default:
-      return '_id'
+      return ['_id', 'asc']
   }
 }

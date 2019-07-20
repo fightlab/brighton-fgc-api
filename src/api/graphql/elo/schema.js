@@ -2,13 +2,13 @@ import { makeExecutableSchema } from 'graphql-tools'
 import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
-import { merge, map, join } from 'lodash'
+import { merge, map, orderBy, unzip } from 'lodash'
 import mongoose from 'mongoose'
 import Elo from '../../../common/elo/model'
 
 const { ObjectId } = mongoose.Types
 
-const { project, resolvers } = gqlProjection({
+const { resolvers } = gqlProjection({
   Elo: {
     proj: {
       id: '_id',
@@ -24,8 +24,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      elos (parent, { ids, players, games, elo_gte: eloGte, elo_lte: eloLte, sort }, context, info) {
-        const proj = project(info)
+      async elos (parent, { ids, players, games, elo_gte: eloGte, elo_lte: eloLte, sort = '_id' }, { loaders }, info) {
         const q = {}
 
         if (ids) {
@@ -57,11 +56,12 @@ export default makeExecutableSchema({
           }
         }
 
-        return Elo.find(q, proj).sort(join(map(sort, mapSort), ' '))
+        const elos = await loaders.ElosLoader.load(q)
+        const [iteratees, orders] = unzip(map(sort, mapSort))
+        return orderBy(elos, iteratees, orders)
       },
       elo (parent, { id }, context, info) {
-        const proj = project(info)
-        return Elo.findById(id, proj)
+        return Elo.findById(id)
       },
       elosCount () {
         return Elo.count()

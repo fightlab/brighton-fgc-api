@@ -6,6 +6,8 @@ export default gql`
     HANDLE_ASC
     HANDLE_DESC
     IS_STAFF
+    TOURNAMENT_COUNT_DESC
+    TOURNAMENT_COUNT_ASC
   }
 
   type Profile {
@@ -37,12 +39,16 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'HANDLE_ASC':
-      return 'handle'
+      return ['handle', 'asc']
     case 'HANDLE_DESC':
-      return '-handle'
+      return ['handle', 'desc']
     case 'IS_STAFF':
-      return 'isStaff handle'
+      return ['isStaff', 'desc']
+    case 'TOURNAMENT_COUNT_DESC':
+      return ['tournamentCount', 'desc']
+    case 'TOURNAMENT_COUNT_ASC':
+      return ['tournamentCount', 'asc']
     default:
-      return '_id'
+      return ['_id', 'asc']
   }
 }

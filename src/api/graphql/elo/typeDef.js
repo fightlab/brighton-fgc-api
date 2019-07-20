@@ -23,18 +23,18 @@ export default gql`
 export const mapSort = sort => {
   switch (sort) {
     case 'ELO_ASC':
-      return 'elo'
+      return ['elo', 'asc']
     case 'ELO_DESC':
-      return '-elo'
+      return ['elo', 'desc']
     case 'MATCHES_ASC':
-      return 'matches'
+      return ['matches', 'asc']
     case 'MATCHES_DESC':
-      return '-matches'
+      return ['-matches', 'desc']
     case 'GAMEID':
-      return 'game'
+      return ['game', 'asc']
     case 'PLAYERID':
-      return 'player'
+      return ['player', 'asc']
     default:
-      return '_id'
+      return ['_id', 'asc']
   }
 }
