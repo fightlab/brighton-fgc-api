@@ -3,8 +3,10 @@ import typeDef, { mapSort } from './typeDef'
 import query from './query'
 import gqlProjection from 'graphql-advanced-projection'
 import { merge, map, fromPairs, orderBy, unzip } from 'lodash'
-import mongoose from 'mongoose'
+import { Types } from 'mongoose'
 import Player from '../../../common/player/model'
+
+const { ObjectId } = Types
 
 const { resolvers } = gqlProjection({
   Player: {
@@ -35,7 +37,7 @@ export default makeExecutableSchema({
         }
         if (ids) {
           q._id = {
-            $in: ids.map(id => mongoose.Types.ObjectId(id))
+            $in: ids.map(id => ObjectId(id))
           }
         }
 
@@ -79,8 +81,8 @@ export default makeExecutableSchema({
             .aggregate(agg)
         }
       },
-      player (parent, { id }, context, info) {
-        return Player.findById(id)
+      player (parent, { id }, { loaders }, info) {
+        return loaders.PlayerLoader.load(ObjectId(id))
       },
       playersCount () {
         return Player.count()

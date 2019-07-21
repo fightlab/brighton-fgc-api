@@ -84,8 +84,8 @@ export default makeExecutableSchema({
         const [iteratees, orders] = unzip(map(sort, mapSort))
         return orderBy(tournaments, iteratees, orders)
       },
-      tournament (parent, { id }, context, info) {
-        return Tournament.findById(id)
+      tournament (parent, { id }, { loaders }, info) {
+        return loaders.TournamentLoader.load(ObjectId(id))
       },
       tournamentsCount () {
         return Tournament.count()

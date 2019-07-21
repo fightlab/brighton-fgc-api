@@ -60,8 +60,8 @@ export default makeExecutableSchema({
         const [iteratees, orders] = unzip(map(sort, mapSort))
         return orderBy(elos, iteratees, orders)
       },
-      elo (parent, { id }, context, info) {
-        return Elo.findById(id)
+      elo (parent, { id }, { loaders }, info) {
+        return loaders.EloLoader.load(ObjectId(id))
       },
       elosCount () {
         return Elo.count()

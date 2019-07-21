@@ -48,8 +48,8 @@ export default makeExecutableSchema({
         const [iteratees, orders] = unzip(map(sort, mapSort))
         return orderBy(characters, iteratees, orders)
       },
-      character (parent, { id }, context, info) {
-        return Character.findById(id)
+      character (parent, { id }, { loaders }, info) {
+        return loaders.CharacterLoader.load(ObjectId(id))
       },
       charactersCount () {
         return Character.count()

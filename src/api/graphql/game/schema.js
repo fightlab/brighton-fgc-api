@@ -24,7 +24,7 @@ export default makeExecutableSchema({
   typeDefs: [typeDef, query],
   resolvers: merge(resolvers, {
     Query: {
-      async games (parent, { search, ids, sort = '_id' }, { loaders }, info) {
+      async games (parent, { search, ids, sort = ['_id'] }, { loaders }, info) {
         const q = {}
 
         if (ids) {
@@ -43,8 +43,8 @@ export default makeExecutableSchema({
         const [iteratees, orders] = unzip(map(sort, mapSort))
         return orderBy(games, iteratees, orders)
       },
-      game (parent, { id }, context, info) {
-        return Game.findById(id)
+      game (parent, { id }, { loaders }, info) {
+        return loaders.GameLoader.load(ObjectId(id))
       },
       gamesCount () {
         return Game.count()

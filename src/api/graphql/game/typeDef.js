@@ -8,7 +8,7 @@ export default gql`
   }
 
   type Game {
-    id: ID!
+    id: ID
     name: String
     shortName: String
     image: String
