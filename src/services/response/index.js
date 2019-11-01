@@ -1,4 +1,4 @@
-import Boom from 'boom'
+import Boom from '@hapi/boom'
 
 // 200
 export const success = (res, status) => entity => {

@@ -1,10 +1,10 @@
 import Promise from 'bluebird'
 import mongoose from 'mongoose'
-import { mongo } from '../../config'
+import config from '../../config'
 
-if (mongo.options) {
-  Object.keys(mongo.options).forEach((key) => {
-    mongoose.set(key, mongo.options[key])
+if (config.mongo.options) {
+  Object.keys(config.mongo.options).forEach((key) => {
+    mongoose.set(key, config.mongo.options[key])
   })
 }
 

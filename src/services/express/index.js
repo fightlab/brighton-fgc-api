@@ -5,13 +5,13 @@ import cors from 'cors'
 import compression from 'compression'
 import morgan from 'morgan'
 import bodyParser from 'body-parser'
-import { env } from '../../config'
+import config from '../../config'
 
 export default (apiRoot, routes) => {
   const app = express()
 
   /* istanbul ignore next */
-  if (env === 'production') {
+  if (config.env === 'production') {
     app.set('forceSSLOptions', {
       enable301Redirects: false,
       trustXFPHeader: true
@@ -20,7 +20,7 @@ export default (apiRoot, routes) => {
   }
 
   /* istanbul ignore next */
-  if (env === 'production' || env === 'development') {
+  if (config.env === 'production' || config.env === 'development') {
     app.use(cors())
     app.use(compression())
     app.use(morgan('dev'))

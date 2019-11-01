@@ -1,21 +1,24 @@
-import { env, mongo, port, ip, apiRoot } from './config'
+import config from './config'
 import mongoose from './services/mongoose'
 import express from './services/express'
 import api from './api'
 import graphql from './services/graphql'
 
-const app = express(apiRoot, api)
+const app = express(config.apiRoot, api)
 const server = graphql()
 
 server.applyMiddleware({ app })
 
-mongoose.connect(mongo.uri)
+mongoose.connect(config.mongo.uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
 mongoose.Promise = Promise
 
 setImmediate(() => {
-  app.listen(port, ip, () => {
-    console.log(`Express server listening on http://${ip}:${port}, in ${env} mode`)
-    console.log(`GraphQL server ready at http://${ip}:${port}${server.graphqlPath}`)
+  app.listen(config.port, config.ip, () => {
+    console.log(`Express server listening on http://${config.ip}:${config.port}, in ${config.env} mode`)
+    console.log(`GraphQL server ready at http://${config.ip}:${config.port}${server.graphqlPath}`)
   })
 })
 

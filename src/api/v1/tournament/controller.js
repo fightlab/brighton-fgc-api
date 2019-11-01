@@ -4,7 +4,7 @@ import asyncNode from 'async'
 import cloudinary from 'cloudinary'
 import _, { map, find } from 'lodash'
 import { Types } from 'mongoose'
-import { challongeApiKey } from '../../../config'
+import config from '../../../config'
 import moment from 'moment-timezone'
 import { success, notFound, badImplementation, badRequest } from '../../../services/response/'
 import Tournament from '.'
@@ -570,7 +570,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res) => {
 
   const subdomain = bracket.hostname.split('.')[0]
   const path = bracket.pathname.replace('/', '')
-  const url = `${API_URL}/tournaments/${subdomain === 'challonge' ? '' : `${subdomain}-`}${path}.json?include_participants=1&include_matches=1&api_key=${challongeApiKey}`
+  const url = `${API_URL}/tournaments/${subdomain === 'challonge' ? '' : `${subdomain}-`}${path}.json?include_participants=1&include_matches=1&api_key=${config.challongeApiKey}`
 
   let response
 
