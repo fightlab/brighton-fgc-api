@@ -7,7 +7,7 @@
   "scripts": {
     "build": "backpack build",
     "start": "backpack build && node ./build/main.js",
-    "test": "jest --forceExit",
+    "test": "snyk test && jest --forceExit",
     "dev": "backpack --inspect"
   },
   "jest": {
@@ -35,6 +35,7 @@
     "opn-cli": "^3.1.0",
     "readline-sync": "^1.4.7",
     "sinon": "^4.0.1",
+    "snyk": "^1.241.0",
     "supertest": "^3.0.0"
   },
   "dependencies": {
@@ -62,7 +63,7 @@
     "jwks-rsa": "^1.2.1",
     "lodash": "^4.17.13",
     "moment-timezone": "^0.5.14",
-    "mongoose": "5.0.14",
+    "mongoose": "5.7.5",
     "morgan": "^1.7.0",
     "sift": "^7"
   }
