@@ -58,13 +58,13 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
 export const destroy = ({ params }, res, next) =>
   Match.findById(params.id)
     .then(notFound(res))
-    .then((match) => match ? match.remove() : null)
+    .then((match) => match ? Match.deleteOne({ _id: match.id }) : null)
     .then(success(res, 204))
     .catch(badImplementation(res))
 
 export const count = (req, res, next) =>
   Match
-    .count()
+    .estimatedDocumentCount()
     .then(success(res))
     .catch(next)
 

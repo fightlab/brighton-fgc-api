@@ -35,14 +35,12 @@ export const merge = async ({ params: { correct, wrong } }, res) => {
   }
 
   await Match
-    .update({
+    .updateMany({
       characters: ObjectId(wrong)
     }, {
       $set: {
         'characters.$': ObjectId(correct)
       }
-    }, {
-      multi: true
     })
 
   Character

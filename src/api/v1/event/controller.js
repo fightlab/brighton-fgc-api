@@ -55,12 +55,12 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
 export const destroy = ({ params }, res, next) =>
   Event.findById(params.id)
     .then(notFound(res))
-    .then((event) => event ? event.remove() : null)
+    .then((event) => event ? Event.deleteOne({ _id: event.id }) : null)
     .then(success(res, 204))
     .catch(next)
 
 export const count = (req, res, next) =>
   Event
-    .count()
+    .estimatedDocumentCount()
     .then(success(res))
     .catch(next)

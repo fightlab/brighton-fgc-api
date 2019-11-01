@@ -85,7 +85,7 @@ export default makeExecutableSchema({
         return loaders.PlayerLoader.load(ObjectId(id))
       },
       playersCount () {
-        return Player.count()
+        return Player.estimatedDocumentCount()
       }
     }
   })

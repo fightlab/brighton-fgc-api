@@ -47,7 +47,7 @@ export default makeExecutableSchema({
         return loaders.GameLoader.load(ObjectId(id))
       },
       gamesCount () {
-        return Game.count()
+        return Game.estimatedDocumentCount()
       }
     }
   })

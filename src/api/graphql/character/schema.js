@@ -52,7 +52,7 @@ export default makeExecutableSchema({
         return loaders.CharacterLoader.load(ObjectId(id))
       },
       charactersCount () {
-        return Character.count()
+        return Character.estimatedDocumentCount()
       }
     }
   })

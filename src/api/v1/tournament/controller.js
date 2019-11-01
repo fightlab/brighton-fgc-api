@@ -501,12 +501,12 @@ export const destroy = ({ params }, res) =>
   Tournament
     .findById(params.id)
     .then(notFound(res))
-    .then(tournament => tournament ? tournament.remove() : null)
+    .then(tournament => tournament ? Tournament.deleteOne({ _id: tournament.id }) : null)
     .then(new Promise((resolve, reject) => {
       const proms = []
       // remove matches
       proms.push(new Promise((resolve, reject) => Match
-        .remove({
+        .deleteMany({
           _tournamentId: ObjectId(params.id)
         })
         .then(resolve)
@@ -515,7 +515,7 @@ export const destroy = ({ params }, res) =>
 
       // remove result
       proms.push(new Promise((resolve, reject) => Result
-        .remove({
+        .deleteMany({
           _tournamentId: ObjectId(params.id)
         })
         .then(resolve)
@@ -627,7 +627,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res) => {
       const proms = []
       // remove matches
       proms.push(new Promise((resolve, reject) => Match
-        .remove({
+        .deleteMany({
           _tournamentId: ObjectId(params.id)
         })
         .then(resolve)
@@ -636,7 +636,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res) => {
 
       // remove result
       proms.push(new Promise((resolve, reject) => Result
-        .remove({
+        .deleteMany({
           _tournamentId: ObjectId(params.id)
         })
         .then(resolve)
@@ -667,7 +667,7 @@ export const challongeUpdate = async ({ bodymen: { body }, params }, res) => {
 
 export const count = (req, res) =>
   Tournament
-    .count()
+    .estimatedDocumentCount()
     .then(success(res))
     .catch(badImplementation(res))
 

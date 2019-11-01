@@ -32,6 +32,6 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
 export const destroy = ({ params }, res, next) =>
   Result.findById(params.id)
     .then(notFound(res))
-    .then(result => result ? result.remove() : null)
+    .then(result => result ? Result.deleteOne({ _id: result.id }) : null)
     .then(success(res, 204))
     .catch(badImplementation(res))

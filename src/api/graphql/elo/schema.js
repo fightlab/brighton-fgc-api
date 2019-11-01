@@ -64,7 +64,7 @@ export default makeExecutableSchema({
         return loaders.EloLoader.load(ObjectId(id))
       },
       elosCount () {
-        return Elo.count()
+        return Elo.estimatedDocumentCount()
       }
     }
   })

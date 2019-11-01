@@ -97,14 +97,14 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
 export const destroy = ({ params }, res, next) =>
   Player.findById(params.id)
     .then(notFound(res))
-    .then((player) => player ? player.remove() : null)
+    .then((player) => player ? Player.deleteOne({ _id: player.id }) : null)
     .then(player => new Promise((resolve, reject) => {
       const proms = []
 
       // remove results with player
       proms.push(new Promise((resolve, reject) => {
         Result
-          .remove({
+          .deleteMany({
             _playerId: ObjectId(params.id)
           })
           .then(resolve)
@@ -114,7 +114,7 @@ export const destroy = ({ params }, res, next) =>
       // remove matches with player
       proms.push(new Promise((resolve, reject) => {
         Match
-          .remove({
+          .deleteMany({
             $or: [{
               _player1Id: ObjectId(params.id)
             }, {
@@ -128,10 +128,9 @@ export const destroy = ({ params }, res, next) =>
       // remove from tournaments array
       proms.push(new Promise(async (resolve, reject) => {
         Tournament
-          .update(
+          .updateMany(
             {},
             { $pull: { players: { $in: [ObjectId(params.id)] } } },
-            { multi: true }
           )
           .then(resolve)
           .catch(reject)

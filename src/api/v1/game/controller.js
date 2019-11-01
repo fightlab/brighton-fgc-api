@@ -43,7 +43,7 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
 export const destroy = ({ params }, res, next) =>
   Game.findById(params.id)
     .then(notFound(res))
-    .then((game) => game ? game.remove() : null)
+    .then((game) => game ? Game.deleteOne({ _id: game.id }) : null)
     .then(success(res, 204))
     .catch(badImplementation(res))
 
@@ -118,7 +118,7 @@ export const recalculateElo = async ({ params: { id } }, res) => {
       .select('_id')
 
     // remove all elo for a game
-    await Elo.remove({
+    await Elo.deleteMany({
       game: ObjectId(id)
     })
 

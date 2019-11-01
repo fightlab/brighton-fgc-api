@@ -88,7 +88,7 @@ export default makeExecutableSchema({
         return loaders.TournamentLoader.load(ObjectId(id))
       },
       tournamentsCount () {
-        return Tournament.count()
+        return Tournament.estimatedDocumentCount()
       }
     }
   })

@@ -45,7 +45,7 @@ export const update = ({ bodymen: { body }, params }, res, next) =>
 export const destroy = ({ params }, res, next) =>
   Series.findById(params.id)
     .then(notFound(res))
-    .then(series => series ? series.remove() : null)
+    .then(series => series ? Series.deleteOne({ _id: series.id }) : null)
     .then(series => new Promise((resolve, reject) => {
       const proms = []
 
@@ -53,10 +53,9 @@ export const destroy = ({ params }, res, next) =>
       // remove from tournaments array
       proms.push(new Promise(async (resolve, reject) => {
         Tournament
-          .update(
+          .updateMany(
             { series: ObjectId(params.id) },
-            { $unset: { series: '' } },
-            { multi: true }
+            { $unset: { series: '' } }
           )
           .then(resolve)
           .catch(reject)

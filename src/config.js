@@ -33,6 +33,7 @@ const config = {
     cloudinarySecret: requireProcessEnv('CLOUDINARY_API_SECRET'),
     mongo: {
       options: {
+        useFindAndModify: false,
         db: {
           safe: true
         }

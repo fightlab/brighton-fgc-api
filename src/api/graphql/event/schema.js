@@ -58,7 +58,7 @@ export default makeExecutableSchema({
         return loaders.EventLoader.load(ObjectId(id))
       },
       eventsCount () {
-        return Event.count()
+        return Event.estimatedDocumentCount()
       }
     }
   })

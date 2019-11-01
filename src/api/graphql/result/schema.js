@@ -62,7 +62,7 @@ export default makeExecutableSchema({
         return loaders.ResultLoader.load(ObjectId(id))
       },
       resultsCount () {
-        return Result.count()
+        return Result.estimatedDocumentCount()
       }
     }
   })

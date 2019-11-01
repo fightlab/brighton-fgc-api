@@ -104,7 +104,7 @@ export default makeExecutableSchema({
         return loaders.MatchLoader.load(ObjectId(id))
       },
       matchesCount () {
-        return Match.count()
+        return Match.estimatedDocumentCount()
       }
     }
   })
