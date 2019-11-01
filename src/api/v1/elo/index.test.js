@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Elo, { EloRouter } from '.'
 import { Types } from 'mongoose'
@@ -7,6 +7,8 @@ import { Types } from 'mongoose'
 import Game from '../game'
 import Player from '../player'
 import Tournament from '../tournament'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, EloRouter)
 

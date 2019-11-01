@@ -25,7 +25,10 @@ global.parseFloat = parseFloat
 
 beforeAll(async () => {
   const mongoUri = await mongoServer.getConnectionString()
-  await mongoose.connect(mongoUri, {}, err => {
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, err => {
     if (err) console.error(err)
   })
 })
@@ -36,10 +39,11 @@ afterAll(() => {
 })
 
 afterEach(async () => {
+  console.log(process.env.CHALLONGE_TEST_URL)
   const { collections } = mongoose.connection
   const promises = []
   Object.keys(collections).forEach((collection) => {
-    promises.push(collections[collection].remove())
+    promises.push(collections[collection].deleteMany({}))
   })
   await Promise.all(promises)
 })

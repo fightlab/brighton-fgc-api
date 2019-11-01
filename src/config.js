@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 import path from 'path'
 import dotenv from 'dotenv-safe'
+import _ from 'lodash'
 
 /* istanbul ignore next */
 const requireProcessEnv = (name) => {
@@ -63,6 +64,6 @@ const config = {
   }
 }
 
-const compiledConfig = Object.assign(config.all, config[config.all.env])
+const compiledConfig = _.merge({}, config.all, config[config.all.env])
 
 export default compiledConfig

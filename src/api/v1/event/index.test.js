@@ -1,10 +1,12 @@
 
 import request from 'supertest'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Event, { EventRouter } from '.'
 import Tournament from '../tournament'
 import Game from '../game'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, EventRouter)
 

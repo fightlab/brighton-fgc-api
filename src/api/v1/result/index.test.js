@@ -1,8 +1,10 @@
 import request from 'supertest'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Result, { ResultRouter } from '.'
 import { Types } from 'mongoose'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, ResultRouter)
 

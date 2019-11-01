@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import request from 'supertest'
 import { Types } from 'mongoose'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Tournament, { TournamentRouter } from '.'
 import Game from '../game'
@@ -9,6 +9,8 @@ import Event from '../event'
 import Series from '../series'
 import Player from '../player'
 import Match from '../match'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, TournamentRouter)
 

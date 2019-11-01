@@ -1,10 +1,12 @@
 import request from 'supertest'
 import { Types } from 'mongoose'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Series, { SeriesRouter } from '.'
 import Game from '../game'
 import Tournament from '../tournament'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, SeriesRouter)
 

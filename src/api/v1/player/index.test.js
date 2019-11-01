@@ -1,7 +1,7 @@
 import { createHash } from 'crypto'
 import _ from 'lodash'
 import request from 'supertest'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Player, { PlayerRouter } from '.'
 import Tournament from '../tournament'
@@ -9,6 +9,8 @@ import Match from '../match'
 import Game from '../game'
 import Elo from '../elo'
 import Result from '../result'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, PlayerRouter)
 

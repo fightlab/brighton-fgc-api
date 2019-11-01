@@ -12,7 +12,7 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupTestFrameworkScriptFile": "<rootDir>/test/setup.js"
+    "setupFilesAfterEnv": ["<rootDir>/test/setup.js"]
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",

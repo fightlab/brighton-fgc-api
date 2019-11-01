@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { apiRoot } from '../../../config'
+import config from '../../../config'
 import express from '../../../services/express'
 import Match, { MatchRouter } from '.'
 import { Types } from 'mongoose'
@@ -7,6 +7,8 @@ import Player from '../player'
 import Tournament from '../tournament'
 import Game from '../game'
 import Character from '../character'
+
+const { apiRoot } = config
 
 const app = () => express(apiRoot, MatchRouter)
 
