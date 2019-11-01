@@ -12,9 +12,9 @@ const requireProcessEnv = (name) => {
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== 'production') {
   const dotenv = require('dotenv-safe')
-  dotenv.load({
+  dotenv.config({
     path: path.join(__dirname, '../.env'),
-    sample: path.join(__dirname, '../.env.example')
+    example: path.join(__dirname, '../.env.example')
   })
 }
 
@@ -63,5 +63,7 @@ const config = {
   }
 }
 
-module.exports = Object.assign(config.all, config[config.all.env])
-export default module.exports
+const compiledConfig = Object.assign(config.all, config[config.all.env])
+
+module.exports = compiledConfig
+export default compiledConfig

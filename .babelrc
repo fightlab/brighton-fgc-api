@@ -1,7 +1,6 @@
 {
   "presets": [
     "backpack-core/babel",
-    "env",
-    "stage-0"
+    "env"
   ]
 }
