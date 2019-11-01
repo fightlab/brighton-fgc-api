@@ -39,7 +39,6 @@ afterAll(() => {
 })
 
 afterEach(async () => {
-  console.log(process.env.CHALLONGE_TEST_URL)
   const { collections } = mongoose.connection
   const promises = []
   Object.keys(collections).forEach((collection) => {
