@@ -12,11 +12,14 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/test/setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3",
+    "babel-eslint": "^10.0.3",
     "cross-env": "^6.0.3",
     "dotenv-safe": "^8.1.0",
     "eslint": "^6.6.0",
