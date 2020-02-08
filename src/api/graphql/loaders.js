@@ -11,13 +11,13 @@ import Tournament from '../../common/tournament/model'
 
 const makeGeneralLoader = schema => new DataLoader(queries => schema
   .find({ $or: queries })
-  .then(docs => queries.map(query => sift(query, docs)))
+  .then(docs => queries.map(query => docs.filter(sift(query))))
 )
 
 const makeSingleGeneralLoader = schema => new DataLoader(queries => schema
   .find({ _id: { $in: queries } })
   .then(docs => queries.map(query => {
-    const sifted = sift({ _id: query }, docs)
+    const sifted = docs.filter(sift({ _id: query }))
     if (sifted.length) return sifted[0]
     return {}
   }))
