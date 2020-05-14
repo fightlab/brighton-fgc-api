@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  hbk-api:
+    build:
+      context: .
+    command: sh -c "yarn && yarn dev"
+    volumes:
+      - .:/app

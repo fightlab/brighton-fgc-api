@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "noUnusedLocals": true,
+      "baseUrl": "src",
+      "paths": {
+        "@/*": ["*"]
+      },
+      "strict": true,
+      "module": "CommonJS",
+      "target": "ES2019",
+      "moduleResolution": "node",
+      "typeRoots": ["node_modules/@types", "./src/typings"]
+  },
+  "include": ["src"]
+}
