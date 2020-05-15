@@ -5,7 +5,8 @@
       "noUnusedLocals": true,
       "baseUrl": "src",
       "paths": {
-        "@/*": ["*"]
+        "@/*": ["*"],
+        "@models/*": ["./models/*"]
       },
       "strict": true,
       "module": "CommonJS",
