@@ -10,7 +10,7 @@ export interface Vod extends Document {
 
 const VodSchema: Schema = new Schema({
   platform: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'VodPlatform',
   },

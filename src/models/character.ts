@@ -10,7 +10,7 @@ export interface Character extends Document {
 
 const CharacterSchema: Schema = new Schema({
   game: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Game',
   },

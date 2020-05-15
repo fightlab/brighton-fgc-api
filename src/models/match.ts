@@ -13,12 +13,12 @@ export interface Match extends Document {
 
 const MatchSchema: Schema = new Schema({
   tournament: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Tournament',
   },
   players: {
-    type: [mongoose.ObjectId],
+    type: [mongoose.Types.ObjectId],
     required: false,
     ref: 'Player',
     default: [],
@@ -29,7 +29,7 @@ const MatchSchema: Schema = new Schema({
     default: [],
   },
   winner: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: false,
   },
   round: {

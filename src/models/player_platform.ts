@@ -11,12 +11,12 @@ export interface PlayerPlatform extends Document {
 
 const PlayerPlatformSchema: Schema = new Schema({
   platform: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'BracketPlatform',
   },
   player: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Player',
   },

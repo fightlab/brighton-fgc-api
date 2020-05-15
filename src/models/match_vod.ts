@@ -12,17 +12,17 @@ export interface MatchVod extends Document {
 
 const MatchVodSchema: Schema = new Schema({
   vod: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Vod',
   },
   match: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Match',
   },
   characters: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: false,
     ref: 'Character',
   },

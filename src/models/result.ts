@@ -10,12 +10,12 @@ export interface Result extends Document {
 
 const ResultSchema: Schema = new Schema({
   tournament: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Tournament',
   },
   player: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Player',
   },

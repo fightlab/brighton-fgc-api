@@ -11,7 +11,7 @@ export interface Bracket extends Document {
 
 const BracketSchema: Schema = new Schema({
   platform: {
-    type: mongoose.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
     ref: 'BracketPlatform',
   },
