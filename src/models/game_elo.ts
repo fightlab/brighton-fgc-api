@@ -10,12 +10,12 @@ export interface GameElo extends Document {
 
 const GameEloSchema: Schema = new Schema({
   game: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Game',
   },
   player: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Player',
   },

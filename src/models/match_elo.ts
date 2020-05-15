@@ -11,12 +11,12 @@ export interface MatchElo extends Document {
 
 const MatchEloSchema: Schema = new Schema({
   match: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Match',
   },
   player: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Player',
   },

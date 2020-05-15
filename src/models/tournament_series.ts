@@ -15,7 +15,7 @@ const TournamentSeriesSchema: Schema = new Schema({
     required: true,
   },
   tournament: {
-    type: [Schema.Types.ObjectId],
+    type: [mongoose.ObjectId],
     required: true,
     ref: 'Tournament',
     default: [],
@@ -25,7 +25,7 @@ const TournamentSeriesSchema: Schema = new Schema({
     required: false,
   },
   game: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: false,
     ref: 'Game',
   },

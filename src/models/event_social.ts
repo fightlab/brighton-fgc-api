@@ -15,7 +15,7 @@ export interface EventSocial extends Document {
 
 const EventSocialSchema: Schema = new Schema({
   event: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Event',
   },

@@ -13,7 +13,7 @@ const EventSeriesSchema: Schema = new Schema({
     required: true,
   },
   events: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Event',
     default: [],

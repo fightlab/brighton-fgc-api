@@ -36,28 +36,28 @@ const TournamentSchema: Schema = new Schema({
     required: false,
   },
   event: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: false,
     ref: 'Event',
   },
   game: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: false,
     ref: 'Game',
   },
   players: {
-    type: [Schema.Types.ObjectId],
+    type: [mongoose.ObjectId],
     required: false,
     ref: 'Player',
     default: [],
   },
   bracket: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: false,
     ref: 'Bracket',
   },
   vod: {
-    type: [Schema.Types.ObjectId],
+    type: [mongoose.ObjectId],
     required: false,
     ref: 'Vod',
     default: [],

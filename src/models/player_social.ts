@@ -18,7 +18,7 @@ export interface PlayerSocial extends Document {
 
 const PlayerSocialSchema: Schema = new Schema({
   player: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     required: true,
     ref: 'Player',
   },
