@@ -9,7 +9,10 @@ services:
     links:
       - "hbk-mongo:hbk-mongo"
     environment:
+      - PORT=9000
       - MONGODB_URI=mongodb://root:password@hbk-mongo/hbk-setup?authSource=admin
+    ports:
+      - 9000:9000
   hbk-mongo:
     image: mongo:latest
     restart: "no"

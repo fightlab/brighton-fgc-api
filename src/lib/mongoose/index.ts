@@ -1,8 +1,9 @@
-import { default as mongooseLib } from 'mongoose';
+import { default as mongoose } from 'mongoose';
 
-mongooseLib.connection.on('error', (err) => {
+// mongo connection error, so stop whole process
+mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error: ' + err);
   process.exit(-1);
 });
 
-export const mongoose = mongooseLib;
+export default mongoose;

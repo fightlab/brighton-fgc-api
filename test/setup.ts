@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { EventEmitter } from 'events';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { mongoose } from '@lib/mongoose';
+import { default as mongoose } from '@lib/mongoose';
 
 const mongoServer = new MongoMemoryServer({
   instance: {
