@@ -1,13 +1,15 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { BracketPlatform } from '@models/bracket_platform';
 
-export interface Bracket extends Document {
+export interface IBracket {
   platform: BracketPlatform['_id'];
   platform_id: string;
   url: string;
   slug: string;
   image?: string;
 }
+
+export interface Bracket extends IBracket, Document {}
 
 const BracketSchema: Schema = new Schema({
   platform: {

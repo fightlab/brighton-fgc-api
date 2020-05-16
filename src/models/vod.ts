@@ -1,12 +1,14 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { VodPlatform } from '@models/vod_platform';
 
-export interface Vod extends Document {
+export interface IVod {
   platform: VodPlatform['_id'];
   platform_id: string;
   url: string;
   start_time?: string;
 }
+
+export interface Vod extends IVod, Document {}
 
 const VodSchema: Schema = new Schema({
   platform: {

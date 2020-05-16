@@ -4,6 +4,7 @@ interface Config {
   mongo: {
     uri: string;
   };
+  seedDB: boolean;
   isDev: () => boolean;
   isTest: () => boolean;
   isProd: () => boolean;
@@ -23,7 +24,7 @@ const checkNodeEnv = (env: string): string => {
     case NODE_ENV.PROD:
       return env;
     default:
-      throw new Error(`NODE_ENV not valid`);
+      return NODE_ENV.DEV;
   }
 };
 
@@ -45,6 +46,7 @@ export const getConfig = (): Config => ({
   mongo: {
     uri: getOrThrowEnv('MONGODB_URI'),
   },
+  seedDB: !!process.env.SEED_DB || false,
   isDev: () => env === NODE_ENV.DEV,
   isTest: () => env === NODE_ENV.TEST,
   isProd: () => env === NODE_ENV.PROD,

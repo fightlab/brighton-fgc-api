@@ -2,11 +2,13 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 import { Tournament } from '@models/tournament';
 import { Player } from '@models/player';
 
-export interface Result extends Document {
+export interface IResult {
   tournament: Tournament['_id'];
   player: Player['_id'];
   rank: number;
 }
+
+export interface Result extends IResult, Document {}
 
 const ResultSchema: Schema = new Schema({
   tournament: {

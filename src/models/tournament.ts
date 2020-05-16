@@ -5,7 +5,7 @@ import { Player } from '@models/player';
 import { Bracket } from '@models/bracket';
 import { Vod } from '@models/vod';
 
-export interface Tournament extends Document {
+export interface ITournament {
   name: string;
   date_start?: Date;
   date_end?: Date;
@@ -17,6 +17,8 @@ export interface Tournament extends Document {
   vod?: Array<Vod['_id']>;
   include_in_ranking?: boolean;
 }
+
+export interface Tournament extends ITournament, Document {}
 
 const TournamentSchema: Schema = new Schema({
   name: {

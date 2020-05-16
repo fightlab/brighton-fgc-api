@@ -1,7 +1,7 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Event } from '@models/event';
 
-export interface EventSocial extends Document {
+export interface IEventSocial {
   event: Event['_id'];
   facebook?: string;
   web?: string;
@@ -12,6 +12,8 @@ export interface EventSocial extends Document {
   twitch?: string;
   youtube?: string;
 }
+
+export interface EventSocial extends IEventSocial, Document {}
 
 const EventSocialSchema: Schema = new Schema({
   event: {

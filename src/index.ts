@@ -2,8 +2,9 @@ import { default as mongoose } from '@lib/mongoose';
 import { default as express } from '@lib/express';
 import { getConfig } from '@lib/config';
 
-const { mongo, port } = getConfig();
+import { fakeData } from '@lib/faker';
 
+const { mongo, port, seedDB } = getConfig();
 // get express server with all middleware enabled
 const server = express();
 
@@ -14,6 +15,11 @@ mongoose.connect(mongo.uri, {
 });
 
 // start the express server
-server.listen(port, () => {
+server.listen(port, async () => {
   console.log(`Server started on port ${port}`);
+
+  // fake some data for development, if needed
+  if (seedDB) {
+    await fakeData();
+  }
 });

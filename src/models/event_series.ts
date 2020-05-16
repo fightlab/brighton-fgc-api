@@ -1,11 +1,13 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Event } from '@models/event';
 
-export interface EventSeries extends Document {
+export interface IEventSeries {
   name: string;
   events: Array<Event['_id']>;
   info?: string;
 }
+
+export interface EventSeries extends IEventSeries, Document {}
 
 const EventSeriesSchema: Schema = new Schema({
   name: {

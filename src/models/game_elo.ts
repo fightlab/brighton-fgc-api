@@ -2,11 +2,13 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 import { Game } from '@models/game';
 import { Player } from '@models/player';
 
-export interface GameElo extends Document {
+export interface IGameElo {
   game: Game['_id'];
   player: Player['_id'];
   score: number;
 }
+
+export interface GameElo extends IGameElo, Document {}
 
 const GameEloSchema: Schema = new Schema({
   game: {

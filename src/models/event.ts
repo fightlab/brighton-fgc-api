@@ -1,13 +1,15 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Venue } from '@models/venue';
 
-export interface Event extends Document {
+export interface IEvent {
   name: string;
   date_start?: Date;
   date_end?: Date;
   short?: string;
   venue?: Venue['_id'];
 }
+
+export interface Event extends IEvent, Document {}
 
 const EventSchema: Schema = new Schema({
   name: {

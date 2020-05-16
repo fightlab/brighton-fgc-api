@@ -1,4 +1,5 @@
 import { Game, IGame } from '@models/game';
+import { dataLengthsDefault } from '@/lib/faker';
 
 describe('Game model test', () => {
   const gameMin: IGame = {
@@ -13,5 +14,11 @@ describe('Game model test', () => {
     expect(output._id).toBeDefined();
     expect(output.name).toBe(gameMin.name);
     expect(output.short).toBe(gameMin.short);
+  });
+
+  it('should count total number of games', async () => {
+    const output = (await Game.find()).length;
+
+    expect(output).toBe(dataLengthsDefault.game + 1);
   });
 });

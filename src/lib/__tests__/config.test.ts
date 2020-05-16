@@ -6,7 +6,6 @@ describe('Configuration', () => {
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...ORIGINAL_ENVIRONMENT_VARIABLES };
-    delete process.env.NODE_ENV;
   });
 
   afterEach(() => {

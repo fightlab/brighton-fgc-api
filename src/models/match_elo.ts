@@ -2,12 +2,14 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 import { Match } from '@models/match';
 import { Player } from '@models/player';
 
-export interface MatchElo extends Document {
+export interface IMatchElo {
   match: Match['_id'];
   player: Player['_id'];
   before: number;
   after: number;
 }
+
+export interface MatchElo extends IMatchElo, Document {}
 
 const MatchEloSchema: Schema = new Schema({
   match: {

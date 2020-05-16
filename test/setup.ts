@@ -2,6 +2,7 @@
 import { EventEmitter } from 'events';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { default as mongoose } from '@lib/mongoose';
+import { fakeData } from '@lib/faker';
 
 const mongoServer = new MongoMemoryServer({
   instance: {
@@ -44,18 +45,19 @@ beforeAll(async () => {
       if (err) console.error(err);
     },
   );
+
+  // generate some fake data
+  await fakeData();
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
-});
-
-afterEach(async () => {
   const { collections } = mongoose.connection;
   const promises: Array<Promise<any>> = [];
   Object.keys(collections).forEach((collection) => {
     promises.push(collections[collection].deleteMany({}));
   });
   await Promise.all(promises);
+
+  await mongoose.disconnect();
+  await mongoServer.stop();
 });

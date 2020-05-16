@@ -11,6 +11,7 @@ services:
     environment:
       - PORT=9000
       - MONGODB_URI=mongodb://root:password@hbk-mongo/hbk-setup?authSource=admin
+      - SEED_DB=true
     ports:
       - 9000:9000
   hbk-mongo:

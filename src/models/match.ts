@@ -2,7 +2,7 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 import { Tournament } from '@models/tournament';
 import { Player } from '@models/player';
 
-export interface Match extends Document {
+export interface IMatch {
   tournament: Tournament['_id'];
   players?: Array<Player['_id']>;
   scores?: Array<number>;
@@ -10,6 +10,8 @@ export interface Match extends Document {
   round?: number;
   round_name?: string;
 }
+
+export interface Match extends IMatch, Document {}
 
 const MatchSchema: Schema = new Schema({
   tournament: {

@@ -3,12 +3,14 @@ import { Vod } from '@models/vod';
 import { Match } from '@models/match';
 import { Character } from '@models/character';
 
-export interface MatchVod extends Document {
+export interface IMatchVod {
   vod: Vod['_id'];
   match: Match['_id'];
   characters?: Array<Character['_id']>;
   timestamp?: string;
 }
+
+export interface MatchVod extends IMatchVod, Document {}
 
 const MatchVodSchema: Schema = new Schema({
   vod: {

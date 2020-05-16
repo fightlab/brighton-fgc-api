@@ -1,7 +1,7 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Player } from '@models/player';
 
-export interface PlayerSocial extends Document {
+export interface IPlayerSocial {
   player: Player['_id'];
   facebook?: string;
   web?: string;
@@ -15,6 +15,8 @@ export interface PlayerSocial extends Document {
   xbox?: string;
   switch?: string;
 }
+
+export interface PlayerSocial extends IPlayerSocial, Document {}
 
 const PlayerSocialSchema: Schema = new Schema({
   player: {

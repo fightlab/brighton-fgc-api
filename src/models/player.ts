@@ -1,11 +1,13 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 
-export interface Player extends Document {
+export interface IPlayer {
   handle: string;
   icon?: string;
   team?: string;
   is_staff?: boolean;
 }
+
+export interface Player extends IPlayer, Document {}
 
 const PlayerSchema: Schema = new Schema({
   handle: {

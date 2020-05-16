@@ -1,11 +1,13 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 
-export interface Venue extends Document {
+export interface IVenue {
   name: string;
   address?: string;
   google_maps?: string;
   website?: string;
 }
+
+export interface Venue extends IVenue, Document {}
 
 const VenueSchema: Schema = new Schema({
   name: {

@@ -1,12 +1,14 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Game } from '@models/game';
 
-export interface Character extends Document {
+export interface ICharacter {
   game: Game['_id'];
   name: string;
   short: string;
   image?: string;
 }
+
+export interface Character extends ICharacter, Document {}
 
 const CharacterSchema: Schema = new Schema({
   game: {
