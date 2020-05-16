@@ -6,7 +6,7 @@
 
 This branch ([`v3-dev`](https://github.com/fightlab/brighton-fgc-api/tree/v3-dev)) is the main development branch while we work on `v3` of the API.
 
-To find our more about the current (live) version `v2`, and the project as a whole, see the [`master`](https://github.com/fightlab/brighton-fgc-api/tree/master) branch. The `v2` will no longer be update while we work on `v3`, except for security or downtime patches.
+To find out more about the current (live) version `v2`, and the project as a whole, see the [`master`](https://github.com/fightlab/brighton-fgc-api/tree/master) branch. The `v2` will no longer be updated while we work on `v3`, except for security or downtime patches.
 
 `v3` is a complete rework of the database model, and APIs, meaning it is currently incompatible with the current version of the [frontend](https://github.com/fightlab/brighton-fgc-client).
 
@@ -51,7 +51,7 @@ $ docker-compose run hbk-api yarn test
 
 To access the container shell:
 ```sh
-$ docker-compose exec gateway /bin/sh
+$ docker-compose exec hbk-api /bin/sh
 ```
 
 While using docker and docker-compose is preferable, you can still run this locally by populating environment variables into an `.env` file using the `.env.example` file as an example, installing dependencies using `yarn`, followed by `(set -a && source .env && yarn dev)` to run the development server. You'll need to have all the technologies installed and set up too.

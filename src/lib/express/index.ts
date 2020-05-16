@@ -4,6 +4,9 @@ import { default as cors } from 'cors';
 import { default as bodyParser } from 'body-parser';
 import { default as compression } from 'compression';
 import { default as morgan } from 'morgan';
+import { getConfig } from '@lib/config';
+
+const { isDev } = getConfig();
 
 export default () => {
   const app: Express = express();
@@ -21,8 +24,8 @@ export default () => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
-  // logging using morgan -http://expressjs.com/en/resources/middleware/morgan.html
-  if (process.env.NODE_ENV === 'development') {
+  // logging using morgan - http://expressjs.com/en/resources/middleware/morgan.html
+  if (isDev()) {
     app.use(morgan('dev'));
   } else {
     app.use(morgan('combined'));
