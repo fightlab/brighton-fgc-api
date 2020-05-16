@@ -1,12 +1,14 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 
-export interface Game extends Document {
+export interface IGame {
   name: string;
   short: string;
   logo?: string;
   bg?: string;
   meta?: string;
 }
+
+export interface Game extends IGame, Document {}
 
 const GameSchema: Schema = new Schema({
   name: {
