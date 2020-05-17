@@ -8,7 +8,7 @@ export interface IEventSocial {
   twitter?: string;
   discord?: string;
   instagram?: string;
-  misc?: string;
+  meta?: any;
   twitch?: string;
   youtube?: string;
 }
@@ -41,16 +41,16 @@ const EventSocialSchema: Schema = new Schema({
     type: String,
     required: false,
   },
-  misc: {
-    type: String,
-    required: false,
-  },
   twitch: {
     type: String,
     required: false,
   },
   youtube: {
     type: String,
+    required: false,
+  },
+  meta: {
+    type: Schema.Types.Mixed,
     required: false,
   },
 });

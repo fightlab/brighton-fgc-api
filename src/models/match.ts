@@ -4,9 +4,12 @@ import { Player } from '@models/player';
 
 export interface IMatch {
   tournament: Tournament['_id'];
-  players: Array<Player['_id']>;
-  scores: Array<number>;
-  winner?: Player['_id'];
+  player1?: Array<Player['_id']>;
+  player2?: Array<Player['_id']>;
+  score1?: number;
+  score2?: number;
+  winner?: Array<Player['_id']>;
+  loser?: Array<Player['_id']>;
   round?: number;
   round_name?: string;
 }
@@ -19,20 +22,35 @@ const MatchSchema: Schema = new Schema({
     required: true,
     ref: 'Tournament',
   },
-  players: {
+  player1: {
     type: [mongoose.Types.ObjectId],
-    required: true,
+    required: false,
     ref: 'Player',
-    default: [],
   },
-  scores: {
-    type: [Number],
-    required: true,
-    default: [],
+  player2: {
+    type: [mongoose.Types.ObjectId],
+    required: false,
+    ref: 'Player',
+  },
+  score1: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
+  score2: {
+    type: Number,
+    required: false,
+    default: 0,
   },
   winner: {
-    type: mongoose.Types.ObjectId,
+    type: [mongoose.Types.ObjectId],
     required: false,
+    ref: 'Player',
+  },
+  loser: {
+    type: [mongoose.Types.ObjectId],
+    required: false,
+    ref: 'Player',
   },
   round: {
     type: Number,

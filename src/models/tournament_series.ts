@@ -16,7 +16,7 @@ const TournamentSeriesSchema: Schema = new Schema({
     type: String,
     required: true,
   },
-  tournament: {
+  tournaments: {
     type: [mongoose.Types.ObjectId],
     required: true,
     ref: 'Tournament',

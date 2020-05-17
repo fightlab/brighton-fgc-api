@@ -17,6 +17,7 @@ export interface ITournament {
   event: Event['_id'];
   games: Array<Game['_id']>;
   players?: Array<Player['_id']>;
+  is_team_based?: boolean;
 }
 
 export interface Tournament extends ITournament, Document {}
@@ -53,6 +54,11 @@ const TournamentSchema: Schema = new Schema({
     required: false,
     ref: 'Player',
     default: [],
+  },
+  is_team_based: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 });
 
