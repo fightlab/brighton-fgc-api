@@ -1,7 +1,9 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { VodPlatform } from '@models/vod_platform';
+import { Tournament } from '@models/tournament';
 
 export interface IVod {
+  tournament: Tournament['_id'];
   platform: VodPlatform['_id'];
   platform_id: string;
   url: string;
@@ -11,6 +13,11 @@ export interface IVod {
 export interface Vod extends IVod, Document {}
 
 const VodSchema: Schema = new Schema({
+  tournament: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Tournament',
+  },
   platform: {
     type: mongoose.Types.ObjectId,
     required: true,

@@ -1,7 +1,9 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { BracketPlatform } from '@models/bracket_platform';
+import { Tournament } from '@models/tournament';
 
 export interface IBracket {
+  tournament: Tournament['_id'];
   platform: BracketPlatform['_id'];
   platform_id: string;
   url: string;
@@ -12,6 +14,11 @@ export interface IBracket {
 export interface Bracket extends IBracket, Document {}
 
 const BracketSchema: Schema = new Schema({
+  tournament: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Tournament',
+  },
   platform: {
     type: mongoose.Types.ObjectId,
     required: true,

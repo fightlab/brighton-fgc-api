@@ -5,7 +5,7 @@ export interface IGame {
   short: string;
   logo?: string;
   bg?: string;
-  meta?: string;
+  meta?: any;
 }
 
 export interface Game extends IGame, Document {}
@@ -28,7 +28,7 @@ const GameSchema: Schema = new Schema({
     required: false,
   },
   meta: {
-    type: String,
+    type: Schema.Types.Mixed,
     required: false,
   },
 });
