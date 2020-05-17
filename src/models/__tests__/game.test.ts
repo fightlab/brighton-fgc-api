@@ -1,5 +1,5 @@
 import { Game, IGame } from '@models/game';
-import { dataLengthsDefault } from '@/lib/faker';
+import { dataLengthsDefault } from '@lib/faker';
 
 describe('Game model test', () => {
   const gameMin: IGame = {

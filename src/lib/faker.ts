@@ -17,30 +17,30 @@ import {
 import { createHash } from 'crypto';
 
 // import all the models and interfaces;
-import { IBracketPlatform, BracketPlatform } from '@/models/bracket_platform';
-import { IBracket, Bracket } from '@/models/bracket';
-import { ICharacter, Character } from '@/models/character';
-import { IEventSeries, EventSeries } from '@/models/event_series';
-import { IEventSocial, EventSocial } from '@/models/event_social';
-import { IEvent, Event } from '@/models/event';
-// game elo
+import { IBracketPlatform, BracketPlatform } from '@models/bracket_platform';
+import { IBracket, Bracket } from '@models/bracket';
+import { ICharacter, Character } from '@models/character';
+import { IEventSeries, EventSeries } from '@models/event_series';
+import { IEventSocial, EventSocial } from '@models/event_social';
+import { IEvent, Event } from '@models/event';
+import { IGameElo, GameElo } from '@models/game_elo';
 import { IGame, Game } from '@models/game';
-// match elo
-import { IMatchVod, MatchVod } from '@/models/match_vod';
-import { IMatch, Match } from '@/models/match';
-import { IPlayerPlatform, PlayerPlatform } from '@/models/player_platform';
-import { IPlayerSocial, PlayerSocial } from '@/models/player_social';
-import { IPlayer, Player } from '@/models/player';
-import { IResult, Result } from '@/models/result';
-// tournament series elo
+import { IMatchElo, MatchElo } from '@models/match_elo';
+import { IMatchVod, MatchVod } from '@models/match_vod';
+import { IMatch, Match } from '@models/match';
+import { IPlayerPlatform, PlayerPlatform } from '@models/player_platform';
+import { IPlayerSocial, PlayerSocial } from '@models/player_social';
+import { IPlayer, Player } from '@models/player';
+import { IResult, Result } from '@models/result';
 import {
-  ITournamentSeries,
-  TournamentSeries,
-} from '@/models/tournament_series';
-import { ITournament, TOURNAMENT_TYPE, Tournament } from '@/models/tournament';
-import { IVenue, Venue } from '@/models/venue';
-import { IVodPlatform, VodPlatform } from '@/models/vod_platform';
-import { IVod, Vod } from '@/models/vod';
+  TournamentSeriesElo,
+  ITournamentSeriesElo,
+} from '@models/tournament_series_elo';
+import { ITournamentSeries, TournamentSeries } from '@models/tournament_series';
+import { ITournament, TOURNAMENT_TYPE, Tournament } from '@models/tournament';
+import { IVenue, Venue } from '@models/venue';
+import { IVodPlatform, VodPlatform } from '@models/vod_platform';
+import { IVod, Vod } from '@models/vod';
 
 // set faker locale to something we're used to
 faker.locale = 'en_GB';
@@ -368,7 +368,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       info: `Tournament Series for a game`,
     }),
   );
-  await TournamentSeries.create(tournamentSerieses);
+  const TournamentSerieses = await TournamentSeries.create(tournamentSerieses);
 
   // create random vods for a tournament
   const vods: Array<IVod> = Tournaments.filter(() =>
@@ -493,6 +493,86 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
     }),
   );
   await MatchVod.create(matchVods);
+
+  // generate random game elo for a random set of players, will not match actual results
+  const gameElos: Array<IGameElo> = Games.flatMap((game) => {
+    const players = sampleSize(
+      Players,
+      faker.random.number({
+        min: Math.round(Players.length * 0.2),
+        max: Math.round(Players.length * 0.8),
+      }),
+    );
+    return players.map(
+      (player): IGameElo => ({
+        game: game._id,
+        player: player._id,
+        score: faker.random.number({
+          min: 700,
+          max: 1400,
+        }),
+      }),
+    );
+  });
+  await GameElo.create(gameElos);
+
+  // tournament series elo for random set of players, will not match actual results
+  const tournamentSeriesElos: Array<ITournamentSeriesElo> = TournamentSerieses.flatMap(
+    (ts) => {
+      const players = sampleSize(
+        Players,
+        faker.random.number({
+          min: Math.round(Players.length * 0.4),
+          max: Players.length,
+        }),
+      );
+
+      return players.map(
+        (player): ITournamentSeriesElo => ({
+          tournament_series: ts._id,
+          player: player._id,
+          score: faker.random.number({
+            min: 700,
+            max: 1400,
+          }),
+        }),
+      );
+    },
+  );
+  await TournamentSeriesElo.create(tournamentSeriesElos);
+
+  // finally match elos, the true pain to do, so only doing a subset of matches
+  const matchElos: Array<IMatchElo> = Matches.filter(
+    () => Math.random() < 0.25,
+  ).flatMap(
+    (match): Array<IMatchElo> => [
+      {
+        match: match._id,
+        player: match.player1?.[0],
+        before: faker.random.number({
+          min: 700,
+          max: 1400,
+        }),
+        after: faker.random.number({
+          min: 700,
+          max: 1400,
+        }),
+      },
+      {
+        match: match._id,
+        player: match.player1?.[0],
+        before: faker.random.number({
+          min: 700,
+          max: 1400,
+        }),
+        after: faker.random.number({
+          min: 700,
+          max: 1400,
+        }),
+      },
+    ],
+  );
+  await MatchElo.create(matchElos);
 
   return true;
 };
