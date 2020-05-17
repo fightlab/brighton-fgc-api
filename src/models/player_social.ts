@@ -20,7 +20,7 @@ export interface PlayerSocial extends IPlayerSocial, Document {}
 
 const PlayerSocialSchema: Schema = new Schema({
   player: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Player',
   },

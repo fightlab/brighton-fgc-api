@@ -13,12 +13,12 @@ export interface PlayerPlatform extends IPlayerPlatform, Document {}
 
 const PlayerPlatformSchema: Schema = new Schema({
   platform: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'BracketPlatform',
   },
   player: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Player',
   },

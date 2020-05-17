@@ -40,17 +40,17 @@ const TournamentSchema: Schema = new Schema({
     required: true,
   },
   event: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Event',
   },
   games: {
-    type: [mongoose.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: true,
     ref: 'Game',
   },
   players: {
-    type: [mongoose.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: false,
     ref: 'Player',
     default: [],

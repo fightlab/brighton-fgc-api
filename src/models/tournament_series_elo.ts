@@ -12,12 +12,12 @@ export interface TournamentSeriesElo extends ITournamentSeriesElo, Document {}
 
 const TournamentSeriesEloSchema: Schema = new Schema({
   tournament_series: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'TournamentSeries',
   },
   player: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Player',
   },

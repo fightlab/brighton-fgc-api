@@ -14,17 +14,17 @@ export interface MatchVod extends IMatchVod, Document {}
 
 const MatchVodSchema: Schema = new Schema({
   vod: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Vod',
   },
   match: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Match',
   },
   characters: {
-    type: mongoose.Types.ObjectId,
+    type: [Schema.Types.ObjectId],
     required: false,
     ref: 'Character',
   },
@@ -36,7 +36,7 @@ const MatchVodSchema: Schema = new Schema({
 });
 
 export const MatchVod = mongoose.model<MatchVod>(
-  'Vod',
+  'MatchVod',
   MatchVodSchema,
   'match_vod',
 );

@@ -12,7 +12,7 @@ export interface Character extends ICharacter, Document {}
 
 const CharacterSchema: Schema = new Schema({
   game: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Game',
   },

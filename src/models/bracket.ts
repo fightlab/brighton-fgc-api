@@ -15,12 +15,12 @@ export interface Bracket extends IBracket, Document {}
 
 const BracketSchema: Schema = new Schema({
   tournament: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Tournament',
   },
   platform: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'BracketPlatform',
   },

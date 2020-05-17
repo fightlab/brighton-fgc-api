@@ -14,12 +14,12 @@ export interface Vod extends IVod, Document {}
 
 const VodSchema: Schema = new Schema({
   tournament: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Tournament',
   },
   platform: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'VodPlatform',
   },

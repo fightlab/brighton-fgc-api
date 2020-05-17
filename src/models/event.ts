@@ -29,7 +29,7 @@ const EventSchema: Schema = new Schema({
     required: false,
   },
   venue: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Venue',
   },

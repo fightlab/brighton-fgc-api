@@ -12,23 +12,24 @@ export interface IMatch {
   loser?: Array<Player['_id']>;
   round?: number;
   round_name?: string;
+  meta?: any;
 }
 
 export interface Match extends IMatch, Document {}
 
 const MatchSchema: Schema = new Schema({
   tournament: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: 'Tournament',
   },
   player1: {
-    type: [mongoose.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: false,
     ref: 'Player',
   },
   player2: {
-    type: [mongoose.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: false,
     ref: 'Player',
   },
@@ -43,12 +44,12 @@ const MatchSchema: Schema = new Schema({
     default: 0,
   },
   winner: {
-    type: [mongoose.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: false,
     ref: 'Player',
   },
   loser: {
-    type: [mongoose.Types.ObjectId],
+    type: [Schema.Types.ObjectId],
     required: false,
     ref: 'Player',
   },
@@ -58,6 +59,10 @@ const MatchSchema: Schema = new Schema({
   },
   round_name: {
     type: String,
+    required: false,
+  },
+  meta: {
+    type: Schema.Types.Mixed,
     required: false,
   },
 });

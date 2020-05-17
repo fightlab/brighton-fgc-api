@@ -5,25 +5,33 @@
 import faker from 'faker';
 import mongoose from '@lib/mongoose';
 import { default as moment, Moment } from 'moment';
-import { sampleSize, groupBy, values, sample } from 'lodash';
+import {
+  sampleSize,
+  groupBy,
+  values,
+  sample,
+  shuffle,
+  chunk,
+  compact,
+} from 'lodash';
 import { createHash } from 'crypto';
 
 // import all the models and interfaces;
 import { IBracketPlatform, BracketPlatform } from '@/models/bracket_platform';
 import { IBracket, Bracket } from '@/models/bracket';
-// character
+import { ICharacter, Character } from '@/models/character';
 import { IEventSeries, EventSeries } from '@/models/event_series';
 import { IEventSocial, EventSocial } from '@/models/event_social';
 import { IEvent, Event } from '@/models/event';
 // game elo
 import { IGame, Game } from '@models/game';
 // match elo
-// match vod
-// match
+import { IMatchVod, MatchVod } from '@/models/match_vod';
+import { IMatch, Match } from '@/models/match';
 import { IPlayerPlatform, PlayerPlatform } from '@/models/player_platform';
 import { IPlayerSocial, PlayerSocial } from '@/models/player_social';
 import { IPlayer, Player } from '@/models/player';
-// result
+import { IResult, Result } from '@/models/result';
 // tournament series elo
 import {
   ITournamentSeries,
@@ -183,6 +191,14 @@ const generatePlayerSocial = (player: Player): IPlayerSocial => ({
   playstation: getOptional(faker.internet.userName()),
   switch: getOptional(faker.internet.userName()),
   xbox: getOptional(faker.internet.userName()),
+});
+
+// generate character
+const generateCharacter = (game: Game): ICharacter => ({
+  game: game._id,
+  name: faker.name.findName(),
+  short: faker.name.firstName(),
+  image: getOptional(faker.internet.avatar()),
 });
 
 export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
@@ -371,7 +387,112 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
         .toString(),
     ),
   }));
-  await Vod.create(vods);
+  const Vods = await Vod.create(vods);
+
+  // results generation
+  const results: Array<IResult> = Tournaments.flatMap((tournament) => {
+    // assign players to teams if required
+    const players = tournament.is_team_based
+      ? chunk(shuffle(tournament.players), 2)
+      : chunk(shuffle(tournament.players), 1);
+
+    return players.map((player, i) => ({
+      tournament: tournament._id,
+      players: player,
+      rank: i + 1,
+    }));
+  });
+  await Result.create(results);
+
+  // match generation, will not match results, for demo only
+  const matches: Array<IMatch> = Tournaments.flatMap((tournament) => {
+    // assign players to teams if required
+    const players = tournament.is_team_based
+      ? chunk(shuffle(tournament.players), 2)
+      : chunk(shuffle(tournament.players), 1);
+
+    // calculate rough number of matches in a tournament
+    let num = 0;
+    if (tournament.type === TOURNAMENT_TYPE.DOUBLE_ELIMINATION) {
+      num = 2 * players.length - 1;
+    } else if (tournament.type === TOURNAMENT_TYPE.SINGLE_ELIMINATION) {
+      num = players.length - 1;
+    } else if (tournament.type === TOURNAMENT_TYPE.ROUND_ROBIN) {
+      num = (players.length / 2) * (players.length - 1);
+    }
+
+    // play some fake matches with meaningless data
+    return Array.from(
+      {
+        length: num,
+      },
+      (): IMatch => {
+        const matchPlayers = [sample(players), sample(players)];
+        const matchScores = [faker.random.number(3), faker.random.number(3)];
+        const winner = faker.random.boolean();
+
+        return {
+          tournament: tournament._id,
+          player1: matchPlayers[0],
+          player2: matchPlayers[1],
+          score1: matchScores[0],
+          score2: matchScores[1],
+          winner: matchPlayers[winner ? 0 : 1],
+          loser: matchPlayers[winner ? 1 : 0],
+          round: faker.random.number({ min: -5, max: 5 }),
+          round_name: faker.random.word(),
+        };
+      },
+    );
+  });
+  const Matches = await Match.create(matches);
+
+  // generate random number of characters per game, 8-32 character
+  const characters = Games.flatMap((game) =>
+    Array.from({ length: faker.random.number({ min: 4, max: 32 }) }, () =>
+      generateCharacter(game),
+    ),
+  );
+  const Characters = await Character.create(characters);
+
+  // generate random match vods, for a random number of matches
+  const matchVods: Array<IMatchVod> = compact(
+    Matches.filter(faker.random.boolean).map((match) => {
+      const tournament = Tournaments.find(
+        (t) => t._id.toString() === match.tournament.toString(),
+      );
+      if (tournament) {
+        const vod = Vods.find(
+          (v) => v.tournament.toString() === tournament?._id.toString(),
+        );
+        if (vod) {
+          const characters = Characters.filter(
+            (character) =>
+              character.game.toString() === tournament?.games[0].toString(),
+          );
+
+          return {
+            vod: vod?._id,
+            match: match._id,
+            characters: getOptional(
+              sampleSize(
+                characters,
+                faker.random.number({ min: 1, max: 4 }),
+              ).map((c) => c._id),
+            ),
+            timestamp: getOptional(
+              faker.random.number({
+                min: 100,
+                max: 3000,
+              }),
+            ),
+          };
+        }
+      }
+      return null;
+    }),
+  );
+  await MatchVod.create(matchVods);
 
   return true;
 };
