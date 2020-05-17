@@ -15,6 +15,7 @@ services:
       - SEED_DB=
     ports:
       - 9000:9000
+      - 9229:9229
   hbk-mongo:
     image: mongo:latest
     restart: "no"
