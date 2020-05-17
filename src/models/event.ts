@@ -3,10 +3,10 @@ import { Venue } from '@models/venue';
 
 export interface IEvent {
   name: string;
-  date_start?: Date;
-  date_end?: Date;
+  date_start: Date;
+  date_end: Date;
+  venue: Venue['_id'];
   short?: string;
-  venue?: Venue['_id'];
 }
 
 export interface Event extends IEvent, Document {}
@@ -18,11 +18,11 @@ const EventSchema: Schema = new Schema({
   },
   date_start: {
     type: Date,
-    required: false,
+    required: true,
   },
   date_end: {
     type: Date,
-    required: false,
+    required: true,
   },
   short: {
     type: String,
@@ -30,7 +30,7 @@ const EventSchema: Schema = new Schema({
   },
   venue: {
     type: mongoose.Types.ObjectId,
-    required: false,
+    required: true,
     ref: 'Venue',
   },
 });

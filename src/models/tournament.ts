@@ -7,13 +7,13 @@ import { Vod } from '@models/vod';
 
 export interface ITournament {
   name: string;
-  date_start?: Date;
+  date_start: Date;
   date_end?: Date;
-  type?: string;
-  event?: Event['_id'];
-  game?: Game['_id'];
-  player?: Array<Player['_id']>;
-  bracket?: Bracket['_id'];
+  type: string;
+  event: Event['_id'];
+  games: Array<Game['_id']>;
+  bracket: Bracket['_id'];
+  players?: Array<Player['_id']>;
   vod?: Array<Vod['_id']>;
   include_in_ranking?: boolean;
 }
@@ -27,7 +27,7 @@ const TournamentSchema: Schema = new Schema({
   },
   date_start: {
     type: Date,
-    required: false,
+    required: true,
   },
   date_end: {
     type: Date,
@@ -35,16 +35,16 @@ const TournamentSchema: Schema = new Schema({
   },
   type: {
     type: String,
-    required: false,
+    required: true,
   },
   event: {
     type: mongoose.Types.ObjectId,
-    required: false,
+    required: true,
     ref: 'Event',
   },
-  game: {
-    type: mongoose.Types.ObjectId,
-    required: false,
+  games: {
+    type: [mongoose.Types.ObjectId],
+    required: true,
     ref: 'Game',
   },
   players: {
@@ -55,7 +55,7 @@ const TournamentSchema: Schema = new Schema({
   },
   bracket: {
     type: mongoose.Types.ObjectId,
-    required: false,
+    required: true,
     ref: 'Bracket',
   },
   vod: {

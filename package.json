@@ -9,7 +9,7 @@
     "build": "backpack build",
     "start": "node ./build/main.js",
     "dev": "backpack --inspect",
-    "test": "jest"
+    "test": "NODE_ENV=test && jest"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",

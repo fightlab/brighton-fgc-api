@@ -31,6 +31,7 @@ const MatchVodSchema: Schema = new Schema({
   timestamp: {
     type: String,
     required: false,
+    default: '0',
   },
 });
 

@@ -17,7 +17,7 @@ enum NODE_ENV {
 }
 
 // check node environment is valid
-const checkNodeEnv = (env: string): string => {
+const checkNodeEnv = (env?: string): string => {
   switch (env) {
     case NODE_ENV.DEV:
     case NODE_ENV.TEST:
@@ -38,7 +38,7 @@ const getOrThrowEnv = (key: string): string => {
 };
 
 // node env
-const env = checkNodeEnv(getOrThrowEnv('NODE_ENV'));
+const env = checkNodeEnv(process.env.NODE_ENV);
 
 export const getConfig = (): Config => ({
   env,

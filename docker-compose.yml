@@ -9,6 +9,7 @@ services:
     links:
       - "hbk-mongo:hbk-mongo"
     environment:
+      - NODE_ENV=development
       - PORT=9000
       - MONGODB_URI=mongodb://root:password@hbk-mongo/hbk-setup?authSource=admin
       - SEED_DB=true

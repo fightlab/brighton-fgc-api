@@ -4,8 +4,8 @@ import { Player } from '@models/player';
 
 export interface IMatch {
   tournament: Tournament['_id'];
-  players?: Array<Player['_id']>;
-  scores?: Array<number>;
+  players: Array<Player['_id']>;
+  scores: Array<number>;
   winner?: Player['_id'];
   round?: number;
   round_name?: string;
@@ -21,13 +21,13 @@ const MatchSchema: Schema = new Schema({
   },
   players: {
     type: [mongoose.Types.ObjectId],
-    required: false,
+    required: true,
     ref: 'Player',
     default: [],
   },
   scores: {
     type: [Number],
-    required: false,
+    required: true,
     default: [],
   },
   winner: {
