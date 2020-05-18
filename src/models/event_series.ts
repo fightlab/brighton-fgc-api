@@ -1,5 +1,6 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Event } from '@models/event';
+import { MESSAGES } from '@lib/messages';
 
 export interface IEventSeries {
   name: string;
@@ -7,7 +8,9 @@ export interface IEventSeries {
   info?: string;
 }
 
-export interface EventSeries extends IEventSeries, Document {}
+export interface EventSeries extends IEventSeries, Document {
+  _events?: Array<Event>;
+}
 
 const EventSeriesSchema: Schema = new Schema({
   name: {
@@ -16,14 +19,22 @@ const EventSeriesSchema: Schema = new Schema({
   },
   events: {
     type: [Schema.Types.ObjectId],
-    required: true,
+    validate: {
+      validator: (v: any) => v == null || v.length > 0,
+      message: MESSAGES.MODEL_EVENT_SERIES_EVENT_VALIDATION_ERROR,
+    },
     ref: 'Event',
-    default: [],
   },
   info: {
     type: String,
     required: false,
   },
+});
+
+EventSeriesSchema.virtual('_events', {
+  ref: 'Event',
+  localField: 'events',
+  foreignField: '_id',
 });
 
 export const EventSeries = mongoose.model<EventSeries>(
