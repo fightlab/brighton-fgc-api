@@ -1,8 +1,8 @@
-import { Game, IGame } from '@models/game';
 import { default as faker } from 'faker';
+import { Game, IGame } from '@models/game';
 
 describe('Game model test', () => {
-  const game: IGame = {
+  const gameFull: IGame = {
     name: 'Blade Arcus from Shining',
     short: 'BAFS',
     bg: faker.image.imageUrl(),
@@ -18,14 +18,14 @@ describe('Game model test', () => {
   };
 
   it('create & save game successfully', async () => {
-    const input = new Game(game);
+    const input = new Game(gameFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.name).toBe(game.name);
-    expect(output.short).toBe(game.short);
-    expect(output.bg).toBe(game.bg);
-    expect(output.logo).toBe(game.logo);
+    expect(output.name).toBe(gameFull.name);
+    expect(output.short).toBe(gameFull.short);
+    expect(output.bg).toBe(gameFull.bg);
+    expect(output.logo).toBe(gameFull.logo);
     expect(output.meta).toBeDefined();
   });
 

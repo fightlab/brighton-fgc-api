@@ -11,7 +11,10 @@ export interface IBracket {
   image?: string;
 }
 
-export interface Bracket extends IBracket, Document {}
+export interface Bracket extends IBracket, Document {
+  _platform?: BracketPlatform;
+  _tournament?: Tournament;
+}
 
 const BracketSchema: Schema = new Schema({
   tournament: {
@@ -40,6 +43,20 @@ const BracketSchema: Schema = new Schema({
     type: String,
     required: false,
   },
+});
+
+BracketSchema.virtual('_platform', {
+  ref: 'BracketPlatform',
+  localField: 'platform',
+  foreignField: '_id',
+  justOne: true,
+});
+
+BracketSchema.virtual('_tournament', {
+  ref: 'Tournament',
+  localField: 'tournament',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const Bracket = mongoose.model<Bracket>(

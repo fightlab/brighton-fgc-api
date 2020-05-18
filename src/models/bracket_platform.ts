@@ -2,7 +2,7 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 
 export interface IBracketPlatform {
   name: string;
-  url: string;
+  url?: string;
   api_url?: string;
   api_docs?: string;
   meta?: any;
@@ -17,7 +17,7 @@ const BracketPlatformSchema: Schema = new Schema({
   },
   url: {
     type: String,
-    required: true,
+    required: false,
   },
   api_url: {
     type: String,

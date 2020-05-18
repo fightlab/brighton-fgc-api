@@ -103,14 +103,14 @@ const bracketPlatforms: Array<IBracketPlatform> = [
   {
     name: 'Challonge',
     url: 'https://challonge.com',
-    api_url: 'https://api.challonge.com/v1/',
+    api_url: 'https://api.challonge.com/v1',
     api_docs: 'https://api.challonge.com/api.html',
   },
   {
     name: 'Smash.gg',
     url: 'https://smash.gg',
     api_url: 'https://api.smash.gg/gql/alpha',
-    api_docs: 'https://smashgg-developer-portal.netlify.app/',
+    api_docs: 'https://smashgg-developer-portal.netlify.app',
   },
 ];
 

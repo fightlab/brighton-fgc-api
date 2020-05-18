@@ -8,7 +8,9 @@ export interface ICharacter {
   image?: string;
 }
 
-export interface Character extends ICharacter, Document {}
+export interface Character extends ICharacter, Document {
+  _game?: Game;
+}
 
 const CharacterSchema: Schema = new Schema({
   game: {
@@ -28,6 +30,13 @@ const CharacterSchema: Schema = new Schema({
     type: String,
     required: false,
   },
+});
+
+CharacterSchema.virtual('_game', {
+  ref: 'Game',
+  localField: 'game',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const Character = mongoose.model<Character>(

@@ -1,4 +1,5 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
+import { Tournament } from '@models/tournament';
 
 export interface IGame {
   name: string;
@@ -8,7 +9,9 @@ export interface IGame {
   meta?: any;
 }
 
-export interface Game extends IGame, Document {}
+export interface Game extends IGame, Document {
+  tournaments?: Tournament;
+}
 
 const GameSchema: Schema = new Schema({
   name: {
