@@ -1,4 +1,3 @@
-import { default as faker } from 'faker';
 import { chunk } from 'lodash';
 import { EventSeries, IEventSeries } from '@models/event_series';
 import { Event } from '@models/event';
