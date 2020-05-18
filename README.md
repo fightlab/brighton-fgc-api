@@ -2,6 +2,9 @@
 ## Habrewken API
 **(Soon to be) Powering the Brighton Fighting Game Community**
 
+## Status
+![v3-dev build](https://github.com/fightlab/brighton-fgc-api/workflows/Node.js%20CI/badge.svg?branch=v3-dev)
+
 ## About
 
 This branch ([`v3-dev`](https://github.com/fightlab/brighton-fgc-api/tree/v3-dev)) is the main development branch while we work on `v3` of the API.
