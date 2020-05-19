@@ -1,5 +1,7 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
+import { isDate } from 'moment';
 import { Venue } from '@models/venue';
+import { MESSAGES } from '@lib/messages';
 
 export interface IEvent {
   name: string;
@@ -7,9 +9,12 @@ export interface IEvent {
   date_end: Date;
   venue: Venue['_id'];
   short?: string;
+  info?: string;
 }
 
-export interface Event extends IEvent, Document {}
+export interface Event extends IEvent, Document {
+  _venue?: Venue;
+}
 
 const EventSchema: Schema = new Schema({
   name: {
@@ -19,12 +24,48 @@ const EventSchema: Schema = new Schema({
   date_start: {
     type: Date,
     required: true,
+    validate: {
+      validator: function (this: Event) {
+        if (!isDate(this.date_start)) {
+          return false;
+        }
+
+        if (
+          !isDate(this.date_end) ||
+          this.date_end.getTime() < this.date_start.getTime()
+        ) {
+          return false;
+        }
+        return true;
+      },
+      message: MESSAGES.DATE_START_VALIDATION_ERROR,
+    },
   },
   date_end: {
     type: Date,
     required: true,
+    validate: {
+      validator: function (this: Event) {
+        if (!isDate(this.date_end)) {
+          return false;
+        }
+
+        if (
+          !isDate(this.date_start) ||
+          this.date_start.getTime() > this.date_end.getTime()
+        ) {
+          return false;
+        }
+        return true;
+      },
+      message: MESSAGES.DATE_END_VALIDATION_ERROR,
+    },
   },
   short: {
+    type: String,
+    required: false,
+  },
+  info: {
     type: String,
     required: false,
   },
@@ -33,6 +74,13 @@ const EventSchema: Schema = new Schema({
     required: true,
     ref: 'Venue',
   },
+});
+
+EventSchema.virtual('_venue', {
+  ref: 'Venue',
+  localField: 'venue',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const Event = mongoose.model<Event>('Event', EventSchema, 'event');

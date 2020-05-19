@@ -55,7 +55,7 @@ describe('EventSeries model test', () => {
     expect(output._events).toBeUndefined();
   });
 
-  it('should fail if trying to save without an event', async () => {
+  it('should fail validation if trying to save without an event', async () => {
     const input = new EventSeries({
       name: 'Event Series Empty',
       events: [],
@@ -63,7 +63,7 @@ describe('EventSeries model test', () => {
 
     input.validate((error) => {
       expect(error.errors.events.message).toBe(
-        MESSAGES.MODEL_EVENT_SERIES_EVENT_VALIDATION_ERROR,
+        MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
       );
     });
   });

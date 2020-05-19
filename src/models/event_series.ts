@@ -21,7 +21,7 @@ const EventSeriesSchema: Schema = new Schema({
     type: [Schema.Types.ObjectId],
     validate: {
       validator: (v: any) => v == null || v.length > 0,
-      message: MESSAGES.MODEL_EVENT_SERIES_EVENT_VALIDATION_ERROR,
+      message: MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
     },
     ref: 'Event',
   },

@@ -145,6 +145,7 @@ const generateEvent = (
     date_start: start.toDate(),
     venue: venue._id,
     short: `${venue.name[0]}${venue.name[1]}${num + 1}`,
+    info: getOptional(faker.lorem.paragraphs(2)),
   };
 };
 
