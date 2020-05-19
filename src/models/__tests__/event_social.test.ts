@@ -51,6 +51,8 @@ describe('EventSocial model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
+    expect(output.event.toString()).toBe(eventSocialMin.event.toString());
+    expect(output.event.toString()).toBe(events[1]._id.toString());
     expect(output.facebook).toBeUndefined();
     expect(output.twitch).toBeUndefined();
     expect(output.twitter).toBeUndefined();
@@ -61,7 +63,7 @@ describe('EventSocial model test', () => {
     expect(output.meta).toBeUndefined();
   });
 
-  it('should populate events', async () => {
+  it('should populate event', async () => {
     const output = await EventSocial.findOne().populate('_event');
     expect(output?.event).toBeDefined();
   });

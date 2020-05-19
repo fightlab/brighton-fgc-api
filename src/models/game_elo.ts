@@ -8,7 +8,10 @@ export interface IGameElo {
   score: number;
 }
 
-export interface GameElo extends IGameElo, Document {}
+export interface GameElo extends IGameElo, Document {
+  _game?: Game;
+  _player?: Player;
+}
 
 const GameEloSchema: Schema = new Schema({
   game: {
@@ -25,6 +28,20 @@ const GameEloSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
+});
+
+GameEloSchema.virtual('_game', {
+  ref: 'Game',
+  localField: 'game',
+  foreignField: '_id',
+  justOne: true,
+});
+
+GameEloSchema.virtual('_player', {
+  ref: 'Player',
+  localField: 'Player',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const GameElo = mongoose.model<GameElo>(
