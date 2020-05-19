@@ -13,7 +13,9 @@ export interface IEventSocial {
   youtube?: string;
 }
 
-export interface EventSocial extends IEventSocial, Document {}
+export interface EventSocial extends IEventSocial, Document {
+  _event?: Event;
+}
 
 const EventSocialSchema: Schema = new Schema({
   event: {
@@ -53,6 +55,13 @@ const EventSocialSchema: Schema = new Schema({
     type: Schema.Types.Mixed,
     required: false,
   },
+});
+
+EventSocialSchema.virtual('_event', {
+  ref: 'Event',
+  localField: 'event',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const EventSocial = mongoose.model<EventSocial>(
