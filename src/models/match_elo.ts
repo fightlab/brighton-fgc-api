@@ -9,7 +9,10 @@ export interface IMatchElo {
   after: number;
 }
 
-export interface MatchElo extends IMatchElo, Document {}
+export interface MatchElo extends IMatchElo, Document {
+  _match?: Match;
+  _player?: Player;
+}
 
 const MatchEloSchema: Schema = new Schema({
   match: {
@@ -30,6 +33,20 @@ const MatchEloSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
+});
+
+MatchEloSchema.virtual('_match', {
+  ref: 'Match',
+  localField: 'match',
+  foreignField: '_id',
+  justOne: true,
+});
+
+MatchEloSchema.virtual('_player', {
+  ref: 'Player',
+  localField: 'Player',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const MatchElo = mongoose.model<MatchElo>(

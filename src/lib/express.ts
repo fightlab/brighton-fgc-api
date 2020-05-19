@@ -31,6 +31,16 @@ export default () => {
     app.use(morgan('combined'));
   }
 
+  // index route, return name and version
+  app.get('/', (_: Request, res: Response) => {
+    res.status(200).send(`HBK - API | ${process.env.npm_package_version}`);
+  });
+
+  // add version endpoint to get api version
+  app.get('/version', (_: Request, res: Response) =>
+    res.status(200).send(process.env.npm_package_version),
+  );
+
   // healthcheck endpoint for all request methods
   app.use('/healthcheck', (_: Request, res: Response) => {
     return res.sendStatus(200);

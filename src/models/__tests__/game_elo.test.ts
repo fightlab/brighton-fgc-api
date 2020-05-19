@@ -23,6 +23,11 @@ describe('GameElo model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
+    expect(output.player.toString()).toBe(gameElo.player.toString());
+    expect(output.player.toString()).toBe(player?._id.toString());
+    expect(output.game.toString()).toBe(gameElo.game.toString());
+    expect(output.game.toString()).toBe(game?._id.toString());
+    expect(output.score).toBe(gameElo.score);
 
     // should not populate virtuals
     expect(output._game).toBeUndefined();
