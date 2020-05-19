@@ -1,17 +1,53 @@
 import { default as faker } from 'faker';
+import { default as moment } from 'moment';
 import { Bracket, IBracket } from '@models/bracket';
-import { Tournament } from '@models/tournament';
-import { BracketPlatform } from '@models/bracket_platform';
+import { Tournament, ITournament, TOURNAMENT_TYPE } from '@models/tournament';
+import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
+import { Types } from 'mongoose';
 
 describe('Bracket model test', () => {
   let tournaments: Array<Tournament>;
   let platforms: Array<BracketPlatform>;
   let bracketFull: IBracket;
   let bracketMin: IBracket;
+  let bracket: Bracket;
 
-  beforeAll(async () => {
-    tournaments = await Tournament.find().limit(2);
-    platforms = await BracketPlatform.find().limit(2);
+  // adding to before each is the only way to guarantee documents available
+  // since collections are cleared after each test
+  beforeEach(async () => {
+    // fake some tournaments
+    tournaments = await Tournament.create([
+      {
+        name: 'Tournament #1',
+        date_start: moment.utc().subtract(1, 'd').toDate(),
+        date_end: moment.utc().subtract(1, 'd').add(4, 'h').toDate(),
+        event: new Types.ObjectId(),
+        games: [new Types.ObjectId()],
+        type: TOURNAMENT_TYPE.DOUBLE_ELIMINATION,
+        is_team_based: false,
+        players: [new Types.ObjectId()],
+      },
+      {
+        name: 'Tournament #2',
+        date_start: moment.utc().add(1, 'd').toDate(),
+        event: new Types.ObjectId(),
+        games: [new Types.ObjectId()],
+        type: TOURNAMENT_TYPE.ROUND_ROBIN,
+        is_team_based: true,
+      },
+    ] as Array<ITournament>);
+
+    // fake some platforms
+    platforms = await BracketPlatform.create([
+      {
+        name: 'HBK Tournaments',
+        url: 'https://hbk.gg',
+        api_url: 'https://api.hbk.gg',
+      },
+      {
+        name: 'Pen & Paper',
+      },
+    ] as Array<IBracketPlatform>);
 
     const uuidFull = faker.random.uuid().split('-')[0];
     bracketFull = {
@@ -23,14 +59,23 @@ describe('Bracket model test', () => {
       image: faker.image.image(),
     };
 
-    const uuidMin = faker.random.uuid().split('-')[0];
     bracketMin = {
       platform: platforms[1]._id,
       tournament: tournaments[1]._id,
-      platform_id: uuidMin,
-      url: `${platforms[1]?.url}/${uuidMin}`,
-      slug: faker.lorem.slug(),
+      platform_id: 'N/A',
     };
+
+    // add a tournament bracket to the collection
+    const bracketUuid = faker.random.uuid().split('-')[0];
+    [bracket] = await Bracket.create([
+      {
+        platform: platforms[0]._id,
+        tournament: tournaments[0]._id,
+        platform_id: bracketUuid,
+        slug: faker.lorem.slug(),
+        url: `${platforms[0]?.url}/${bracketUuid}`,
+      },
+    ] as Array<IBracket>);
   });
 
   it('create & save bracket successfully', async () => {
@@ -74,22 +119,26 @@ describe('Bracket model test', () => {
   });
 
   it('should populate platform', async () => {
-    const output = await Bracket.findOne().populate('_platform');
+    const output = await Bracket.findById(bracket.id).populate('_platform');
     expect(output?._platform).toBeDefined();
+    expect(output?._platform?.id).toBe(platforms[0].id);
     expect(output?._tournament).toBeUndefined();
   });
 
   it('should populate tournament', async () => {
-    const output = await Bracket.findOne().populate('_tournament');
+    const output = await Bracket.findById(bracket.id).populate('_tournament');
     expect(output?._tournament).toBeDefined();
+    expect(output?._tournament?.id).toBe(tournaments[0].id);
     expect(output?._platform).toBeUndefined();
   });
 
   it('should populate platform and tournament', async () => {
-    const output = await Bracket.findOne()
+    const output = await Bracket.findById(bracket.id)
       .populate('_platform')
       .populate('_tournament');
     expect(output?._platform).toBeDefined();
+    expect(output?._platform?.id).toBe(platforms[0].id);
     expect(output?._tournament).toBeDefined();
+    expect(output?._tournament?.id).toBe(tournaments[0].id);
   });
 });

@@ -1,8 +1,7 @@
-import { EventEmitter } from 'events';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { default as mongoose } from '@lib/mongoose';
-import { fakeData } from '@lib/faker';
 
+// set up mongo server
 const mongoServer = new MongoMemoryServer({
   instance: {
     dbName: 'jest',
@@ -13,25 +12,10 @@ const mongoServer = new MongoMemoryServer({
   autoStart: false,
 });
 
-EventEmitter.defaultMaxListeners = Infinity;
+// allow enough time to download mongo memory server
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
-global.Array = Array;
-global.Date = Date;
-global.Function = Function;
-global.Math = Math;
-global.Number = Number;
-global.Object = Object;
-global.RegExp = RegExp;
-global.String = String;
-global.Uint8Array = Uint8Array;
-global.WeakMap = WeakMap;
-global.Set = Set;
-global.Error = Error;
-global.TypeError = TypeError;
-global.parseInt = parseInt;
-global.parseFloat = parseFloat;
-
+// before all tests connect to the mongo memory db
 beforeAll(async () => {
   const mongoUri = await mongoServer.getUri();
   await mongoose.connect(
@@ -41,22 +25,22 @@ beforeAll(async () => {
       useUnifiedTopology: true,
     },
     (err) => {
-      if (err) console.error(err);
+      if (err) {
+        throw err;
+      }
     },
   );
+});
 
-  // generate some fake data
-  await fakeData();
+afterEach(async () => {
+  const { collections } = mongoose.connection;
+  const promises: Array<Promise<any>> = Object.keys(
+    collections,
+  ).map((collection) => collections[collection].deleteMany({}));
+  await Promise.all(promises);
 });
 
 afterAll(async () => {
-  const { collections } = mongoose.connection;
-  const promises: Array<Promise<any>> = [];
-  Object.keys(collections).forEach((collection) => {
-    promises.push(collections[collection].deleteMany({}));
-  });
-  await Promise.all(promises);
-
   await mongoose.disconnect();
   await mongoServer.stop();
 });

@@ -1,14 +1,25 @@
 import { default as faker } from 'faker';
 import { Character, ICharacter } from '@models/character';
-import { Game } from '@models/game';
+import { Game, IGame } from '@models/game';
 
 describe('Character model test', () => {
   let games: Array<Game>;
   let characterFull: ICharacter;
   let characterMin: ICharacter;
+  let character: Character;
 
-  beforeAll(async () => {
-    games = await Game.find().limit(2);
+  beforeEach(async () => {
+    // fake some games
+    games = await Game.create([
+      {
+        name: 'Game #1',
+        short: 'G1',
+      },
+      {
+        name: 'Game #2',
+        short: 'G2',
+      },
+    ] as Array<IGame>);
 
     characterFull = {
       game: games[0]._id,
@@ -22,6 +33,14 @@ describe('Character model test', () => {
       name: faker.name.findName(),
       short: faker.name.firstName(),
     };
+
+    [character] = await Character.create([
+      {
+        game: games[0]._id,
+        name: 'Another Waifu',
+        short: 'WAIFU',
+      },
+    ] as Array<ICharacter>);
   });
 
   it('should create & save character successfully', async () => {
@@ -55,7 +74,8 @@ describe('Character model test', () => {
   });
 
   it('should populate game', async () => {
-    const output = await Character.findOne().populate('_game');
+    const output = await Character.findById(character._id).populate('_game');
     expect(output?._game).toBeDefined();
+    expect(output?._game?.id).toBe(games[0].id);
   });
 });

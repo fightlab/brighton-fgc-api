@@ -39,7 +39,7 @@ GameEloSchema.virtual('_game', {
 
 GameEloSchema.virtual('_player', {
   ref: 'Player',
-  localField: 'Player',
+  localField: 'player',
   foreignField: '_id',
   justOne: true,
 });

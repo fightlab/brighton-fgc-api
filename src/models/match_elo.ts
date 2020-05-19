@@ -44,7 +44,7 @@ MatchEloSchema.virtual('_match', {
 
 MatchEloSchema.virtual('_player', {
   ref: 'Player',
-  localField: 'Player',
+  localField: 'player',
   foreignField: '_id',
   justOne: true,
 });

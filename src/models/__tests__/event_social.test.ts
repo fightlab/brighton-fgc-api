@@ -1,13 +1,30 @@
+import { default as moment } from 'moment';
 import { EventSocial, IEventSocial } from '@models/event_social';
-import { Event } from '@models/event';
+import { Event, IEvent } from '@models/event';
+import { Types } from 'mongoose';
 
 describe('EventSocial model test', () => {
   let events: Array<Event>;
   let eventSocialFull: IEventSocial;
   let eventSocialMin: IEventSocial;
+  let eventSocial: EventSocial;
 
-  beforeAll(async () => {
-    events = await Event.find().limit(2);
+  beforeEach(async () => {
+    // fake some events
+    events = await Event.create([
+      {
+        name: 'Event 1',
+        venue: new Types.ObjectId(),
+        date_start: moment.utc().subtract(1, 'd').subtract(1, 'h').toDate(),
+        date_end: moment.utc().subtract(1, 'd').toDate(),
+      },
+      {
+        name: 'Event 2',
+        venue: new Types.ObjectId(),
+        date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
+        date_end: moment.utc().subtract(2, 'd').toDate(),
+      },
+    ] as Array<IEvent>);
 
     eventSocialFull = {
       event: events[0]._id,
@@ -27,6 +44,13 @@ describe('EventSocial model test', () => {
     eventSocialMin = {
       event: events[1]._id,
     };
+
+    // add an event social to the collection
+    [eventSocial] = await EventSocial.create([
+      {
+        event: events[0]._id,
+      },
+    ] as Array<IEventSocial>);
   });
 
   it('should create & save eventSocial successfully', async () => {
@@ -64,7 +88,10 @@ describe('EventSocial model test', () => {
   });
 
   it('should populate event', async () => {
-    const output = await EventSocial.findOne().populate('_event');
-    expect(output?.event).toBeDefined();
+    const output = await EventSocial.findById(eventSocial.id).populate(
+      '_event',
+    );
+    expect(output?._event).toBeDefined();
+    expect(output?._event?.id).toBe(events[0].id);
   });
 });

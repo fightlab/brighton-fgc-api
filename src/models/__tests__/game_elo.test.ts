@@ -1,15 +1,25 @@
 import { GameElo, IGameElo } from '@models/game_elo';
-import { Game } from '@models/game';
-import { Player } from '@models/player';
+import { Game, IGame } from '@models/game';
+import { Player, IPlayer } from '@models/player';
 
 describe('GameElo model test', () => {
   let game: Game | null;
   let player: Player | null;
   let gameElo: IGameElo;
 
-  beforeAll(async () => {
-    game = await Game.findOne();
-    player = await Player.findOne();
+  beforeEach(async () => {
+    // fake a game
+    [game] = await Game.create([
+      {
+        name: 'Game 1',
+        short: 'G1',
+      },
+    ] as Array<IGame>);
+    [player] = await Player.create([
+      {
+        handle: 'xXx_Ep1c-G4m3r_xXx',
+      },
+    ] as Array<IPlayer>);
 
     gameElo = {
       game: game?._id,
@@ -35,22 +45,29 @@ describe('GameElo model test', () => {
   });
 
   it('should populate game', async () => {
-    const output = await GameElo.findOne().populate('_game');
+    const input = await new GameElo(gameElo).save();
+    const output = await GameElo.findById(input.id).populate('_game');
     expect(output?._game).toBeDefined();
+    expect(output?._game?.id).toBe(game?.id);
     expect(output?._player).toBeUndefined();
   });
 
   it('should populate game', async () => {
-    const output = await GameElo.findOne().populate('_player');
+    const input = await new GameElo(gameElo).save();
+    const output = await GameElo.findById(input.id).populate('_player');
     expect(output?._game).toBeUndefined();
     expect(output?._player).toBeDefined();
+    expect(output?._player?.id).toBe(player?.id);
   });
 
   it('should populate game and player', async () => {
-    const output = await GameElo.findOne()
+    const input = await new GameElo(gameElo).save();
+    const output = await GameElo.findById(input.id)
       .populate('_game')
       .populate('_player');
     expect(output?._game).toBeDefined();
+    expect(output?._game?.id).toBe(game?.id);
     expect(output?._player).toBeDefined();
+    expect(output?._player?.id).toBe(player?.id);
   });
 });

@@ -6,8 +6,8 @@ export interface IBracket {
   tournament: Tournament['_id'];
   platform: BracketPlatform['_id'];
   platform_id: string;
-  url: string;
-  slug: string;
+  url?: string;
+  slug?: string;
   image?: string;
 }
 
@@ -33,11 +33,11 @@ const BracketSchema: Schema = new Schema({
   },
   url: {
     type: String,
-    required: true,
+    required: false,
   },
   slug: {
     type: String,
-    required: true,
+    required: false,
   },
   image: {
     type: String,

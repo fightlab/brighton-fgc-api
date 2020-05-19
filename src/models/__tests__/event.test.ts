@@ -1,17 +1,28 @@
 import { default as faker } from 'faker';
 import { default as moment } from 'moment';
 import { Event, IEvent } from '@models/event';
-import { Venue } from '@models/venue';
+import { Venue, IVenue } from '@models/venue';
 import { MESSAGES } from '@lib/messages';
 
 describe('Event model test', () => {
   let venues: Array<Venue>;
   let eventFull: IEvent;
   let eventMin: IEvent;
+  let event: Event;
   const invalidDateString = 'lmao fake date';
 
-  beforeAll(async () => {
-    venues = await Venue.find().limit(2);
+  beforeEach(async () => {
+    // fake some venues
+    venues = await Venue.create([
+      {
+        name: 'A Pub',
+        short: 'PUB',
+      },
+      {
+        name: 'A Flat',
+        short: 'FLAT',
+      },
+    ] as Array<IVenue>);
 
     eventFull = {
       name: 'Event Full',
@@ -28,6 +39,16 @@ describe('Event model test', () => {
       date_end: moment.utc().add(5, 'h').toDate(),
       venue: venues[1]._id,
     };
+
+    // add an event to the collection
+    [event] = await Event.create([
+      {
+        name: 'Event',
+        date_start: moment.utc().add(1, 'h').toDate(),
+        date_end: moment.utc().add(5, 'h').toDate(),
+        venue: venues[0]._id,
+      },
+    ] as Array<IEvent>);
   });
 
   it('should create & save event successfully', async () => {
@@ -125,7 +146,8 @@ describe('Event model test', () => {
   });
 
   it('should populate venue', async () => {
-    const output = await Event.findOne().populate('_venue');
+    const output = await Event.findById(event.id).populate('_venue');
     expect(output?._venue).toBeDefined();
+    expect(output?._venue?.id).toBe(venues[0].id);
   });
 });

@@ -1,15 +1,44 @@
+import { default as moment } from 'moment';
 import { chunk } from 'lodash';
 import { EventSeries, IEventSeries } from '@models/event_series';
-import { Event } from '@models/event';
+import { Event, IEvent } from '@models/event';
 import { MESSAGES } from '@lib/messages';
+import { Types } from 'mongoose';
 
 describe('EventSeries model test', () => {
   let events: Array<Event>;
   let eventSeriesFull: IEventSeries;
   let eventSeriesMin: IEventSeries;
+  let eventSeries: EventSeries;
 
-  beforeAll(async () => {
-    events = await Event.find().limit(4);
+  beforeEach(async () => {
+    // fake some events
+    events = await Event.create([
+      {
+        name: 'Event #1',
+        venue: new Types.ObjectId(),
+        date_end: moment.utc().subtract(1, 'd').toDate(),
+        date_start: moment.utc().subtract(1, 'd').subtract(1, 'h').toDate(),
+      },
+      {
+        name: 'Event #2',
+        venue: new Types.ObjectId(),
+        date_end: moment.utc().subtract(2, 'd').toDate(),
+        date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
+      },
+      {
+        name: 'Event #3',
+        venue: new Types.ObjectId(),
+        date_end: moment.utc().subtract(3, 'd').toDate(),
+        date_start: moment.utc().subtract(3, 'd').subtract(3, 'h').toDate(),
+      },
+      {
+        name: 'Event #4',
+        venue: new Types.ObjectId(),
+        date_end: moment.utc().subtract(4, 'd').toDate(),
+        date_start: moment.utc().subtract(4, 'd').subtract(4, 'h').toDate(),
+      },
+    ] as Array<IEvent>);
 
     eventSeriesFull = {
       name: 'Event Series Full',
@@ -21,6 +50,13 @@ describe('EventSeries model test', () => {
       name: 'Event Series Min',
       events: chunk(events, 2)[1].map((e) => e._id),
     };
+
+    [eventSeries] = await EventSeries.create([
+      {
+        name: 'Event Series',
+        events: events.map((e) => e._id),
+      },
+    ] as Array<IEventSeries>);
   });
 
   it('should create & save eventSeries successfully', async () => {
@@ -69,8 +105,10 @@ describe('EventSeries model test', () => {
   });
 
   it('should populate events', async () => {
-    const output = await EventSeries.findOne().populate('_events');
+    const output = await EventSeries.findById(eventSeries._id).populate(
+      '_events',
+    );
     expect(output?._events).toBeDefined();
-    expect(output?._events?.length).toBeGreaterThan(0);
+    expect(output?._events).toHaveLength(4);
   });
 });
