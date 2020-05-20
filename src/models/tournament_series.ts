@@ -9,7 +9,10 @@ export interface ITournamentSeries {
   game?: Game['_id'];
 }
 
-export interface TournamentSeries extends ITournamentSeries, Document {}
+export interface TournamentSeries extends ITournamentSeries, Document {
+  _tournaments?: Array<Tournament>;
+  _game?: Game;
+}
 
 const TournamentSeriesSchema: Schema = new Schema({
   name: {
@@ -31,6 +34,19 @@ const TournamentSeriesSchema: Schema = new Schema({
     required: false,
     ref: 'Game',
   },
+});
+
+TournamentSeriesSchema.virtual('_tournaments', {
+  ref: 'Tournament',
+  localField: 'tournaments',
+  foreignField: '_id',
+});
+
+TournamentSeriesSchema.virtual('_game', {
+  ref: 'Game',
+  localField: 'game',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const TournamentSeries = mongoose.model<TournamentSeries>(
