@@ -9,7 +9,10 @@ export interface IPlayerPlatform {
   email_hash?: string;
 }
 
-export interface PlayerPlatform extends IPlayerPlatform, Document {}
+export interface PlayerPlatform extends IPlayerPlatform, Document {
+  _platform?: BracketPlatform;
+  _player?: Player;
+}
 
 const PlayerPlatformSchema: Schema = new Schema({
   platform: {
@@ -30,6 +33,20 @@ const PlayerPlatformSchema: Schema = new Schema({
     type: String,
     required: false,
   },
+});
+
+PlayerPlatformSchema.virtual('_platform', {
+  ref: 'BracketPlatform',
+  localField: 'platform',
+  foreignField: '_id',
+  justOne: true,
+});
+
+PlayerPlatformSchema.virtual('_player', {
+  ref: 'Player',
+  localField: 'player',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const PlayerPlatform = mongoose.model<PlayerPlatform>(
