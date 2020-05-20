@@ -10,7 +10,11 @@ export interface IMatchVod {
   timestamp?: string;
 }
 
-export interface MatchVod extends IMatchVod, Document {}
+export interface MatchVod extends IMatchVod, Document {
+  _vod?: Vod;
+  _match?: Match;
+  _characters?: Array<Character>;
+}
 
 const MatchVodSchema: Schema = new Schema({
   vod: {
@@ -33,6 +37,26 @@ const MatchVodSchema: Schema = new Schema({
     required: false,
     default: '0',
   },
+});
+
+MatchVodSchema.virtual('_vod', {
+  ref: 'Vod',
+  localField: 'vod',
+  foreignField: '_id',
+  justOne: true,
+});
+
+MatchVodSchema.virtual('_match', {
+  ref: 'Match',
+  localField: 'match',
+  foreignField: '_id',
+  justOne: true,
+});
+
+MatchVodSchema.virtual('_characters', {
+  ref: 'Character',
+  localField: 'characters',
+  foreignField: '_id',
 });
 
 export const MatchVod = mongoose.model<MatchVod>(
