@@ -1,8 +1,8 @@
+import { Types } from 'mongoose';
 import { MatchVod, IMatchVod } from '@models/match_vod';
 import { Match, IMatch } from '@models/match';
 import { Vod, IVod } from '@models/vod';
 import { Character, ICharacter } from '@models/character';
-import { Types } from 'mongoose';
 
 describe('MatchVod model test', () => {
   let matches: Array<Match>;

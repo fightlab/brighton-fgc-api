@@ -15,7 +15,13 @@ export interface IMatch {
   meta?: any;
 }
 
-export interface Match extends IMatch, Document {}
+export interface Match extends IMatch, Document {
+  _tournament?: Tournament;
+  _player1?: Array<Player>;
+  _player2?: Array<Player>;
+  _winner?: Array<Player>;
+  _loser?: Array<Player>;
+}
 
 const MatchSchema: Schema = new Schema({
   tournament: {
@@ -36,12 +42,10 @@ const MatchSchema: Schema = new Schema({
   score1: {
     type: Number,
     required: false,
-    default: 0,
   },
   score2: {
     type: Number,
     required: false,
-    default: 0,
   },
   winner: {
     type: [Schema.Types.ObjectId],
@@ -65,6 +69,37 @@ const MatchSchema: Schema = new Schema({
     type: Schema.Types.Mixed,
     required: false,
   },
+});
+
+MatchSchema.virtual('_tournament', {
+  ref: 'Tournament',
+  localField: 'tournament',
+  foreignField: '_id',
+  justOne: true,
+});
+
+MatchSchema.virtual('_player1', {
+  ref: 'Player',
+  localField: 'player1',
+  foreignField: '_id',
+});
+
+MatchSchema.virtual('_player2', {
+  ref: 'Player',
+  localField: 'player2',
+  foreignField: '_id',
+});
+
+MatchSchema.virtual('_winner', {
+  ref: 'Player',
+  localField: 'winner',
+  foreignField: '_id',
+});
+
+MatchSchema.virtual('_loser', {
+  ref: 'Player',
+  localField: 'loser',
+  foreignField: '_id',
 });
 
 export const Match = mongoose.model<Match>('Match', MatchSchema, 'match');
