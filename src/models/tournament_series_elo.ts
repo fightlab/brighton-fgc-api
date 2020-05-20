@@ -8,7 +8,10 @@ export interface ITournamentSeriesElo {
   score: number;
 }
 
-export interface TournamentSeriesElo extends ITournamentSeriesElo, Document {}
+export interface TournamentSeriesElo extends ITournamentSeriesElo, Document {
+  _tournament_series?: TournamentSeries;
+  _player?: Player;
+}
 
 const TournamentSeriesEloSchema: Schema = new Schema({
   tournament_series: {
@@ -25,6 +28,20 @@ const TournamentSeriesEloSchema: Schema = new Schema({
     type: Number,
     required: true,
   },
+});
+
+TournamentSeriesEloSchema.virtual('_tournament_series', {
+  ref: 'TournamentSeries',
+  localField: 'tournament_series',
+  foreignField: '_id',
+  justOne: true,
+});
+
+TournamentSeriesEloSchema.virtual('_player', {
+  ref: 'Player',
+  localField: 'player',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const TournamentSeriesElo = mongoose.model<TournamentSeriesElo>(

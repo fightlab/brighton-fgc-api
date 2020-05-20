@@ -52,7 +52,7 @@ describe('GameElo model test', () => {
     expect(output?._player).toBeUndefined();
   });
 
-  it('should populate game', async () => {
+  it('should populate player', async () => {
     const input = await new GameElo(gameElo).save();
     const output = await GameElo.findById(input.id).populate('_player');
     expect(output?._game).toBeUndefined();
