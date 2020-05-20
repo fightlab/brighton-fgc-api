@@ -33,6 +33,9 @@ describe('BracketPlatform model test', () => {
 
     expect(output._id).toBeDefined();
     expect(output.name).toBe(bracketPlatformMin.name);
+    expect(output.url).toBeUndefined();
+    expect(output.api_docs).toBeUndefined();
+    expect(output.api_url).toBeUndefined();
     expect(output.meta).toBeUndefined();
   });
 });
