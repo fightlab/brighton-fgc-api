@@ -16,7 +16,9 @@ export interface IPlayerSocial {
   switch?: string;
 }
 
-export interface PlayerSocial extends IPlayerSocial, Document {}
+export interface PlayerSocial extends IPlayerSocial, Document {
+  _player?: Player;
+}
 
 const PlayerSocialSchema: Schema = new Schema({
   player: {
@@ -68,6 +70,13 @@ const PlayerSocialSchema: Schema = new Schema({
     type: String,
     required: false,
   },
+});
+
+PlayerSocialSchema.virtual('_player', {
+  ref: 'Player',
+  localField: 'player',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const PlayerSocial = mongoose.model<PlayerSocial>(
