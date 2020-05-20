@@ -1,6 +1,8 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
+import { isNumber } from 'lodash';
 import { Tournament } from '@models/tournament';
 import { Player } from '@models/player';
+import { MESSAGES } from '@lib/messages';
 
 export interface IResult {
   tournament: Tournament['_id'];
@@ -8,7 +10,10 @@ export interface IResult {
   rank: number;
 }
 
-export interface Result extends IResult, Document {}
+export interface Result extends IResult, Document {
+  _tournament?: Tournament;
+  _players?: Array<Player>;
+}
 
 const ResultSchema: Schema = new Schema({
   tournament: {
@@ -25,7 +30,24 @@ const ResultSchema: Schema = new Schema({
     type: Number,
     required: true,
     default: 0,
+    validate: {
+      message: MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+      validator: (v: any) => isNumber(v) && v >= 0,
+    },
   },
+});
+
+ResultSchema.virtual('_tournament', {
+  ref: 'Tournament',
+  localField: 'tournament',
+  foreignField: '_id',
+  justOne: true,
+});
+
+ResultSchema.virtual('_players', {
+  ref: 'Player',
+  localField: 'players',
+  foreignField: '_id',
 });
 
 export const Result = mongoose.model<Result>('Result', ResultSchema, 'result');
