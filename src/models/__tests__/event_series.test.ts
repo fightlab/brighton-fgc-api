@@ -2,7 +2,7 @@ import { default as moment } from 'moment';
 import { chunk } from 'lodash';
 import { EventSeries, IEventSeries } from '@models/event_series';
 import { Event, IEvent } from '@models/event';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 import { Types } from 'mongoose';
 
 describe('EventSeries model test', () => {
@@ -99,7 +99,10 @@ describe('EventSeries model test', () => {
 
     input.validate((error) => {
       expect(error.errors.events.message).toBe(
-        MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
+        generateValidationMessage(
+          'events',
+          VALIDATION_MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
+        ),
       );
     });
   });

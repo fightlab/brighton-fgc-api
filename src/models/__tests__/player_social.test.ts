@@ -1,5 +1,6 @@
 import { PlayerSocial, IPlayerSocial } from '@models/player_social';
 import { Player, IPlayer } from '@models/player';
+import { generateValidationMessage, VALIDATION_MESSAGES } from '@lib/messages';
 
 describe('PlayerSocial model test', () => {
   let players: Array<Player>;
@@ -25,7 +26,7 @@ describe('PlayerSocial model test', () => {
       discord: 'player social discord',
       instagram: 'player social instagram',
       twitter: 'player social twitter',
-      web: 'player social web',
+      web: 'https://player.social/web',
       youtube: 'player social youtube',
       github: 'player social github',
       playstation: 'player social playstation',
@@ -92,5 +93,37 @@ describe('PlayerSocial model test', () => {
     );
     expect(output?._player).toBeDefined();
     expect(output?._player?.id).toBe(players[0].id);
+  });
+
+  it('should not validate if web not valid', async () => {
+    const input = new PlayerSocial({
+      ...playerSocialFull,
+      web: 'not-valid-web',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.web.message).toBe(
+        generateValidationMessage(
+          'web',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if web not correct type', async () => {
+    const input = new PlayerSocial({
+      ...playerSocialFull,
+      web: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.web.message).toBe(
+        generateValidationMessage(
+          'web',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
   });
 });

@@ -1,4 +1,5 @@
 import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 describe('BracketPlatform model test', () => {
   const bracketPlatformFull: IBracketPlatform = {
@@ -37,5 +38,101 @@ describe('BracketPlatform model test', () => {
     expect(output.api_docs).toBeUndefined();
     expect(output.api_url).toBeUndefined();
     expect(output.meta).toBeUndefined();
+  });
+
+  it('should not validate if url not valid', async () => {
+    const input = new BracketPlatform({
+      ...bracketPlatformFull,
+      url: 'not-valid-url',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.url.message).toBe(
+        generateValidationMessage(
+          'url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if url not correct type', async () => {
+    const input = new BracketPlatform({
+      ...bracketPlatformFull,
+      url: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.url.message).toBe(
+        generateValidationMessage(
+          'url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if api url not valid', async () => {
+    const input = new BracketPlatform({
+      ...bracketPlatformFull,
+      api_url: 'not-valid-url',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.api_url.message).toBe(
+        generateValidationMessage(
+          'api_url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if api url not correct type', async () => {
+    const input = new BracketPlatform({
+      ...bracketPlatformFull,
+      api_url: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.api_url.message).toBe(
+        generateValidationMessage(
+          'api_url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if api_docs not valid', async () => {
+    const input = new BracketPlatform({
+      ...bracketPlatformFull,
+      api_docs: 'not-valid-api_docs',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.api_docs.message).toBe(
+        generateValidationMessage(
+          'api_docs',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if api_docs not correct type', async () => {
+    const input = new BracketPlatform({
+      ...bracketPlatformFull,
+      api_docs: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.api_docs.message).toBe(
+        generateValidationMessage(
+          'api_docs',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
   });
 });

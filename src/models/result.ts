@@ -2,7 +2,7 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 import { isNumber } from 'lodash';
 import { Tournament } from '@models/tournament';
 import { Player } from '@models/player';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 export interface IResult {
   tournament: Tournament['_id'];
@@ -31,7 +31,10 @@ const ResultSchema: Schema = new Schema({
     required: true,
     default: 0,
     validate: {
-      message: MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+      message: generateValidationMessage(
+        'rank',
+        VALIDATION_MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+      ),
       validator: (v: any) => isNumber(v) && v >= 0,
     },
   },

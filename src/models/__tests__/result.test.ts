@@ -3,7 +3,7 @@ import { default as moment } from 'moment';
 import { Tournament, TOURNAMENT_TYPE, ITournament } from '@models/tournament';
 import { Player, IPlayer } from '@models/player';
 import { IResult, Result } from '@models/result';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 describe('Result model test', () => {
   let tournaments: Array<Tournament>;
@@ -130,7 +130,10 @@ describe('Result model test', () => {
 
     input.validate((error) => {
       expect(error.errors.rank.message).toBe(
-        MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+        generateValidationMessage(
+          'rank',
+          VALIDATION_MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+        ),
       );
     });
   });
@@ -144,7 +147,10 @@ describe('Result model test', () => {
 
     input.validate((error) => {
       expect(error.errors.rank.message).toBe(
-        MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+        generateValidationMessage(
+          'rank',
+          VALIDATION_MESSAGES.RESULT_RANK_VALIDATION_ERROR,
+        ),
       );
     });
   });

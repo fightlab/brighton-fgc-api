@@ -5,7 +5,7 @@ describe('Venue model test', () => {
     name: 'Venue #1',
     short: 'v1',
     address: 'V1, 1 Venue Street, Venue City, V3 9UE',
-    google_maps: 'https://maps.google.com/some-slug',
+    google_maps: 'https://goo.gl/maps/location-slug',
     website: 'https://some-web-address.co.uk',
   };
 

@@ -1,4 +1,6 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
+import { default as validator } from 'validator';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 import { Event } from '@models/event';
 
 export interface IEventSocial {
@@ -30,6 +32,13 @@ const EventSocialSchema: Schema = new Schema({
   web: {
     type: String,
     required: false,
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'web',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
   },
   twitter: {
     type: String,

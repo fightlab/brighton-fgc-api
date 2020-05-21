@@ -1,9 +1,10 @@
 import { default as faker } from 'faker';
 import { default as moment } from 'moment';
+import { Types } from 'mongoose';
 import { Bracket, IBracket } from '@models/bracket';
 import { Tournament, ITournament, TOURNAMENT_TYPE } from '@models/tournament';
 import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
-import { Types } from 'mongoose';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 describe('Bracket model test', () => {
   let tournaments: Array<Tournament>;
@@ -140,5 +141,37 @@ describe('Bracket model test', () => {
     expect(output?._platform?.id).toBe(platforms[0].id);
     expect(output?._tournament).toBeDefined();
     expect(output?._tournament?.id).toBe(tournaments[0].id);
+  });
+
+  it('should not validate if url not valid', async () => {
+    const input = new Bracket({
+      ...bracketFull,
+      url: 'not-valid-url',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.url.message).toBe(
+        generateValidationMessage(
+          'url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if url not correct type', async () => {
+    const input = new Bracket({
+      ...bracketFull,
+      url: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.url.message).toBe(
+        generateValidationMessage(
+          'url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
   });
 });

@@ -2,7 +2,7 @@ import { default as faker } from 'faker';
 import { default as moment } from 'moment';
 import { Event, IEvent } from '@models/event';
 import { Venue, IVenue } from '@models/venue';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 describe('Event model test', () => {
   let venues: Array<Venue>;
@@ -125,7 +125,10 @@ describe('Event model test', () => {
 
     input.validate((error) => {
       expect(error.errors.date_start.message).toBe(
-        MESSAGES.DATE_START_VALIDATION_ERROR,
+        generateValidationMessage(
+          'date_start',
+          VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+        ),
       );
     });
   });
@@ -140,7 +143,10 @@ describe('Event model test', () => {
 
     input.validate((error) => {
       expect(error.errors.date_end.message).toBe(
-        MESSAGES.DATE_END_VALIDATION_ERROR,
+        generateValidationMessage(
+          'date_end',
+          VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+        ),
       );
     });
   });

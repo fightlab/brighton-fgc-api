@@ -4,7 +4,7 @@ import { Event, IEvent } from '@models/event';
 import { Game, IGame } from '@models/game';
 import { Player, IPlayer } from '@models/player';
 import { Tournament, ITournament, TOURNAMENT_TYPE } from '../tournament';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 describe('Tournament model test', () => {
   let events: Array<Event>;
@@ -153,7 +153,10 @@ describe('Tournament model test', () => {
 
     input.validate((error) => {
       expect(error.errors.date_start.message).toBe(
-        MESSAGES.DATE_START_VALIDATION_ERROR,
+        generateValidationMessage(
+          'date_start',
+          VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+        ),
       );
     });
   });
@@ -180,7 +183,10 @@ describe('Tournament model test', () => {
 
     input.validate((error) => {
       expect(error.errors.date_end.message).toBe(
-        MESSAGES.DATE_END_VALIDATION_ERROR,
+        generateValidationMessage(
+          'date_end',
+          VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+        ),
       );
     });
   });

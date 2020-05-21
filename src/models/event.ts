@@ -1,7 +1,7 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { isDate } from 'moment';
 import { Venue } from '@models/venue';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 export interface IEvent {
   name: string;
@@ -38,7 +38,10 @@ const EventSchema: Schema = new Schema({
         }
         return true;
       },
-      message: MESSAGES.DATE_START_VALIDATION_ERROR,
+      message: generateValidationMessage(
+        'date_start',
+        VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+      ),
     },
   },
   date_end: {
@@ -58,7 +61,10 @@ const EventSchema: Schema = new Schema({
         }
         return true;
       },
-      message: MESSAGES.DATE_END_VALIDATION_ERROR,
+      message: generateValidationMessage(
+        'date_end',
+        VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+      ),
     },
   },
   short: {

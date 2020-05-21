@@ -1,4 +1,6 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
+import { default as validator } from 'validator';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 import { BracketPlatform } from '@models/bracket_platform';
 import { Tournament } from '@models/tournament';
 
@@ -34,6 +36,13 @@ const BracketSchema: Schema = new Schema({
   url: {
     type: String,
     required: false,
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'url',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
   },
   slug: {
     type: String,

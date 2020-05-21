@@ -1,5 +1,7 @@
+import validator from 'validator';
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Player } from '@models/player';
+import { generateValidationMessage, VALIDATION_MESSAGES } from '@lib/messages';
 
 export interface IPlayerSocial {
   player: Player['_id'];
@@ -33,6 +35,13 @@ const PlayerSocialSchema: Schema = new Schema({
   web: {
     type: String,
     required: false,
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'web',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
   },
   twitter: {
     type: String,

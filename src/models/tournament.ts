@@ -3,7 +3,7 @@ import { isDate } from 'moment';
 import { Event } from '@models/event';
 import { Game } from '@models/game';
 import { Player } from '@models/player';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 export enum TOURNAMENT_TYPE {
   DOUBLE_ELIMINATION,
@@ -51,7 +51,10 @@ const TournamentSchema: Schema = new Schema({
         }
         return true;
       },
-      message: MESSAGES.DATE_START_VALIDATION_ERROR,
+      message: generateValidationMessage(
+        'date_start',
+        VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+      ),
     },
   },
   date_end: {
@@ -76,7 +79,10 @@ const TournamentSchema: Schema = new Schema({
         }
         return true;
       },
-      message: MESSAGES.DATE_END_VALIDATION_ERROR,
+      message: generateValidationMessage(
+        'date_end',
+        VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
+      ),
     },
   },
   type: {

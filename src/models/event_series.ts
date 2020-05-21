@@ -1,6 +1,6 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Event } from '@models/event';
-import { MESSAGES } from '@lib/messages';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 export interface IEventSeries {
   name: string;
@@ -21,7 +21,10 @@ const EventSeriesSchema: Schema = new Schema({
     type: [Schema.Types.ObjectId],
     validate: {
       validator: (v: any) => v == null || v.length > 0,
-      message: MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
+      message: generateValidationMessage(
+        'events',
+        VALIDATION_MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
+      ),
     },
     ref: 'Event',
   },

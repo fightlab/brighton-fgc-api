@@ -2,6 +2,7 @@ import { default as moment } from 'moment';
 import { EventSocial, IEventSocial } from '@models/event_social';
 import { Event, IEvent } from '@models/event';
 import { Types } from 'mongoose';
+import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
 
 describe('EventSocial model test', () => {
   let events: Array<Event>;
@@ -33,7 +34,7 @@ describe('EventSocial model test', () => {
       discord: 'event social discord',
       instagram: 'event social instagram',
       twitter: 'event social twitter',
-      web: 'event social web',
+      web: 'https://event-social.web',
       youtube: 'event social youtube',
       meta: {
         hello: 'world',
@@ -93,5 +94,37 @@ describe('EventSocial model test', () => {
     );
     expect(output?._event).toBeDefined();
     expect(output?._event?.id).toBe(events[0].id);
+  });
+
+  it('should not validate if web not valid', async () => {
+    const input = new EventSocial({
+      ...eventSocialFull,
+      web: 'not-valid-web',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.web.message).toBe(
+        generateValidationMessage(
+          'web',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if web not correct type', async () => {
+    const input = new EventSocial({
+      ...eventSocialFull,
+      web: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.web.message).toBe(
+        generateValidationMessage(
+          'web',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
   });
 });
