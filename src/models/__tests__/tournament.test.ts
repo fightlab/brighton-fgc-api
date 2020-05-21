@@ -198,7 +198,7 @@ describe('Tournament model test', () => {
     const output = await Tournament.findById(tournament._id).populate('_event');
 
     expect(output?._event).toBeDefined();
-    expect(output?._event.id).toBe(events[0].id);
+    expect(output?._event?.id).toBe(events[0].id);
 
     expect(output?._games).toBeUndefined();
     expect(output?._players).toBeUndefined();
@@ -235,7 +235,7 @@ describe('Tournament model test', () => {
       .populate('_players');
 
     expect(output?._event).toBeDefined();
-    expect(output?._event.id).toBe(events[0].id);
+    expect(output?._event?.id).toBe(events[0].id);
 
     expect(output?._games).toBeDefined();
     expect(output?._games).toHaveLength(games.length);
