@@ -2,7 +2,10 @@ import { default as faker } from 'faker';
 import { default as moment } from 'moment';
 import { Event, IEvent } from '@models/event';
 import { Venue, IVenue } from '@models/venue';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 describe('Event model test', () => {
   let venues: Array<Venue>;

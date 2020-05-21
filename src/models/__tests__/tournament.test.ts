@@ -4,7 +4,10 @@ import { Event, IEvent } from '@models/event';
 import { Game, IGame } from '@models/game';
 import { Player, IPlayer } from '@models/player';
 import { Tournament, ITournament, TOURNAMENT_TYPE } from '../tournament';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 describe('Tournament model test', () => {
   let events: Array<Event>;

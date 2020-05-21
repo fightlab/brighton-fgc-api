@@ -3,6 +3,10 @@ import { default as moment } from 'moment';
 import { Tournament, ITournament, TOURNAMENT_TYPE } from '@models/tournament';
 import { VodPlatform, IVodPlatform } from '@models/vod_platform';
 import { IVod, Vod } from '@models/vod';
+import {
+  generateValidationMessage,
+  VALIDATION_MESSAGES,
+} from '@lib/validation';
 
 describe('Vod model test', () => {
   let tournaments: Array<Tournament>;
@@ -125,5 +129,37 @@ describe('Vod model test', () => {
 
     expect(output?._platform).toBeDefined();
     expect(output?._platform?.id).toBe(platforms[0].id);
+  });
+
+  it('should not validate if url not valid', async () => {
+    const input = new Vod({
+      ...vodFull,
+      url: 'not-valid-url',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.url.message).toBe(
+        generateValidationMessage(
+          'url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if url not correct type', async () => {
+    const input = new Vod({
+      ...vodFull,
+      url: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.url.message).toBe(
+        generateValidationMessage(
+          'url',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
   });
 });

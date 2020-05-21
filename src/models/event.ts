@@ -1,7 +1,10 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { isDate } from 'moment';
 import { Venue } from '@models/venue';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 export interface IEvent {
   name: string;

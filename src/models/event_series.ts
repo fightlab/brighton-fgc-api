@@ -1,6 +1,9 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Event } from '@models/event';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 export interface IEventSeries {
   name: string;

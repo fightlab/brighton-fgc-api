@@ -1,4 +1,9 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
+import validator from 'validator';
+import {
+  generateValidationMessage,
+  VALIDATION_MESSAGES,
+} from '@lib/validation';
 
 export interface IVenue {
   name: string;
@@ -30,6 +35,13 @@ const VenueSchema: Schema = new Schema({
   website: {
     type: String,
     required: false,
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'website',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
   },
 });
 

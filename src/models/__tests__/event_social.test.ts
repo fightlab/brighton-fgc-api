@@ -2,7 +2,10 @@ import { default as moment } from 'moment';
 import { EventSocial, IEventSocial } from '@models/event_social';
 import { Event, IEvent } from '@models/event';
 import { Types } from 'mongoose';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 describe('EventSocial model test', () => {
   let events: Array<Event>;

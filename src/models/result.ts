@@ -2,7 +2,10 @@ import { default as mongoose, Document, Schema } from 'mongoose';
 import { isNumber } from 'lodash';
 import { Tournament } from '@models/tournament';
 import { Player } from '@models/player';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 export interface IResult {
   tournament: Tournament['_id'];

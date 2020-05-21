@@ -2,7 +2,10 @@ import { default as moment } from 'moment';
 import { chunk } from 'lodash';
 import { EventSeries, IEventSeries } from '@models/event_series';
 import { Event, IEvent } from '@models/event';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 import { Types } from 'mongoose';
 
 describe('EventSeries model test', () => {

@@ -1,7 +1,10 @@
 import validator from 'validator';
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { Player } from '@models/player';
-import { generateValidationMessage, VALIDATION_MESSAGES } from '@lib/messages';
+import {
+  generateValidationMessage,
+  VALIDATION_MESSAGES,
+} from '@/lib/validation';
 
 export interface IPlayerSocial {
   player: Player['_id'];

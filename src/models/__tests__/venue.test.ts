@@ -1,4 +1,8 @@
 import { Venue, IVenue } from '@models/venue';
+import {
+  generateValidationMessage,
+  VALIDATION_MESSAGES,
+} from '@/lib/validation';
 
 describe('Venue model test', () => {
   const venueFull: IVenue = {
@@ -36,5 +40,37 @@ describe('Venue model test', () => {
     expect(output.website).toBeUndefined();
     expect(output.address).toBeUndefined();
     expect(output.google_maps).toBeUndefined();
+  });
+
+  it('should not validate if website not valid', async () => {
+    const input = new Venue({
+      ...venueMin,
+      website: 'not-valid-website',
+    });
+
+    input.validate((error) => {
+      expect(error.errors.website.message).toBe(
+        generateValidationMessage(
+          'website',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
+  });
+
+  it('should not validate if website not correct type', async () => {
+    const input = new Venue({
+      ...venueMin,
+      website: 1993,
+    });
+
+    input.validate((error) => {
+      expect(error.errors.website.message).toBe(
+        generateValidationMessage(
+          'website',
+          VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+        ),
+      );
+    });
   });
 });

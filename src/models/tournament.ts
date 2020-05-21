@@ -3,7 +3,10 @@ import { isDate } from 'moment';
 import { Event } from '@models/event';
 import { Game } from '@models/game';
 import { Player } from '@models/player';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 export enum TOURNAMENT_TYPE {
   DOUBLE_ELIMINATION,

@@ -1,6 +1,9 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { default as validator } from 'validator';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 import { BracketPlatform } from '@models/bracket_platform';
 import { Tournament } from '@models/tournament';
 

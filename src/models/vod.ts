@@ -1,6 +1,11 @@
 import { default as mongoose, Document, Schema } from 'mongoose';
 import { VodPlatform } from '@models/vod_platform';
 import { Tournament } from '@models/tournament';
+import validator from 'validator';
+import {
+  generateValidationMessage,
+  VALIDATION_MESSAGES,
+} from '@lib/validation';
 
 export interface IVod {
   tournament: Tournament['_id'];
@@ -33,6 +38,13 @@ const VodSchema: Schema = new Schema({
   url: {
     type: String,
     required: true,
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'url',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
   },
   start_time: {
     type: String,

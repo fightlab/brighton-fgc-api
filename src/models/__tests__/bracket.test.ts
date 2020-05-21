@@ -4,7 +4,10 @@ import { Types } from 'mongoose';
 import { Bracket, IBracket } from '@models/bracket';
 import { Tournament, ITournament, TOURNAMENT_TYPE } from '@models/tournament';
 import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 describe('Bracket model test', () => {
   let tournaments: Array<Tournament>;

@@ -1,5 +1,8 @@
 import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 describe('BracketPlatform model test', () => {
   const bracketPlatformFull: IBracketPlatform = {

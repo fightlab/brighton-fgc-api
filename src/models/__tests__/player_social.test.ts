@@ -1,6 +1,9 @@
 import { PlayerSocial, IPlayerSocial } from '@models/player_social';
 import { Player, IPlayer } from '@models/player';
-import { generateValidationMessage, VALIDATION_MESSAGES } from '@lib/messages';
+import {
+  generateValidationMessage,
+  VALIDATION_MESSAGES,
+} from '@/lib/validation';
 
 describe('PlayerSocial model test', () => {
   let players: Array<Player>;

@@ -3,7 +3,10 @@ import { default as moment } from 'moment';
 import { Tournament, TOURNAMENT_TYPE, ITournament } from '@models/tournament';
 import { Player, IPlayer } from '@models/player';
 import { IResult, Result } from '@models/result';
-import { VALIDATION_MESSAGES, generateValidationMessage } from '@lib/messages';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@/lib/validation';
 
 describe('Result model test', () => {
   let tournaments: Array<Tournament>;
