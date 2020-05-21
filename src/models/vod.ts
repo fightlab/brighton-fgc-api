@@ -10,7 +10,10 @@ export interface IVod {
   start_time?: string;
 }
 
-export interface Vod extends IVod, Document {}
+export interface Vod extends IVod, Document {
+  _tournament?: Tournament;
+  _platform?: VodPlatform;
+}
 
 const VodSchema: Schema = new Schema({
   tournament: {
@@ -36,6 +39,20 @@ const VodSchema: Schema = new Schema({
     required: false,
     default: '0',
   },
+});
+
+VodSchema.virtual('_tournament', {
+  ref: 'Tournament',
+  localField: 'tournament',
+  foreignField: '_id',
+  justOne: true,
+});
+
+VodSchema.virtual('_platform', {
+  ref: 'VodPlatform',
+  localField: 'platform',
+  foreignField: '_id',
+  justOne: true,
 });
 
 export const Vod = mongoose.model<Vod>('Vod', VodSchema, 'vod');
