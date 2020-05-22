@@ -7,7 +7,7 @@ services:
     volumes:
       - .:/app
     links:
-      - "hbk-mongo:hbk-mongo"
+      - 'hbk-mongo:hbk-mongo'
     environment:
       - NODE_ENV=development
       - PORT=9000
@@ -18,7 +18,7 @@ services:
       - 9229:9229
   hbk-mongo:
     image: mongo:latest
-    restart: "no"
+    restart: 'no'
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
@@ -40,6 +40,6 @@ services:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=root
       - ME_CONFIG_MONGODB_ADMINPASSWORD=password
     links:
-      - "hbk-mongo:hbk-mongo"
+      - 'hbk-mongo:hbk-mongo'
 volumes:
   hbk-mongo:

@@ -168,21 +168,21 @@ const generateBracket = (
 // event social mock
 const generateEventSocial = (event: Event): IEventSocial => ({
   event: event._id,
-  facebook: getOptional(faker.internet.url),
-  web: getOptional(faker.internet.url),
-  twitter: getOptional(faker.internet.url),
-  discord: getOptional(faker.internet.url),
-  instagram: getOptional(faker.internet.url),
-  twitch: getOptional(faker.internet.url),
-  youtube: getOptional(faker.internet.url),
-  meta: getOptional(faker.internet.url),
+  facebook: getOptional(faker.internet.url()),
+  web: getOptional(faker.internet.url()),
+  twitter: getOptional(faker.internet.url()),
+  discord: getOptional(faker.internet.url()),
+  instagram: getOptional(faker.internet.url()),
+  twitch: getOptional(faker.internet.url()),
+  youtube: getOptional(faker.internet.url()),
+  meta: getOptional(faker.internet.url()),
 });
 
 // player social mock
 const generatePlayerSocial = (player: Player): IPlayerSocial => ({
   player: player._id,
   facebook: getOptional(faker.internet.userName()),
-  web: getOptional(faker.internet.userName()),
+  web: getOptional(faker.internet.url()),
   twitter: getOptional(faker.internet.userName()),
   discord: getOptional(faker.internet.userName()),
   instagram: getOptional(faker.internet.userName()),
