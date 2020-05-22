@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('EventSocial model test', () => {
   let events: Array<Event>;

@@ -3,7 +3,7 @@ import { Event } from '@models/event';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 export interface IEventSeries {
   name: string;

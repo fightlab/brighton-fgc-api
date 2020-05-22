@@ -6,7 +6,7 @@ import { IResult, Result } from '@models/result';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('Result model test', () => {
   let tournaments: Array<Tournament>;

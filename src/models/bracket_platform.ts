@@ -2,7 +2,7 @@ import { default as validator } from 'validator';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 import { default as mongoose, Document, Schema } from 'mongoose';
 
 export interface IBracketPlatform {

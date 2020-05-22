@@ -5,7 +5,7 @@ import { Event, IEvent } from '@models/event';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 import { Types } from 'mongoose';
 
 describe('EventSeries model test', () => {

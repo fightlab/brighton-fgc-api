@@ -7,9 +7,9 @@ module.exports = {
     config.resolve = {
       extensions: ['.ts', '.js', '.json'],
       alias: {
-        '@': path.join(__dirname, 'src'),
-        '@models': path.join(__dirname, 'src/models'),
+        '@graphql': path.join(__dirname, 'src/graphql'),
         '@lib': path.join(__dirname, 'src/lib'),
+        '@models': path.join(__dirname, 'src/models'),
       },
     };
 

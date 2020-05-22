@@ -7,7 +7,7 @@ import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('Bracket model test', () => {
   let tournaments: Array<Tournament>;

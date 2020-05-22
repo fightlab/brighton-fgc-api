@@ -4,7 +4,7 @@ import { Venue } from '@models/venue';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 export interface IEvent {
   name: string;

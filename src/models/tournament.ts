@@ -6,7 +6,7 @@ import { Player } from '@models/player';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 export enum TOURNAMENT_TYPE {
   DOUBLE_ELIMINATION,

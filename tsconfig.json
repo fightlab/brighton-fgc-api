@@ -1,18 +1,18 @@
 {
   "compilerOptions": {
-      "allowSyntheticDefaultImports": true,
-      "esModuleInterop": true,
-      "noUnusedLocals": true,
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["./src/*"],
-        "@models/*": ["./src/models/*"],
-        "@lib/*": ["./src/lib/*"]
-      },
-      "strict": true,
-      "module": "CommonJS",
-      "target": "ES2019",
-      "moduleResolution": "node",
-      "typeRoots": ["node_modules/@types", "./src/typings"]
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "baseUrl": ".",
+    "paths": {
+      "@graphql/*": ["./src/graphql/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@models/*": ["./src/models/*"]
+    },
+    "strict": true,
+    "module": "CommonJS",
+    "target": "ES2019",
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types", "./src/typings"]
   }
 }

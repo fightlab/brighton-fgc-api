@@ -5,7 +5,7 @@ import { Player } from '@models/player';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 export interface IResult {
   tournament: Tournament['_id'];

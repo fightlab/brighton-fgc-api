@@ -4,7 +4,7 @@ import { Player } from '@models/player';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 export interface IPlayerSocial {
   player: Player['_id'];

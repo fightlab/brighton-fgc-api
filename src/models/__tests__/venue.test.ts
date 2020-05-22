@@ -2,7 +2,7 @@ import { Venue, IVenue } from '@models/venue';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('Venue model test', () => {
   const venueFull: IVenue = {

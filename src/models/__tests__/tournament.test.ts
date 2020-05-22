@@ -7,7 +7,7 @@ import { Tournament, ITournament, TOURNAMENT_TYPE } from '../tournament';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('Tournament model test', () => {
   let events: Array<Event>;

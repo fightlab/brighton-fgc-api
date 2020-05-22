@@ -5,7 +5,7 @@ import { Venue, IVenue } from '@models/venue';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('Event model test', () => {
   let venues: Array<Venue>;

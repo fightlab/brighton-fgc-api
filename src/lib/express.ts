@@ -46,10 +46,5 @@ export default () => {
     return res.sendStatus(200);
   });
 
-  // default 404 route for all request methods
-  app.use((_: Request, res: Response) => {
-    return res.sendStatus(404);
-  });
-
   return app;
 };

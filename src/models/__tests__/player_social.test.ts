@@ -3,7 +3,7 @@ import { Player, IPlayer } from '@models/player';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
-} from '@/lib/validation';
+} from '@lib/validation';
 
 describe('PlayerSocial model test', () => {
   let players: Array<Player>;
