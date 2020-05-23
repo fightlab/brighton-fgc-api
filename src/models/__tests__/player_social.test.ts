@@ -1,15 +1,16 @@
-import { PlayerSocial, IPlayerSocial } from '@models/player_social';
-import { Player, IPlayer } from '@models/player';
+import { DocumentType, isDocument } from '@typegoose/typegoose';
+import { PlayerSocial, PlayerSocialClass } from '@models/player_social';
+import { Player, PlayerClass } from '@models/player';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
 describe('PlayerSocial model test', () => {
-  let players: Array<Player>;
-  let playerSocialFull: IPlayerSocial;
-  let playerSocialMin: IPlayerSocial;
-  let playerSocial: PlayerSocial;
+  let players: Array<DocumentType<PlayerClass>>;
+  let playerSocialFull: PlayerSocialClass;
+  let playerSocialMin: PlayerSocialClass;
+  let playerSocial: DocumentType<PlayerSocialClass>;
 
   beforeEach(async () => {
     // fake some players
@@ -20,7 +21,7 @@ describe('PlayerSocial model test', () => {
       {
         handle: 'Player 2',
       },
-    ] as Array<IPlayer>);
+    ] as Array<PlayerClass>);
 
     playerSocialFull = {
       player: players[0]._id,
@@ -47,7 +48,7 @@ describe('PlayerSocial model test', () => {
       {
         player: players[0]._id,
       },
-    ] as Array<IPlayerSocial>);
+    ] as Array<PlayerSocialClass>);
   });
 
   it('should create & save playerSocial successfully', async () => {
@@ -55,8 +56,8 @@ describe('PlayerSocial model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.player.toString()).toBe(playerSocialFull.player.toString());
-    expect(output.player.toString()).toBe(players[0]._id.toString());
+    expect(output.player?.toString()).toBe(playerSocialFull.player?.toString());
+    expect(output.player?.toString()).toBe(players[0]._id.toString());
     expect(output.facebook).toBe(playerSocialFull.facebook);
     expect(output.twitch).toBe(playerSocialFull.twitch);
     expect(output.twitter).toBe(playerSocialFull.twitter);
@@ -75,8 +76,8 @@ describe('PlayerSocial model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.player.toString()).toBe(playerSocialMin.player.toString());
-    expect(output.player.toString()).toBe(players[1]._id.toString());
+    expect(output.player?.toString()).toBe(playerSocialMin.player?.toString());
+    expect(output.player?.toString()).toBe(players[1]._id.toString());
     expect(output.facebook).toBeUndefined();
     expect(output.twitch).toBeUndefined();
     expect(output.twitter).toBeUndefined();
@@ -92,10 +93,13 @@ describe('PlayerSocial model test', () => {
 
   it('should populate player', async () => {
     const output = await PlayerSocial.findById(playerSocial.id).populate(
-      '_player',
+      'player',
     );
-    expect(output?._player).toBeDefined();
-    expect(output?._player?.id).toBe(players[0].id);
+
+    expect(isDocument(output?.player)).toBe(true);
+    if (isDocument(output?.player)) {
+      expect(output?.player.id).toBe(players[0].id);
+    }
   });
 
   it('should not validate if web not valid', async () => {

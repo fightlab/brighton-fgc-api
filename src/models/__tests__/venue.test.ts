@@ -1,11 +1,11 @@
-import { Venue, IVenue } from '@models/venue';
+import { Venue, VenueClass } from '@models/venue';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
 describe('Venue model test', () => {
-  const venueFull: IVenue = {
+  const venueFull: VenueClass = {
     name: 'Venue #1',
     short: 'v1',
     address: 'V1, 1 Venue Street, Venue City, V3 9UE',
@@ -13,7 +13,7 @@ describe('Venue model test', () => {
     website: 'https://some-web-address.co.uk',
   };
 
-  const venueMin: IVenue = {
+  const venueMin: VenueClass = {
     name: 'Venue #2',
     short: 'v2',
   };

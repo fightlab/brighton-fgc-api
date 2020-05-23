@@ -1,43 +1,22 @@
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import validator from 'validator';
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { Player } from '@models/player';
+import { PlayerClass } from '@models/player';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
-export interface IPlayerSocial {
-  player: Player['_id'];
-  facebook?: string;
-  web?: string;
-  twitter?: string;
-  discord?: string;
-  instagram?: string;
-  github?: string;
-  twitch?: string;
-  youtube?: string;
-  playstation?: string;
-  xbox?: string;
-  switch?: string;
-}
-
-export interface PlayerSocial extends IPlayerSocial, Document {
-  _player?: Player;
-}
-
-const PlayerSocialSchema: Schema = new Schema({
-  player: {
-    type: Schema.Types.ObjectId,
+export class PlayerSocialClass {
+  @Property({
     required: true,
-    ref: 'Player',
-  },
-  facebook: {
-    type: String,
-    required: false,
-  },
-  web: {
-    type: String,
-    required: false,
+    ref: () => PlayerClass,
+  })
+  public player!: Ref<PlayerClass>;
+
+  @Property()
+  public facebook?: string;
+
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -45,54 +24,42 @@ const PlayerSocialSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
+  })
+  public web?: string;
+
+  @Property()
+  public twitter?: string;
+
+  @Property()
+  public discord?: string;
+
+  @Property()
+  public instagram?: string;
+
+  @Property()
+  public github?: string;
+
+  @Property()
+  public twitch?: string;
+
+  @Property()
+  public youtube?: string;
+
+  @Property()
+  public playstation?: string;
+
+  @Property()
+  public xbox?: string;
+
+  @Property()
+  public switch?: string;
+}
+
+export const PlayerSocial = getModelForClass(PlayerSocialClass, {
+  options: {
+    customName: 'PlayerSocial',
   },
-  twitter: {
-    type: String,
-    required: false,
-  },
-  discord: {
-    type: String,
-    required: false,
-  },
-  instagram: {
-    type: String,
-    required: false,
-  },
-  github: {
-    type: String,
-    required: false,
-  },
-  twitch: {
-    type: String,
-    required: false,
-  },
-  youtube: {
-    type: String,
-    required: false,
-  },
-  playstation: {
-    type: String,
-    required: false,
-  },
-  xbox: {
-    type: String,
-    required: false,
-  },
-  switch: {
-    type: String,
-    required: false,
+  schemaOptions: {
+    collection: 'player_social',
   },
 });
-
-PlayerSocialSchema.virtual('_player', {
-  ref: 'Player',
-  localField: 'player',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const PlayerSocial = mongoose.model<PlayerSocial>(
-  'PlayerSocial',
-  PlayerSocialSchema,
-  'player_social',
-);

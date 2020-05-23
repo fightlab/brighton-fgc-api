@@ -1,8 +1,8 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isDate } from 'moment';
-import { Event } from '@models/event';
-import { Game } from '@models/game';
-import { Player } from '@models/player';
+import { EventClass } from '@models/event';
+import { GameClass } from '@models/game';
+import { PlayerClass } from '@models/player';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
@@ -14,33 +14,14 @@ export enum TOURNAMENT_TYPE {
   ROUND_ROBIN,
 }
 
-export interface ITournament {
-  name: string;
-  date_start: Date;
-  date_end?: Date;
-  type: number;
-  event: Event['_id'];
-  games: Array<Game['_id']>;
-  players?: Array<Player['_id']>;
-  is_team_based?: boolean;
-}
+export class TournamentClass {
+  @Property({ required: true })
+  name!: string;
 
-export interface Tournament extends ITournament, Document {
-  _event?: Event;
-  _games?: Array<Game>;
-  _players?: Array<Player>;
-}
-
-const TournamentSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  date_start: {
-    type: Date,
+  @Property({
     required: true,
     validate: {
-      validator: function (this: Event) {
+      validator: function (this: TournamentClass) {
         if (!isDate(this.date_start)) {
           return false;
         }
@@ -59,12 +40,12 @@ const TournamentSchema: Schema = new Schema({
         VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
       ),
     },
-  },
-  date_end: {
-    type: Date,
-    required: false,
+  })
+  date_start!: Date;
+
+  @Property({
     validate: {
-      validator: function (this: Event) {
+      validator: function (this: TournamentClass) {
         // undefined is a valid end date
         if (this.date_end === undefined) {
           return true;
@@ -87,55 +68,41 @@ const TournamentSchema: Schema = new Schema({
         VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
       ),
     },
-  },
-  type: {
-    type: Number,
+  })
+  date_end?: Date;
+
+  @Property({ required: true })
+  type!: number;
+
+  @Property({
     required: true,
-  },
-  event: {
-    type: Schema.Types.ObjectId,
+    ref: () => EventClass,
+  })
+  event!: Ref<EventClass>;
+
+  @Property({
     required: true,
-    ref: 'Event',
-  },
-  games: {
-    type: [Schema.Types.ObjectId],
-    required: true,
-    ref: 'Game',
-  },
-  players: {
-    type: [Schema.Types.ObjectId],
-    required: false,
-    ref: 'Player',
+    ref: () => GameClass,
     default: [],
+  })
+  games!: Array<Ref<GameClass>>;
+
+  @Property({
+    required: true,
+    ref: () => PlayerClass,
+    default: [],
+  })
+  players?: Array<Ref<PlayerClass>>;
+
+  @Property()
+  is_team_based?: boolean;
+}
+
+export const Tournament = getModelForClass(TournamentClass, {
+  options: {
+    customName: 'Tournament',
   },
-  is_team_based: {
-    type: Boolean,
-    required: false,
-    default: false,
+  schemaOptions: {
+    collection: 'tournament',
   },
 });
-
-TournamentSchema.virtual('_event', {
-  ref: 'Event',
-  localField: 'event',
-  foreignField: '_id',
-  justOne: true,
-});
-
-TournamentSchema.virtual('_games', {
-  ref: 'Game',
-  localField: 'games',
-  foreignField: '_id',
-});
-
-TournamentSchema.virtual('_players', {
-  ref: 'Player',
-  localField: 'players',
-  foreignField: '_id',
-});
-
-export const Tournament = mongoose.model<Tournament>(
-  'Tournament',
-  TournamentSchema,
-  'tournament',
-);

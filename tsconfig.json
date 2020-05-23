@@ -13,6 +13,8 @@
     "module": "CommonJS",
     "target": "ES2019",
     "moduleResolution": "node",
-    "typeRoots": ["node_modules/@types", "./src/typings"]
+    "typeRoots": ["node_modules/@types", "./src/typings"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }

@@ -1,18 +1,15 @@
 import { default as moment } from 'moment';
 import { chunk } from 'lodash';
-import { EventSeries, IEventSeries } from '@models/event_series';
-import { Event, IEvent } from '@models/event';
-import {
-  VALIDATION_MESSAGES,
-  generateValidationMessage,
-} from '@lib/validation';
+import { DocumentType, isDocumentArray } from '@typegoose/typegoose';
+import { EventSeries, EventSeriesClass } from '@models/event_series';
+import { Event, EventClass } from '@models/event';
 import { Types } from 'mongoose';
 
 describe('EventSeries model test', () => {
-  let events: Array<Event>;
-  let eventSeriesFull: IEventSeries;
-  let eventSeriesMin: IEventSeries;
-  let eventSeries: EventSeries;
+  let events: Array<DocumentType<EventClass>>;
+  let eventSeriesFull: EventSeriesClass;
+  let eventSeriesMin: EventSeriesClass;
+  let eventSeries: DocumentType<EventSeriesClass>;
 
   beforeEach(async () => {
     // fake some events
@@ -41,7 +38,7 @@ describe('EventSeries model test', () => {
         date_end: moment.utc().subtract(4, 'd').toDate(),
         date_start: moment.utc().subtract(4, 'd').subtract(4, 'h').toDate(),
       },
-    ] as Array<IEvent>);
+    ] as Array<EventClass>);
 
     eventSeriesFull = {
       name: 'Event Series Full',
@@ -59,7 +56,7 @@ describe('EventSeries model test', () => {
         name: 'Event Series',
         events: events.map((e) => e._id),
       },
-    ] as Array<IEventSeries>);
+    ] as Array<EventSeriesClass>);
   });
 
   it('should create & save eventSeries successfully', async () => {
@@ -69,13 +66,10 @@ describe('EventSeries model test', () => {
     expect(output._id).toBeDefined();
     expect(output.name).toBe(eventSeriesFull.name);
     expect(output.events.length).toBe(eventSeriesFull.events.length);
-    expect(output.events[0].toString()).toBe(
-      eventSeriesFull.events[0].toString(),
+    expect(output.events[0]?.toString()).toBe(
+      eventSeriesFull.events[0]?.toString(),
     );
     expect(output.info).toBe(eventSeriesFull.info);
-
-    // shouldn't populate virtuals
-    expect(output._events).toBeUndefined();
   });
 
   it('should create & save min eventSeries successfully', async () => {
@@ -85,36 +79,23 @@ describe('EventSeries model test', () => {
     expect(output._id).toBeDefined();
     expect(output.name).toBe(eventSeriesMin.name);
     expect(output.events.length).toBe(eventSeriesMin.events.length);
-    expect(output.events[0].toString()).toBe(
-      eventSeriesMin.events[0].toString(),
+    expect(output.events[0]?.toString()).toBe(
+      eventSeriesMin.events[0]?.toString(),
     );
     expect(output.info).toBeUndefined();
-
-    // shouldn't populate virtuals
-    expect(output._events).toBeUndefined();
-  });
-
-  it('should fail validation if trying to save without an event', async () => {
-    const input = new EventSeries({
-      name: 'Event Series Empty',
-      events: [],
-    });
-
-    input.validate((error) => {
-      expect(error.errors.events.message).toBe(
-        generateValidationMessage(
-          'events',
-          VALIDATION_MESSAGES.EVENT_REQUIRED_VALIDATION_ERROR,
-        ),
-      );
-    });
   });
 
   it('should populate events', async () => {
     const output = await EventSeries.findById(eventSeries._id).populate(
-      '_events',
+      'events',
     );
-    expect(output?._events).toBeDefined();
-    expect(output?._events).toHaveLength(4);
+    expect(output).toBeDefined();
+    if (output) {
+      expect(isDocumentArray(output.events)).toBe(true);
+      if (isDocumentArray(output.events)) {
+        expect(output?.events).toHaveLength(4);
+        expect(output?.events[0].id).toBe(events[0].id);
+      }
+    }
   });
 });

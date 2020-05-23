@@ -1,20 +1,25 @@
+import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { default as moment } from 'moment';
-import { Tournament, ITournament, TOURNAMENT_TYPE } from '@models/tournament';
-import { VodPlatform, IVodPlatform } from '@models/vod_platform';
-import { IVod, Vod } from '@models/vod';
+import {
+  Tournament,
+  TournamentClass,
+  TOURNAMENT_TYPE,
+} from '@models/tournament';
+import { VodPlatform, VodPlatformClass } from '@models/vod_platform';
+import { VodClass, Vod } from '@models/vod';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
 describe('Vod model test', () => {
-  let tournaments: Array<Tournament>;
-  let platforms: Array<VodPlatform>;
+  let tournaments: Array<DocumentType<TournamentClass>>;
+  let platforms: Array<DocumentType<VodPlatformClass>>;
 
-  let vodFull: IVod;
-  let vodMin: IVod;
-  let vod: Vod;
+  let vodFull: VodClass;
+  let vodMin: VodClass;
+  let vod: DocumentType<VodClass>;
 
   beforeEach(async () => {
     // fake some tournaments
@@ -39,7 +44,7 @@ describe('Vod model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<ITournament>);
+    ] as Array<TournamentClass>);
 
     // fake some vod platforms
     platforms = await VodPlatform.create([
@@ -47,7 +52,7 @@ describe('Vod model test', () => {
         name: 'Vod Platform #1',
         url: 'https://vodplatform.com',
       },
-    ] as Array<IVodPlatform>);
+    ] as Array<VodPlatformClass>);
 
     vodFull = {
       tournament: tournaments[0]._id,
@@ -64,7 +69,7 @@ describe('Vod model test', () => {
       url: 'https://vodplayer.co.uk/vod/vod-full-id',
     };
 
-    [vod] = await Vod.create([vodFull] as Array<IVod>);
+    [vod] = await Vod.create([vodFull] as Array<VodClass>);
   });
 
   it('should create & save vod successfully', async () => {
@@ -72,16 +77,17 @@ describe('Vod model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(vodFull.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[0].id);
-    expect(output.platform.toString()).toBe(vodFull.platform.toString());
-    expect(output.platform.toString()).toBe(platforms[0].id);
+
+    // shouldn't populate virtuals
+    expect(isDocument(output?.platform)).toBe(false);
+    expect(isDocument(output?.tournament)).toBe(false);
+
+    expect(output.tournament?.toString()).toBe(vodFull.tournament?.toString());
+    expect(output.tournament?.toString()).toBe(tournaments[0].id);
+    expect(output.platform?.toString()).toBe(vodFull.platform?.toString());
+    expect(output.platform?.toString()).toBe(platforms[0].id);
     expect(output.platform_id).toBe(vodFull.platform_id);
     expect(output.start_time).toBe(vodFull.start_time);
-
-    // should not populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._platform).toBeUndefined();
   });
 
   it('should create & save min vod successfully', async () => {
@@ -89,46 +95,49 @@ describe('Vod model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(vodMin.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[1].id);
-    expect(output.platform.toString()).toBe(vodMin.platform.toString());
-    expect(output.platform.toString()).toBe(platforms[0].id);
+
+    // shouldn't populate virtuals
+    expect(isDocument(output?.platform)).toBe(false);
+    expect(isDocument(output?.tournament)).toBe(false);
+
+    expect(output.tournament?.toString()).toBe(vodMin.tournament?.toString());
+    expect(output.tournament?.toString()).toBe(tournaments[1].id);
+    expect(output.platform?.toString()).toBe(vodMin.platform?.toString());
+    expect(output.platform?.toString()).toBe(platforms[0].id);
     expect(output.platform_id).toBe(vodMin.platform_id);
     expect(output.start_time).toBe('0');
-
-    // should not populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._platform).toBeUndefined();
   });
 
   it('should populate tournament', async () => {
-    const output = await Vod.findById(vod.id).populate('_tournament');
+    const output = await Vod.findById(vod.id).populate('tournament');
 
-    expect(output?._tournament).toBeDefined();
-    expect(output?._tournament?.id).toBe(tournaments[0].id);
-
-    expect(output?._platform).toBeUndefined();
+    expect(isDocument(output?.platform)).toBe(false);
+    expect(isDocument(output?.tournament)).toBe(true);
+    if (isDocument(output?.tournament)) {
+      expect(output?.tournament.id).toBe(tournaments[0].id);
+    }
   });
 
   it('should populate platform', async () => {
-    const output = await Vod.findById(vod.id).populate('_platform');
-
-    expect(output?._platform).toBeDefined();
-    expect(output?._platform?.id).toBe(platforms[0].id);
-
-    expect(output?._tournament).toBeUndefined();
+    const output = await Vod.findById(vod.id).populate('platform');
+    expect(isDocument(output?.platform)).toBe(true);
+    expect(isDocument(output?.tournament)).toBe(false);
+    if (isDocument(output?.platform)) {
+      expect(output?.platform.id).toBe(platforms[0].id);
+    }
   });
 
   it('should populate all fields', async () => {
     const output = await Vod.findById(vod.id)
-      .populate('_tournament')
-      .populate('_platform');
+      .populate('tournament')
+      .populate('platform');
 
-    expect(output?._tournament).toBeDefined();
-    expect(output?._tournament?.id).toBe(tournaments[0].id);
-
-    expect(output?._platform).toBeDefined();
-    expect(output?._platform?.id).toBe(platforms[0].id);
+    expect(isDocument(output?.platform)).toBe(true);
+    expect(isDocument(output?.tournament)).toBe(true);
+    if (isDocument(output?.platform) && isDocument(output?.tournament)) {
+      expect(output?.platform.id).toBe(platforms[0].id);
+      expect(output?.tournament.id).toBe(tournaments[0].id);
+    }
   });
 
   it('should not validate if url not valid', async () => {

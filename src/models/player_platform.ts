@@ -1,56 +1,32 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { BracketPlatform } from '@models/bracket_platform';
-import { Player } from '@models/player';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import { BracketPlatformClass } from '@models/bracket_platform';
+import { PlayerClass } from '@models/player';
 
-export interface IPlayerPlatform {
-  platform: BracketPlatform['_id'];
-  player: Player['_id'];
-  platform_id?: string;
-  email_hash?: string;
+export class PlayerPlatformClass {
+  @Property({
+    required: true,
+    ref: () => BracketPlatformClass,
+  })
+  public platform!: Ref<BracketPlatformClass>;
+
+  @Property({
+    required: true,
+    ref: () => PlayerClass,
+  })
+  public player!: Ref<PlayerClass>;
+
+  @Property()
+  public platform_id?: string;
+
+  @Property()
+  public email_hash?: string;
 }
 
-export interface PlayerPlatform extends IPlayerPlatform, Document {
-  _platform?: BracketPlatform;
-  _player?: Player;
-}
-
-const PlayerPlatformSchema: Schema = new Schema({
-  platform: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'BracketPlatform',
+export const PlayerPlatform = getModelForClass(PlayerPlatformClass, {
+  options: {
+    customName: 'PlayerPlatform',
   },
-  player: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Player',
-  },
-  platform_id: {
-    type: String,
-    required: false,
-  },
-  email_hash: {
-    type: String,
-    required: false,
+  schemaOptions: {
+    collection: 'player_platform',
   },
 });
-
-PlayerPlatformSchema.virtual('_platform', {
-  ref: 'BracketPlatform',
-  localField: 'platform',
-  foreignField: '_id',
-  justOne: true,
-});
-
-PlayerPlatformSchema.virtual('_player', {
-  ref: 'Player',
-  localField: 'player',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const PlayerPlatform = mongoose.model<PlayerPlatform>(
-  'PlayerPlatform',
-  PlayerPlatformSchema,
-  'player_platform',
-);

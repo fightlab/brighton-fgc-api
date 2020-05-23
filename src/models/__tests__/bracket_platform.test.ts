@@ -1,11 +1,14 @@
-import { BracketPlatform, IBracketPlatform } from '@models/bracket_platform';
+import {
+  BracketPlatform,
+  BracketPlatformClass,
+} from '@models/bracket_platform';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('BracketPlatform model test', () => {
-  const bracketPlatformFull: IBracketPlatform = {
+  const bracketPlatformFull: BracketPlatformClass = {
     name: 'Habrewken Tournaments',
     url: 'https://hbk.gg',
     api_docs: 'https://github.com/fightlab/brighton-fgc-api',
@@ -15,7 +18,7 @@ describe('BracketPlatform model test', () => {
     },
   };
 
-  const bracketPlatformMin: IBracketPlatform = {
+  const bracketPlatformMin: BracketPlatformClass = {
     name: 'Pen and Paper',
   };
 

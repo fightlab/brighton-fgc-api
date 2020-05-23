@@ -1,51 +1,29 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { TournamentSeries } from '@models/tournament_series';
-import { Player } from '@models/player';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import { TournamentSeriesClass } from '@models/tournament_series';
+import { PlayerClass } from '@models/player';
 
-export interface ITournamentSeriesElo {
-  tournament_series: TournamentSeries['_id'];
-  player: Player['_id'];
-  score: number;
+export class TournamentSeriesEloClass {
+  @Property({
+    required: true,
+    ref: () => TournamentSeriesClass,
+  })
+  public tournament_series!: Ref<TournamentSeriesClass>;
+
+  @Property({
+    required: true,
+    ref: () => PlayerClass,
+  })
+  public player!: Ref<PlayerClass>;
+
+  @Property({ required: true })
+  public score!: number;
 }
 
-export interface TournamentSeriesElo extends ITournamentSeriesElo, Document {
-  _tournament_series?: TournamentSeries;
-  _player?: Player;
-}
-
-const TournamentSeriesEloSchema: Schema = new Schema({
-  tournament_series: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'TournamentSeries',
+export const TournamentSeriesElo = getModelForClass(TournamentSeriesEloClass, {
+  options: {
+    customName: 'TournamentSeriesElo',
   },
-  player: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Player',
-  },
-  score: {
-    type: Number,
-    required: true,
+  schemaOptions: {
+    collection: 'tournament_series_elo',
   },
 });
-
-TournamentSeriesEloSchema.virtual('_tournament_series', {
-  ref: 'TournamentSeries',
-  localField: 'tournament_series',
-  foreignField: '_id',
-  justOne: true,
-});
-
-TournamentSeriesEloSchema.virtual('_player', {
-  ref: 'Player',
-  localField: 'player',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const TournamentSeriesElo = mongoose.model<TournamentSeriesElo>(
-  'TournamentSeriesElo',
-  TournamentSeriesEloSchema,
-  'tournament_series_elo',
-);

@@ -1,34 +1,19 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isDate } from 'moment';
-import { Venue } from '@models/venue';
+import { VenueClass } from '@models/venue';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
-export interface IEvent {
-  name: string;
-  date_start: Date;
-  date_end: Date;
-  venue: Venue['_id'];
-  short?: string;
-  info?: string;
-}
+export class EventClass {
+  @Property({ required: true })
+  public name!: string;
 
-export interface Event extends IEvent, Document {
-  _venue?: Venue;
-}
-
-const EventSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  date_start: {
-    type: Date,
+  @Property({
     required: true,
     validate: {
-      validator: function (this: Event) {
+      validator: function (this: EventClass) {
         if (!isDate(this.date_start)) {
           return false;
         }
@@ -46,12 +31,13 @@ const EventSchema: Schema = new Schema({
         VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
       ),
     },
-  },
-  date_end: {
-    type: Date,
+  })
+  public date_start!: Date;
+
+  @Property({
     required: true,
     validate: {
-      validator: function (this: Event) {
+      validator: function (this: EventClass) {
         if (!isDate(this.date_end)) {
           return false;
         }
@@ -69,27 +55,27 @@ const EventSchema: Schema = new Schema({
         VALIDATION_MESSAGES.DATE_VALIDATION_ERROR,
       ),
     },
-  },
-  short: {
-    type: String,
-    required: false,
-  },
-  info: {
-    type: String,
-    required: false,
-  },
-  venue: {
-    type: Schema.Types.ObjectId,
+  })
+  public date_end!: Date;
+
+  @Property({
     required: true,
-    ref: 'Venue',
+    ref: () => VenueClass,
+  })
+  public venue!: Ref<VenueClass>;
+
+  @Property()
+  public short?: string;
+
+  @Property()
+  public info?: string;
+}
+
+export const Event = getModelForClass(EventClass, {
+  options: {
+    customName: 'Event',
+  },
+  schemaOptions: {
+    collection: 'event',
   },
 });
-
-EventSchema.virtual('_venue', {
-  ref: 'Venue',
-  localField: 'venue',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const Event = mongoose.model<Event>('Event', EventSchema, 'event');

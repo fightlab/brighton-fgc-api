@@ -1,11 +1,12 @@
-import { GameElo, IGameElo } from '@models/game_elo';
-import { Game, IGame } from '@models/game';
-import { Player, IPlayer } from '@models/player';
+import { DocumentType, isDocument } from '@typegoose/typegoose';
+import { GameElo, GameEloClass } from '@models/game_elo';
+import { Game, GameClass } from '@models/game';
+import { Player, PlayerClass } from '@models/player';
 
 describe('GameElo model test', () => {
-  let game: Game | null;
-  let player: Player | null;
-  let gameElo: IGameElo;
+  let game: DocumentType<GameClass>;
+  let player: DocumentType<PlayerClass>;
+  let gameElo: GameEloClass;
 
   beforeEach(async () => {
     // fake a game
@@ -14,12 +15,12 @@ describe('GameElo model test', () => {
         name: 'Game 1',
         short: 'G1',
       },
-    ] as Array<IGame>);
+    ] as Array<GameClass>);
     [player] = await Player.create([
       {
         handle: 'xXx_Ep1c-G4m3r_xXx',
       },
-    ] as Array<IPlayer>);
+    ] as Array<PlayerClass>);
 
     gameElo = {
       game: game?._id,
@@ -32,42 +33,51 @@ describe('GameElo model test', () => {
     const input = new GameElo(gameElo);
     const output = await input.save();
 
-    expect(output._id).toBeDefined();
-    expect(output.player.toString()).toBe(gameElo.player.toString());
-    expect(output.player.toString()).toBe(player?._id.toString());
-    expect(output.game.toString()).toBe(gameElo.game.toString());
-    expect(output.game.toString()).toBe(game?._id.toString());
-    expect(output.score).toBe(gameElo.score);
+    // shouldn't populate virtuals
+    expect(isDocument(output.player)).toBe(false);
+    expect(isDocument(output.game)).toBe(false);
 
-    // should not populate virtuals
-    expect(output._game).toBeUndefined();
-    expect(output._player).toBeUndefined();
+    expect(output._id).toBeDefined();
+    expect(output.player?.toString()).toBe(gameElo.player?.toString());
+    expect(output.player?.toString()).toBe(player._id.toString());
+    expect(output.game?.toString()).toBe(gameElo.game?.toString());
+    expect(output.game?.toString()).toBe(game?._id.toString());
+    expect(output.score).toBe(gameElo.score);
   });
 
   it('should populate game', async () => {
     const input = await new GameElo(gameElo).save();
-    const output = await GameElo.findById(input.id).populate('_game');
-    expect(output?._game).toBeDefined();
-    expect(output?._game?.id).toBe(game?.id);
-    expect(output?._player).toBeUndefined();
+    const output = await GameElo.findById(input.id).populate('game');
+
+    expect(isDocument(output?.game)).toBe(true);
+    expect(isDocument(output?.player)).toBe(false);
+    if (isDocument(output?.game)) {
+      expect(output?.game.id).toBe(game.id);
+    }
   });
 
   it('should populate player', async () => {
     const input = await new GameElo(gameElo).save();
-    const output = await GameElo.findById(input.id).populate('_player');
-    expect(output?._game).toBeUndefined();
-    expect(output?._player).toBeDefined();
-    expect(output?._player?.id).toBe(player?.id);
+    const output = await GameElo.findById(input.id).populate('player');
+
+    expect(isDocument(output?.game)).toBe(false);
+    expect(isDocument(output?.player)).toBe(true);
+    if (isDocument(output?.player)) {
+      expect(output?.player.id).toBe(player.id);
+    }
   });
 
   it('should populate game and player', async () => {
     const input = await new GameElo(gameElo).save();
     const output = await GameElo.findById(input.id)
-      .populate('_game')
-      .populate('_player');
-    expect(output?._game).toBeDefined();
-    expect(output?._game?.id).toBe(game?.id);
-    expect(output?._player).toBeDefined();
-    expect(output?._player?.id).toBe(player?.id);
+      .populate('game')
+      .populate('player');
+
+    expect(isDocument(output?.game)).toBe(true);
+    expect(isDocument(output?.player)).toBe(true);
+    if (isDocument(output?.game) && isDocument(output?.player)) {
+      expect(output?.game.id).toBe(game.id);
+      expect(output?.player.id).toBe(player.id);
+    }
   });
 });

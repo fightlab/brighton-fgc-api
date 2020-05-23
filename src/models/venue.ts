@@ -1,40 +1,24 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import validator from 'validator';
+import { prop as Property, getModelForClass } from '@typegoose/typegoose';
+import { default as validator } from 'validator';
 import {
-  generateValidationMessage,
   VALIDATION_MESSAGES,
+  generateValidationMessage,
 } from '@lib/validation';
 
-export interface IVenue {
-  name: string;
-  short: string;
-  address?: string;
-  google_maps?: string;
-  website?: string;
-}
+export class VenueClass {
+  @Property({ required: true })
+  public name!: string;
 
-export interface Venue extends IVenue, Document {}
+  @Property({ required: true })
+  public short!: string;
 
-const VenueSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  short: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: false,
-  },
-  google_maps: {
-    type: String,
-    required: false,
-  },
-  website: {
-    type: String,
-    required: false,
+  @Property()
+  public address?: string;
+
+  @Property()
+  public google_maps?: string;
+
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -42,7 +26,15 @@ const VenueSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
+  })
+  public website?: string;
+}
+
+export const Venue = getModelForClass(VenueClass, {
+  options: {
+    customName: 'Venue',
+  },
+  schemaOptions: {
+    collection: 'venue',
   },
 });
-
-export const Venue = mongoose.model<Venue>('Venue', VenueSchema, 'venue');

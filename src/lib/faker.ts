@@ -4,6 +4,7 @@
 
 import faker from 'faker';
 import mongoose from '@lib/mongoose';
+import { DocumentType } from '@typegoose/typegoose';
 import { default as moment, Moment } from 'moment';
 import {
   sampleSize,
@@ -17,30 +18,40 @@ import {
 import { createHash } from 'crypto';
 
 // import all the models and interfaces;
-import { IBracketPlatform, BracketPlatform } from '@models/bracket_platform';
-import { IBracket, Bracket } from '@models/bracket';
-import { ICharacter, Character } from '@models/character';
-import { IEventSeries, EventSeries } from '@models/event_series';
-import { IEventSocial, EventSocial } from '@models/event_social';
-import { IEvent, Event } from '@models/event';
-import { IGameElo, GameElo } from '@models/game_elo';
-import { IGame, Game } from '@models/game';
-import { IMatchElo, MatchElo } from '@models/match_elo';
-import { IMatchVod, MatchVod } from '@models/match_vod';
-import { IMatch, Match } from '@models/match';
-import { IPlayerPlatform, PlayerPlatform } from '@models/player_platform';
-import { IPlayerSocial, PlayerSocial } from '@models/player_social';
-import { IPlayer, Player } from '@models/player';
-import { IResult, Result } from '@models/result';
+import {
+  BracketPlatformClass,
+  BracketPlatform,
+} from '@models/bracket_platform';
+import { BracketClass, Bracket } from '@models/bracket';
+import { CharacterClass, Character } from '@models/character';
+import { EventSeriesClass, EventSeries } from '@models/event_series';
+import { EventSocialCLass, EventSocial } from '@models/event_social';
+import { EventClass, Event } from '@models/event';
+import { GameEloClass, GameElo } from '@models/game_elo';
+import { GameClass, Game } from '@models/game';
+import { MatchEloClass, MatchElo } from '@models/match_elo';
+import { MatchVodClass, MatchVod } from '@models/match_vod';
+import { MatchClass, Match } from '@models/match';
+import { PlayerPlatformClass, PlayerPlatform } from '@models/player_platform';
+import { PlayerSocialClass, PlayerSocial } from '@models/player_social';
+import { PlayerClass, Player } from '@models/player';
+import { ResultClass, Result } from '@models/result';
 import {
   TournamentSeriesElo,
-  ITournamentSeriesElo,
+  TournamentSeriesEloClass,
 } from '@models/tournament_series_elo';
-import { ITournamentSeries, TournamentSeries } from '@models/tournament_series';
-import { ITournament, TOURNAMENT_TYPE, Tournament } from '@models/tournament';
-import { IVenue, Venue } from '@models/venue';
-import { IVodPlatform, VodPlatform } from '@models/vod_platform';
-import { IVod, Vod } from '@models/vod';
+import {
+  TournamentSeriesClass,
+  TournamentSeries,
+} from '@models/tournament_series';
+import {
+  TournamentClass,
+  TOURNAMENT_TYPE,
+  Tournament,
+} from '@models/tournament';
+import { VenueClass, Venue } from '@models/venue';
+import { VodPlatformClass, VodPlatform } from '@models/vod_platform';
+import { VodClass, Vod } from '@models/vod';
 
 // set faker locale to something we're used to
 faker.locale = 'en_GB';
@@ -72,7 +83,7 @@ const generateDates = (num: number, length: number): [Moment, Moment] => {
 // ENUMERABLE GENERATION
 
 // GAME
-const generateGame = (num: number): IGame => ({
+const generateGame = (num: number): GameClass => ({
   name: `Game #${num}`,
   short: `G${num}`,
   logo: getOptional(faker.image.imageUrl()),
@@ -81,7 +92,7 @@ const generateGame = (num: number): IGame => ({
 });
 
 // VENUE
-const venues: Array<IVenue> = [
+const venues: Array<VenueClass> = [
   {
     name: 'Brewdog Brighton',
     short: 'brewdog',
@@ -99,7 +110,7 @@ const venues: Array<IVenue> = [
 ];
 
 // BRACKET PLATFORMS
-const bracketPlatforms: Array<IBracketPlatform> = [
+const bracketPlatforms: Array<BracketPlatformClass> = [
   {
     name: 'Challonge',
     url: 'https://challonge.com',
@@ -115,7 +126,7 @@ const bracketPlatforms: Array<IBracketPlatform> = [
 ];
 
 // VOD PLATFORM
-const vodPlatforms: Array<IVodPlatform> = [
+const vodPlatforms: Array<VodPlatformClass> = [
   {
     name: 'YouTube',
     url: 'https://youtube.com',
@@ -125,7 +136,7 @@ const vodPlatforms: Array<IVodPlatform> = [
 ];
 
 // PLAYERS
-const generatePlayer = (): IPlayer => ({
+const generatePlayer = (): PlayerClass => ({
   handle: faker.internet.userName(),
   icon: getOptional(faker.internet.avatar()),
   team: getOptional(faker.hacker.abbreviation()),
@@ -136,8 +147,8 @@ const generatePlayer = (): IPlayer => ({
 const generateEvent = (
   num: number,
   numEvents: number,
-  venue: Venue,
-): IEvent => {
+  venue: DocumentType<VenueClass>,
+): EventClass => {
   const [start, end] = generateDates(num, numEvents);
   return {
     name: `${venue.name} Event #${num + 1}`,
@@ -151,9 +162,9 @@ const generateEvent = (
 
 // bracket
 const generateBracket = (
-  tournament: Tournament,
-  platform: BracketPlatform,
-): IBracket => {
+  tournament: DocumentType<TournamentClass>,
+  platform: DocumentType<BracketPlatformClass>,
+): BracketClass => {
   const slug = faker.lorem.slug();
   return {
     tournament: tournament._id,
@@ -166,7 +177,9 @@ const generateBracket = (
 };
 
 // event social mock
-const generateEventSocial = (event: Event): IEventSocial => ({
+const generateEventSocial = (
+  event: DocumentType<EventClass>,
+): EventSocialCLass => ({
   event: event._id,
   facebook: getOptional(faker.internet.url()),
   web: getOptional(faker.internet.url()),
@@ -179,7 +192,9 @@ const generateEventSocial = (event: Event): IEventSocial => ({
 });
 
 // player social mock
-const generatePlayerSocial = (player: Player): IPlayerSocial => ({
+const generatePlayerSocial = (
+  player: DocumentType<PlayerClass>,
+): PlayerSocialClass => ({
   player: player._id,
   facebook: getOptional(faker.internet.userName()),
   web: getOptional(faker.internet.url()),
@@ -195,7 +210,7 @@ const generatePlayerSocial = (player: Player): IPlayerSocial => ({
 });
 
 // generate character
-const generateCharacter = (game: Game): ICharacter => ({
+const generateCharacter = (game: DocumentType<GameClass>): CharacterClass => ({
   game: game._id,
   name: faker.name.findName(),
   short: faker.name.firstName(),
@@ -215,8 +230,9 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
 
   // ADDING ENUMERABLE TO THE DB
   // generate games
-  const games: Array<IGame> = Array.from({ length: dataLengths.game }, (_, i) =>
-    generateGame(i),
+  const games: Array<GameClass> = Array.from(
+    { length: dataLengths.game },
+    (_, i) => generateGame(i),
   );
   // add games to db
   const Games = await Game.create(games);
@@ -230,7 +246,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   // generate vod platforms
   const VodPlatforms = await VodPlatform.create(vodPlatforms);
 
-  const players: Array<IPlayer> = Array.from(
+  const players: Array<PlayerClass> = Array.from(
     {
       length: dataLengths.player,
     },
@@ -241,28 +257,28 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   // ADDING MAIN STRUCTS
 
   // generate events
-  const events: Array<IEvent> = Array.from(
+  const events: Array<EventClass> = Array.from(
     {
       length: dataLengths.event,
     },
     (_, i) => {
-      const venue: Venue = Venues[i % Venues.length];
+      const venue: DocumentType<VenueClass> = Venues[i % Venues.length];
       return generateEvent(i, dataLengths.event, venue);
     },
   );
   const Events = await Event.create(events);
 
   // generate event social media
-  const eventSocials: Array<IEventSocial> = Events.map((event) =>
+  const eventSocials: Array<EventSocialCLass> = Events.map((event) =>
     generateEventSocial(event),
   );
   await EventSocial.create(eventSocials);
 
   // generate event series
-  const eventSeries: Array<IEventSeries> = Venues.map((venue) => ({
+  const eventSeries: Array<EventSeriesClass> = Venues.map((venue) => ({
     name: `${venue.name} Event Series`,
     events: Events.filter(
-      (event) => event.venue.toString() === venue._id.toString(),
+      (event) => event.venue?.toString() === venue._id.toString(),
     ).map((event) => event._id),
     info: 'An event series',
   }));
@@ -274,7 +290,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   // random number of players (min 4, max 32)
   // <= 6 players ROUND_ROBIN, else 95% chance double elim, 5% single elim
   // 5% of tournaments are team based
-  const tournaments: Array<ITournament> = Array.from(
+  const tournaments: Array<TournamentClass> = Array.from(
     {
       length: dataLengths.event * 2,
     },
@@ -285,7 +301,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
         min: 4,
         max: 32,
       });
-      const players: Array<Player['_id']> = sampleSize(Players, numPlayers).map(
+      const players: Array<any> = sampleSize(Players, numPlayers).map(
         (player) => player._id,
       );
 
@@ -296,7 +312,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
           ? TOURNAMENT_TYPE.DOUBLE_ELIMINATION
           : TOURNAMENT_TYPE.SINGLE_ELIMINATION;
 
-      const games: Array<Game['_id']> =
+      const games: Array<any> =
         Math.random() < 0.9
           ? sampleSize(Games, 1).map((game) => game._id)
           : sampleSize(Games, faker.random.number({ min: 2, max: 4 })).map(
@@ -333,35 +349,36 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   await Bracket.create(brackets);
 
   // create player socials
-  const playerSocials: Array<IPlayerSocial> = Players.map((player) =>
+  const playerSocials: Array<PlayerSocialClass> = Players.map((player) =>
     generatePlayerSocial(player),
   );
   await PlayerSocial.create(playerSocials);
 
   // create player platforms
-  const playerPlatforms: Array<IPlayerPlatform> = Players.flatMap((player) =>
-    BracketPlatforms.map((platform) => ({
-      platform: platform._id,
-      player: player._id,
-      platform_id: faker.random.uuid(),
-      email_hash: createHash('md5')
-        .update(faker.internet.email())
-        .digest('hex'),
-    })),
+  const playerPlatforms: Array<PlayerPlatformClass> = Players.flatMap(
+    (player) =>
+      BracketPlatforms.map((platform) => ({
+        platform: platform._id,
+        player: player._id,
+        platform_id: faker.random.uuid(),
+        email_hash: createHash('md5')
+          .update(faker.internet.email())
+          .digest('hex'),
+      })),
   );
   await PlayerPlatform.create(playerPlatforms);
 
   // create tournament series
-  const tournamentsByGame: Array<Array<Tournament>> = values(
+  const tournamentsByGame: Array<Array<DocumentType<TournamentClass>>> = values(
     groupBy(
       Tournaments.filter((tournament) => tournament.games.length === 1),
       (tournament) => tournament.games[0],
     ),
   );
-  const tournamentSerieses: Array<ITournamentSeries> = tournamentsByGame.map(
+  const tournamentSerieses: Array<TournamentSeriesClass> = tournamentsByGame.map(
     (tbg) => ({
       name: `${
-        Games.find((g) => g._id.toString() === tbg[0].games[0].toString())
+        Games.find((g) => g._id.toString() === tbg[0].games[0]?.toString())
           ?.name || ''
       } Tournament Series`,
       tournaments: tbg.map((t) => t._id),
@@ -372,7 +389,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   const TournamentSerieses = await TournamentSeries.create(tournamentSerieses);
 
   // create random vods for a tournament
-  const vods: Array<IVod> = Tournaments.filter(() =>
+  const vods: Array<VodClass> = Tournaments.filter(() =>
     faker.random.boolean(),
   ).map((tournament) => ({
     platform: sample(VodPlatforms)?._id,
@@ -391,7 +408,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   const Vods = await Vod.create(vods);
 
   // results generation
-  const results: Array<IResult> = Tournaments.flatMap((tournament) => {
+  const results: Array<ResultClass> = Tournaments.flatMap((tournament) => {
     // assign players to teams if required
     const players = tournament.is_team_based
       ? chunk(shuffle(tournament.players), 2)
@@ -406,7 +423,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   await Result.create(results);
 
   // match generation, will not match results, for demo only
-  const matches: Array<IMatch> = Tournaments.flatMap((tournament) => {
+  const matches: Array<MatchClass> = Tournaments.flatMap((tournament) => {
     // assign players to teams if required
     const players = tournament.is_team_based
       ? chunk(shuffle(tournament.players), 2)
@@ -427,7 +444,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       {
         length: num,
       },
-      (): IMatch => {
+      (): MatchClass => {
         const matchPlayers = [sample(players), sample(players)];
         const matchScores = [faker.random.number(3), faker.random.number(3)];
         const winner = faker.random.boolean();
@@ -457,19 +474,19 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   const Characters = await Character.create(characters);
 
   // generate random match vods, for a random number of matches
-  const matchVods: Array<IMatchVod> = compact(
+  const matchVods: Array<MatchVodClass> = compact(
     Matches.filter(faker.random.boolean).map((match) => {
       const tournament = Tournaments.find(
-        (t) => t._id.toString() === match.tournament.toString(),
+        (t) => t._id.toString() === match.tournament?.toString(),
       );
       if (tournament) {
         const vod = Vods.find(
-          (v) => v.tournament.toString() === tournament?._id.toString(),
+          (v) => v.tournament?.toString() === tournament?._id.toString(),
         );
         if (vod) {
           const characters = Characters.filter(
             (character) =>
-              character.game.toString() === tournament?.games[0].toString(),
+              character.game?.toString() === tournament?.games[0]?.toString(),
           );
 
           return {
@@ -496,7 +513,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   await MatchVod.create(matchVods);
 
   // generate random game elo for a random set of players, will not match actual results
-  const gameElos: Array<IGameElo> = Games.flatMap((game) => {
+  const gameElos: Array<GameEloClass> = Games.flatMap((game) => {
     const players = sampleSize(
       Players,
       faker.random.number({
@@ -505,7 +522,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       }),
     );
     return players.map(
-      (player): IGameElo => ({
+      (player): GameEloClass => ({
         game: game._id,
         player: player._id,
         score: faker.random.number({
@@ -518,7 +535,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   await GameElo.create(gameElos);
 
   // tournament series elo for random set of players, will not match actual results
-  const tournamentSeriesElos: Array<ITournamentSeriesElo> = TournamentSerieses.flatMap(
+  const tournamentSeriesElos: Array<TournamentSeriesEloClass> = TournamentSerieses.flatMap(
     (ts) => {
       const players = sampleSize(
         Players,
@@ -529,7 +546,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       );
 
       return players.map(
-        (player): ITournamentSeriesElo => ({
+        (player): TournamentSeriesEloClass => ({
           tournament_series: ts._id,
           player: player._id,
           score: faker.random.number({
@@ -543,10 +560,10 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   await TournamentSeriesElo.create(tournamentSeriesElos);
 
   // finally match elos, the true pain to do, so only doing a subset of matches
-  const matchElos: Array<IMatchElo> = Matches.filter(
+  const matchElos: Array<MatchEloClass> = Matches.filter(
     () => Math.random() < 0.25,
   ).flatMap(
-    (match): Array<IMatchElo> => [
+    (match): Array<MatchEloClass> => [
       {
         match: match._id,
         player: match.player1?.[0],

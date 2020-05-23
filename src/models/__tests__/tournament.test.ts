@@ -1,22 +1,27 @@
+import {
+  DocumentType,
+  isDocument,
+  isDocumentArray,
+} from '@typegoose/typegoose';
 import { default as moment } from 'moment';
 import { Types } from 'mongoose';
-import { Event, IEvent } from '@models/event';
-import { Game, IGame } from '@models/game';
-import { Player, IPlayer } from '@models/player';
-import { Tournament, ITournament, TOURNAMENT_TYPE } from '../tournament';
+import { Event, EventClass } from '@models/event';
+import { Game, GameClass } from '@models/game';
+import { Player, PlayerClass } from '@models/player';
+import { Tournament, TournamentClass, TOURNAMENT_TYPE } from '../tournament';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('Tournament model test', () => {
-  let events: Array<Event>;
-  let games: Array<Game>;
-  let players: Array<Player>;
+  let events: Array<DocumentType<EventClass>>;
+  let games: Array<DocumentType<GameClass>>;
+  let players: Array<DocumentType<PlayerClass>>;
 
-  let tournamentFull: ITournament;
-  let tournamentMin: ITournament;
-  let tournament: Tournament;
+  let tournamentFull: TournamentClass;
+  let tournamentMin: TournamentClass;
+  let tournament: DocumentType<TournamentClass>;
 
   const invalidDateString = 'lmao fake date';
 
@@ -35,7 +40,7 @@ describe('Tournament model test', () => {
         date_end: moment.utc().subtract(2, 'd').toDate(),
         date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
       },
-    ] as Array<IEvent>);
+    ] as Array<EventClass>);
 
     // fake some games
     games = await Game.create([
@@ -47,7 +52,7 @@ describe('Tournament model test', () => {
         name: 'Game 1',
         short: 'G2',
       },
-    ] as Array<IGame>);
+    ] as Array<GameClass>);
 
     // fake some players
     players = await Player.create([
@@ -60,7 +65,7 @@ describe('Tournament model test', () => {
       {
         handle: 'TOUR',
       },
-    ] as Array<IPlayer>);
+    ] as Array<PlayerClass>);
 
     tournamentFull = {
       name: 'Tournament Full',
@@ -82,7 +87,7 @@ describe('Tournament model test', () => {
     };
 
     [tournament] = await Tournament.create([tournamentFull] as Array<
-      ITournament
+      TournamentClass
     >);
   });
 
@@ -99,16 +104,11 @@ describe('Tournament model test', () => {
       tournamentFull?.date_end?.getTime(),
     );
     expect(output.type).toBe(tournamentFull.type);
-    expect(output.event.toString()).toBe(output.event.toString());
-    expect(output.event.toString()).toBe(events[0].id);
+    expect(output.event?.toString()).toBe(output.event?.toString());
+    expect(output.event?.toString()).toBe(events[0].id);
     expect(output.games).toHaveLength(games.length);
     expect(output.players).toHaveLength(players.length);
     expect(output.is_team_based).toBeTruthy();
-
-    // shouldn't populate virtuals
-    expect(output._event).toBeUndefined();
-    expect(output._games).toBeUndefined();
-    expect(output._players).toBeUndefined();
   });
 
   it('should create & save min tournament successfully', async () => {
@@ -122,16 +122,11 @@ describe('Tournament model test', () => {
     );
     expect(output?.date_end?.getTime()).toBeUndefined();
     expect(output.type).toBe(tournamentMin.type);
-    expect(output.event.toString()).toBe(output.event.toString());
-    expect(output.event.toString()).toBe(events[1].id);
+    expect(output.event?.toString()).toBe(output.event?.toString());
+    expect(output.event?.toString()).toBe(events[1].id);
     expect(output.games).toHaveLength(1);
     expect(output.players).toHaveLength(0);
     expect(output.is_team_based).toBeFalsy();
-
-    // shouldn't populate virtuals
-    expect(output._event).toBeUndefined();
-    expect(output._games).toBeUndefined();
-    expect(output._players).toBeUndefined();
   });
 
   it('should fail validation if trying to save with invalid start date', async () => {
@@ -195,54 +190,85 @@ describe('Tournament model test', () => {
   });
 
   it('should populate event', async () => {
-    const output = await Tournament.findById(tournament._id).populate('_event');
+    const output = await Tournament.findById(tournament._id).populate('event');
 
-    expect(output?._event).toBeDefined();
-    expect(output?._event?.id).toBe(events[0].id);
+    expect(output).toBeDefined();
 
-    expect(output?._games).toBeUndefined();
-    expect(output?._players).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.event)).toBe(true);
+      expect(output.players && isDocumentArray(output?.players)).toBe(false);
+      expect(output?.games && isDocumentArray(output?.games)).toBe(false);
+
+      if (isDocument(output?.event)) {
+        expect(output?.event?.id).toBe(events[0].id);
+      }
+    }
   });
 
   it('should populate games', async () => {
-    const output = await Tournament.findById(tournament._id).populate('_games');
+    const output = await Tournament.findById(tournament._id).populate('games');
 
-    expect(output?._games).toBeDefined();
-    expect(output?._games).toHaveLength(games.length);
-    expect(output?._games?.[0].id).toBe(games[0].id);
+    expect(output).toBeDefined();
 
-    expect(output?._players).toBeUndefined();
-    expect(output?._event).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.event)).toBe(false);
+      expect(output.players && isDocumentArray(output?.players)).toBe(false);
+      expect(output?.games && isDocumentArray(output?.games)).toBe(true);
+
+      if (output.games && isDocumentArray(output?.games)) {
+        expect(output?.games).toHaveLength(games.length);
+        expect(output?.games?.[0].id).toBe(games[0].id);
+      }
+    }
   });
 
   it('should populate players', async () => {
     const output = await Tournament.findById(tournament._id).populate(
-      '_players',
+      'players',
     );
 
-    expect(output?._players).toBeDefined();
-    expect(output?._players).toHaveLength(players.length);
-    expect(output?._players?.[0].id).toBe(players[0].id);
+    expect(output).toBeDefined();
 
-    expect(output?._games).toBeUndefined();
-    expect(output?._event).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.event)).toBe(false);
+      expect(output.players && isDocumentArray(output?.players)).toBe(true);
+      expect(output?.games && isDocumentArray(output?.games)).toBe(false);
+
+      if (output.players && isDocumentArray(output?.players)) {
+        expect(output?.players).toHaveLength(players.length);
+        expect(output?.players?.[0].id).toBe(players[0].id);
+      }
+    }
   });
 
   it('should populate all fields', async () => {
     const output = await Tournament.findById(tournament._id)
-      .populate('_event')
-      .populate('_games')
-      .populate('_players');
+      .populate('event')
+      .populate('games')
+      .populate('players');
 
-    expect(output?._event).toBeDefined();
-    expect(output?._event?.id).toBe(events[0].id);
+    expect(output).toBeDefined();
 
-    expect(output?._games).toBeDefined();
-    expect(output?._games).toHaveLength(games.length);
-    expect(output?._games?.[0].id).toBe(games[0].id);
+    if (output) {
+      expect(isDocument(output?.event)).toBe(true);
+      expect(output.players && isDocumentArray(output?.players)).toBe(true);
+      expect(output?.games && isDocumentArray(output?.games)).toBe(true);
 
-    expect(output?._players).toBeDefined();
-    expect(output?._players).toHaveLength(players.length);
-    expect(output?._players?.[0].id).toBe(players[0].id);
+      if (
+        isDocument(output?.event) &&
+        output.players &&
+        isDocumentArray(output?.players) &&
+        output.games &&
+        isDocumentArray(output?.games)
+      ) {
+        expect(output?.event?.id).toBe(events[0].id);
+
+        expect(output?.games).toHaveLength(games.length);
+        expect(output?.games?.[0].id).toBe(games[0].id);
+
+        expect(output?.players).toHaveLength(players.length);
+        expect(output?.players?.[0].id).toBe(players[0].id);
+      }
+    }
   });
 });

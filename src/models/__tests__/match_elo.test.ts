@@ -1,12 +1,13 @@
-import { MatchElo, IMatchElo } from '@models/match_elo';
-import { Match, IMatch } from '@models/match';
-import { Player, IPlayer } from '@models/player';
+import { DocumentType, isDocument } from '@typegoose/typegoose';
+import { MatchElo, MatchEloClass } from '@models/match_elo';
+import { Match, MatchClass } from '@models/match';
+import { Player, PlayerClass } from '@models/player';
 import { Types } from 'mongoose';
 
 describe('MatchElo model test', () => {
-  let match: Match | null;
-  let player: Player | null;
-  let matchElo: IMatchElo;
+  let match: DocumentType<MatchClass>;
+  let player: DocumentType<PlayerClass>;
+  let matchElo: MatchEloClass;
 
   beforeEach(async () => {
     // fake a match
@@ -14,12 +15,12 @@ describe('MatchElo model test', () => {
       {
         tournament: new Types.ObjectId(),
       },
-    ] as Array<IMatch>);
+    ] as Array<MatchClass>);
     [player] = await Player.create([
       {
         handle: 'LAD',
       },
-    ] as Array<IPlayer>);
+    ] as Array<PlayerClass>);
 
     matchElo = {
       match: match?._id,
@@ -34,42 +35,52 @@ describe('MatchElo model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.player.toString()).toBe(matchElo.player.toString());
-    expect(output.player.toString()).toBe(player?._id.toString());
-    expect(output.match.toString()).toBe(matchElo.match.toString());
-    expect(output.match.toString()).toBe(match?._id.toString());
+
+    // shouldn't populate virtuals
+    expect(isDocument(output?.match)).toBe(false);
+    expect(isDocument(output?.player)).toBe(false);
+
+    expect(output.player?.toString()).toBe(matchElo.player?.toString());
+    expect(output.player?.toString()).toBe(player?._id.toString());
+    expect(output.match?.toString()).toBe(matchElo.match?.toString());
+    expect(output.match?.toString()).toBe(match?._id.toString());
     expect(output.before).toBe(matchElo.before);
     expect(output.after).toBe(matchElo.after);
-
-    // should not populate virtuals
-    expect(output._match).toBeUndefined();
-    expect(output._player).toBeUndefined();
   });
 
   it('should populate match', async () => {
     const input = await new MatchElo(matchElo).save();
-    const output = await MatchElo.findById(input?.id).populate('_match');
-    expect(output?._match).toBeDefined();
-    expect(output?._match?.id).toBe(match?.id);
-    expect(output?._player).toBeUndefined();
+    const output = await MatchElo.findById(input?.id).populate('match');
+
+    expect(isDocument(output?.match)).toBe(true);
+    expect(isDocument(output?.player)).toBe(false);
+    if (isDocument(output?.match)) {
+      expect(output?.match.id).toBe(match.id);
+    }
   });
 
   it('should populate match', async () => {
     const input = await new MatchElo(matchElo).save();
-    const output = await MatchElo.findById(input?.id).populate('_player');
-    expect(output?._match).toBeUndefined();
-    expect(output?._player).toBeDefined();
-    expect(output?._player?.id).toBe(player?.id);
+    const output = await MatchElo.findById(input?.id).populate('player');
+
+    expect(isDocument(output?.match)).toBe(false);
+    expect(isDocument(output?.player)).toBe(true);
+    if (isDocument(output?.player)) {
+      expect(output?.player.id).toBe(player.id);
+    }
   });
 
   it('should populate match and player', async () => {
     const input = await new MatchElo(matchElo).save();
     const output = await MatchElo.findById(input?.id)
-      .populate('_match')
-      .populate('_player');
-    expect(output?._match).toBeDefined();
-    expect(output?._match?.id).toBe(match?.id);
-    expect(output?._player).toBeDefined();
-    expect(output?._player?.id).toBe(player?.id);
+      .populate('match')
+      .populate('player');
+
+    expect(isDocument(output?.match)).toBe(true);
+    expect(isDocument(output?.player)).toBe(true);
+    if (isDocument(output?.match) && isDocument(output?.player)) {
+      expect(output?.match.id).toBe(match.id);
+      expect(output?.player.id).toBe(player.id);
+    }
   });
 });

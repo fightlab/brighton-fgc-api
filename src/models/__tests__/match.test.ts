@@ -1,17 +1,26 @@
+import {
+  DocumentType,
+  isDocument,
+  isDocumentArray,
+} from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { default as moment } from 'moment';
-import { Match, IMatch } from '@models/match';
-import { Player, IPlayer } from '@models/player';
-import { Tournament, ITournament, TOURNAMENT_TYPE } from '@models/tournament';
+import { Match, MatchClass } from '@models/match';
+import { Player, PlayerClass } from '@models/player';
+import {
+  Tournament,
+  TournamentClass,
+  TOURNAMENT_TYPE,
+} from '@models/tournament';
 
 describe('Match model test', () => {
-  let tournaments: Array<Tournament>;
-  let players: Array<Player>;
+  let tournaments: Array<DocumentType<TournamentClass>>;
+  let players: Array<DocumentType<PlayerClass>>;
 
-  let matchFull: IMatch;
-  let matchMin: IMatch;
-  let matchTeam: IMatch;
-  let match: Match;
+  let matchFull: MatchClass;
+  let matchMin: MatchClass;
+  let matchTeam: MatchClass;
+  let match: DocumentType<MatchClass>;
 
   beforeEach(async () => {
     // fake some tournaments
@@ -34,7 +43,7 @@ describe('Match model test', () => {
         type: TOURNAMENT_TYPE.ROUND_ROBIN,
         is_team_based: true,
       },
-    ] as Array<ITournament>);
+    ] as Array<TournamentClass>);
 
     // fake some players
     players = await Player.create([
@@ -50,7 +59,7 @@ describe('Match model test', () => {
       {
         handle: 'Player 3',
       },
-    ] as Array<IPlayer>);
+    ] as Array<PlayerClass>);
 
     matchFull = {
       tournament: tournaments[0]._id,
@@ -79,7 +88,7 @@ describe('Match model test', () => {
     };
 
     // generate match to test populate
-    [match] = await Match.create([matchFull] as Array<IMatch>);
+    [match] = await Match.create([matchFull] as Array<MatchClass>);
   });
 
   it('should create & save a match successfully', async () => {
@@ -87,42 +96,43 @@ describe('Match model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(matchFull.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[0].id);
+
+    // shouldnt populate virtuals
+    expect(isDocument(output.tournament)).toBe(false);
+
+    expect(output.tournament?.toString()).toBe(
+      matchFull.tournament?.toString(),
+    );
+    expect(output.tournament?.toString()).toBe(tournaments[0].id);
     expect(output.loser).toHaveLength(1);
-    expect(output.loser?.[0].toString()).toBe(matchFull.loser?.[0].toString());
-    expect(output.loser?.[0].toString()).toBe(players[0].id);
+    expect(output.loser?.[0]?.toString()).toBe(
+      matchFull.loser?.[0]?.toString(),
+    );
+    expect(output.loser?.[0]?.toString()).toBe(players[0].id);
     expect(output.winner).toHaveLength(1);
-    expect(output.winner?.[0].toString()).toBe(
-      matchFull.winner?.[0].toString(),
+    expect(output.winner?.[0]?.toString()).toBe(
+      matchFull.winner?.[0]?.toString(),
     );
-    expect(output.winner?.[0].toString()).toBe(players[1].id);
+    expect(output.winner?.[0]?.toString()).toBe(players[1].id);
     expect(output.player1).toHaveLength(1);
-    expect(output.player1?.[0].toString()).toBe(
-      matchFull.player1?.[0].toString(),
+    expect(output.player1?.[0]?.toString()).toBe(
+      matchFull.player1?.[0]?.toString(),
     );
-    expect(output.player1?.[0].toString()).toBe(players[0].id);
+    expect(output.player1?.[0]?.toString()).toBe(players[0].id);
     expect(output.player1).toHaveLength(1);
-    expect(output.player1?.[0].toString()).toBe(
-      matchFull.player1?.[0].toString(),
+    expect(output.player1?.[0]?.toString()).toBe(
+      matchFull.player1?.[0]?.toString(),
     );
-    expect(output.player1?.[0].toString()).toBe(players[0].id);
+    expect(output.player1?.[0]?.toString()).toBe(players[0].id);
     expect(output.player2).toHaveLength(1);
-    expect(output.player2?.[0].toString()).toBe(
-      matchFull.player2?.[0].toString(),
+    expect(output.player2?.[0]?.toString()).toBe(
+      matchFull.player2?.[0]?.toString(),
     );
-    expect(output.player2?.[0].toString()).toBe(players[1].id);
+    expect(output.player2?.[0]?.toString()).toBe(players[1].id);
     expect(output.round).toBe(matchFull.round);
     expect(output.round_name).toBe(matchFull.round_name);
     expect(output.score1).toBe(matchFull.score1);
     expect(output.score2).toBe(matchFull.score2);
-
-    // shouldn't populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._loser).toBeUndefined();
-    expect(output._winner).toBeUndefined();
-    expect(output._player1).toBeUndefined();
-    expect(output._player2).toBeUndefined();
   });
 
   it('should create & save min match successfully', async () => {
@@ -130,8 +140,8 @@ describe('Match model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(matchMin.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[1].id);
+    expect(output.tournament?.toString()).toBe(matchMin.tournament?.toString());
+    expect(output.tournament?.toString()).toBe(tournaments[1].id);
     expect(output.loser).toHaveLength(0);
     expect(output.winner).toHaveLength(0);
     expect(output.player1).toHaveLength(0);
@@ -140,13 +150,6 @@ describe('Match model test', () => {
     expect(output.round_name).toBeUndefined();
     expect(output.score1).toBeUndefined();
     expect(output.score2).toBeUndefined();
-
-    // shouldn't populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._loser).toBeUndefined();
-    expect(output._winner).toBeUndefined();
-    expect(output._player1).toBeUndefined();
-    expect(output._player2).toBeUndefined();
   });
 
   it('should create & save a team match successfully', async () => {
@@ -154,142 +157,181 @@ describe('Match model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(matchTeam.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[0].id);
+    expect(output.tournament?.toString()).toBe(
+      matchTeam.tournament?.toString(),
+    );
+    expect(output.tournament?.toString()).toBe(tournaments[0].id);
 
     expect(output.loser).toHaveLength(2);
-    expect(output.loser?.[0].toString()).toBe(matchTeam.loser?.[0].toString());
-    expect(output.loser?.[1].toString()).toBe(matchTeam.loser?.[1].toString());
-    expect(output.loser?.[0].toString()).toBe(players[0].id);
-    expect(output.loser?.[1].toString()).toBe(players[1].id);
+    expect(output.loser?.[0]?.toString()).toBe(
+      matchTeam.loser?.[0]?.toString(),
+    );
+    expect(output.loser?.[1]?.toString()).toBe(
+      matchTeam.loser?.[1]?.toString(),
+    );
+    expect(output.loser?.[0]?.toString()).toBe(players[0].id);
+    expect(output.loser?.[1]?.toString()).toBe(players[1].id);
 
     expect(output.winner).toHaveLength(2);
-    expect(output.winner?.[0].toString()).toBe(
-      matchTeam.winner?.[0].toString(),
+    expect(output.winner?.[0]?.toString()).toBe(
+      matchTeam.winner?.[0]?.toString(),
     );
-    expect(output.winner?.[1].toString()).toBe(
-      matchTeam.winner?.[1].toString(),
+    expect(output.winner?.[1]?.toString()).toBe(
+      matchTeam.winner?.[1]?.toString(),
     );
-    expect(output.winner?.[0].toString()).toBe(players[2].id);
-    expect(output.winner?.[1].toString()).toBe(players[3].id);
+    expect(output.winner?.[0]?.toString()).toBe(players[2].id);
+    expect(output.winner?.[1]?.toString()).toBe(players[3].id);
 
     expect(output.player1).toHaveLength(2);
-    expect(output.player1?.[0].toString()).toBe(
-      matchTeam.player1?.[0].toString(),
+    expect(output.player1?.[0]?.toString()).toBe(
+      matchTeam.player1?.[0]?.toString(),
     );
-    expect(output.player1?.[1].toString()).toBe(
-      matchTeam.player1?.[1].toString(),
+    expect(output.player1?.[1]?.toString()).toBe(
+      matchTeam.player1?.[1]?.toString(),
     );
-    expect(output.player1?.[0].toString()).toBe(players[0].id);
-    expect(output.player1?.[1].toString()).toBe(players[1].id);
+    expect(output.player1?.[0]?.toString()).toBe(players[0].id);
+    expect(output.player1?.[1]?.toString()).toBe(players[1].id);
 
     expect(output.player2).toHaveLength(2);
-    expect(output.player2?.[0].toString()).toBe(
-      matchTeam.player2?.[0].toString(),
+    expect(output.player2?.[0]?.toString()).toBe(
+      matchTeam.player2?.[0]?.toString(),
     );
-    expect(output.player2?.[1].toString()).toBe(
-      matchTeam.player2?.[1].toString(),
+    expect(output.player2?.[1]?.toString()).toBe(
+      matchTeam.player2?.[1]?.toString(),
     );
-    expect(output.player2?.[0].toString()).toBe(players[2].id);
-    expect(output.player2?.[1].toString()).toBe(players[3].id);
+    expect(output.player2?.[0]?.toString()).toBe(players[2].id);
+    expect(output.player2?.[1]?.toString()).toBe(players[3].id);
 
     expect(output.round).toBeUndefined();
     expect(output.round_name).toBeUndefined();
     expect(output.score1).toBeUndefined();
     expect(output.score2).toBeUndefined();
-
-    // shouldn't populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._loser).toBeUndefined();
-    expect(output._winner).toBeUndefined();
-    expect(output._player1).toBeUndefined();
-    expect(output._player2).toBeUndefined();
   });
 
   it('should populate tournament', async () => {
-    const output = await Match.findById(match.id).populate('_tournament');
-    expect(output?._tournament).toBeDefined();
-    expect(output?._tournament?.id).toBe(tournaments[0].id);
+    const output = await Match.findById(match.id).populate('tournament');
 
-    expect(output?._loser).toBeUndefined();
-    expect(output?._winner).toBeUndefined();
-    expect(output?._player1).toBeUndefined();
-    expect(output?._player2).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.tournament)).toBe(true);
+      expect(output?.player1 && isDocumentArray(output?.player1)).toBe(false);
+      expect(output?.player2 && isDocumentArray(output?.player2)).toBe(false);
+      expect(output?.winner && isDocumentArray(output?.winner)).toBe(false);
+      expect(output?.loser && isDocumentArray(output?.loser)).toBe(false);
+
+      if (isDocument(output?.tournament)) {
+        expect(output?.tournament?.id).toBe(tournaments[0].id);
+      }
+    }
   });
 
   it('should populate loser', async () => {
-    const output = await Match.findById(match.id).populate('_loser');
-    expect(output?._loser).toBeDefined();
-    expect(output?._loser).toHaveLength(1);
-    expect(output?._loser?.[0].id).toBe(players[0].id);
+    const output = await Match.findById(match.id).populate('loser');
 
-    expect(output?._tournament).toBeUndefined();
-    expect(output?._winner).toBeUndefined();
-    expect(output?._player1).toBeUndefined();
-    expect(output?._player2).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.tournament)).toBe(false);
+      expect(output?.player1 && isDocumentArray(output?.player1)).toBe(false);
+      expect(output?.player2 && isDocumentArray(output?.player2)).toBe(false);
+      expect(output?.winner && isDocumentArray(output?.winner)).toBe(false);
+      expect(output?.loser && isDocumentArray(output?.loser)).toBe(true);
+
+      if (output?.loser && isDocumentArray(output?.loser)) {
+        expect(output?.loser).toHaveLength(1);
+        expect(output?.loser?.[0].id).toBe(players[0].id);
+      }
+    }
   });
 
   it('should populate winner', async () => {
-    const output = await Match.findById(match.id).populate('_winner');
-    expect(output?._winner).toBeDefined();
-    expect(output?._winner).toHaveLength(1);
-    expect(output?._winner?.[0].id).toBe(players[1].id);
+    const output = await Match.findById(match.id).populate('winner');
 
-    expect(output?._tournament).toBeUndefined();
-    expect(output?._loser).toBeUndefined();
-    expect(output?._player1).toBeUndefined();
-    expect(output?._player2).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.tournament)).toBe(false);
+      expect(output?.player1 && isDocumentArray(output?.player1)).toBe(false);
+      expect(output?.player2 && isDocumentArray(output?.player2)).toBe(false);
+      expect(output?.winner && isDocumentArray(output?.winner)).toBe(true);
+      expect(output?.loser && isDocumentArray(output?.loser)).toBe(false);
+
+      if (output?.winner && isDocumentArray(output?.winner)) {
+        expect(output?.winner).toHaveLength(1);
+        expect(output?.winner?.[0].id).toBe(players[1].id);
+      }
+    }
   });
 
   it('should populate player 1', async () => {
-    const output = await Match.findById(match.id).populate('_player1');
-    expect(output?._player1).toBeDefined();
-    expect(output?._player1).toHaveLength(1);
-    expect(output?._player1?.[0].id).toBe(players[0].id);
+    const output = await Match.findById(match.id).populate('player1');
 
-    expect(output?._tournament).toBeUndefined();
-    expect(output?._winner).toBeUndefined();
-    expect(output?._loser).toBeUndefined();
-    expect(output?._player2).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.tournament)).toBe(false);
+      expect(output?.player1 && isDocumentArray(output?.player1)).toBe(true);
+      expect(output?.player2 && isDocumentArray(output?.player2)).toBe(false);
+      expect(output?.winner && isDocumentArray(output?.winner)).toBe(false);
+      expect(output?.loser && isDocumentArray(output?.loser)).toBe(false);
+
+      if (output?.player1 && isDocumentArray(output?.player1)) {
+        expect(output?.player1).toHaveLength(1);
+        expect(output?.player1?.[0].id).toBe(players[0].id);
+      }
+    }
   });
 
   it('should populate player 2', async () => {
-    const output = await Match.findById(match.id).populate('_player2');
-    expect(output?._player2).toBeDefined();
-    expect(output?._player2).toHaveLength(1);
-    expect(output?._player2?.[0].id).toBe(players[1].id);
+    const output = await Match.findById(match.id).populate('player2');
 
-    expect(output?._tournament).toBeUndefined();
-    expect(output?._winner).toBeUndefined();
-    expect(output?._player1).toBeUndefined();
-    expect(output?._loser).toBeUndefined();
+    if (output) {
+      expect(isDocument(output?.tournament)).toBe(false);
+      expect(output?.player1 && isDocumentArray(output?.player1)).toBe(false);
+      expect(output?.player2 && isDocumentArray(output?.player2)).toBe(true);
+      expect(output?.winner && isDocumentArray(output?.winner)).toBe(false);
+      expect(output?.loser && isDocumentArray(output?.loser)).toBe(false);
+
+      if (output?.player2 && isDocumentArray(output?.player2)) {
+        expect(output?.player2).toHaveLength(1);
+        expect(output?.player2?.[0].id).toBe(players[1].id);
+      }
+    }
   });
 
   it('should populate all fields', async () => {
     const output = await Match.findById(match.id)
-      .populate('_tournament')
-      .populate('_loser')
-      .populate('_winner')
-      .populate('_player1')
-      .populate('_player2');
+      .populate('tournament')
+      .populate('loser')
+      .populate('winner')
+      .populate('player1')
+      .populate('player2');
 
-    expect(output?._tournament).toBeDefined();
-    expect(output?._tournament?.id).toBe(tournaments[0].id);
+    if (output) {
+      expect(isDocument(output?.tournament)).toBe(true);
+      expect(output?.player1 && isDocumentArray(output?.player1)).toBe(true);
+      expect(output?.player2 && isDocumentArray(output?.player2)).toBe(true);
+      expect(output?.winner && isDocumentArray(output?.winner)).toBe(true);
+      expect(output?.loser && isDocumentArray(output?.loser)).toBe(true);
 
-    expect(output?._loser).toBeDefined();
-    expect(output?._loser).toHaveLength(1);
-    expect(output?._loser?.[0].id).toBe(players[0].id);
+      if (
+        isDocument(output?.tournament) &&
+        output?.player1 &&
+        isDocumentArray(output?.player1) &&
+        output?.player2 &&
+        isDocumentArray(output?.player2) &&
+        output?.winner &&
+        isDocumentArray(output?.winner) &&
+        output?.loser &&
+        isDocumentArray(output?.loser)
+      ) {
+        expect(output?.tournament?.id).toBe(tournaments[0].id);
 
-    expect(output?._winner).toBeDefined();
-    expect(output?._winner).toHaveLength(1);
-    expect(output?._winner?.[0].id).toBe(players[1].id);
+        expect(output?.loser).toHaveLength(1);
+        expect(output?.loser?.[0].id).toBe(players[0].id);
 
-    expect(output?._player1).toBeDefined();
-    expect(output?._player1).toHaveLength(1);
-    expect(output?._player1?.[0].id).toBe(players[0].id);
+        expect(output?.winner).toHaveLength(1);
+        expect(output?.winner?.[0].id).toBe(players[1].id);
 
-    expect(output?._player2).toBeDefined();
-    expect(output?._player2).toHaveLength(1);
-    expect(output?._player2?.[0].id).toBe(players[1].id);
+        expect(output?.player1).toHaveLength(1);
+        expect(output?.player1?.[0].id).toBe(players[0].id);
+
+        expect(output?.player2).toHaveLength(1);
+        expect(output?.player2?.[0].id).toBe(players[1].id);
+      }
+    }
   });
 });

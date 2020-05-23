@@ -1,8 +1,8 @@
 import { default as faker } from 'faker';
-import { Game, IGame } from '@models/game';
+import { Game, GameClass } from '@models/game';
 
 describe('Game model test', () => {
-  const gameFull: IGame = {
+  const gameFull: GameClass = {
     name: 'Blade Arcus from Shining',
     short: 'BAFS',
     bg: faker.image.imageUrl(),
@@ -12,7 +12,7 @@ describe('Game model test', () => {
     },
   };
 
-  const gameMin: IGame = {
+  const gameMin: GameClass = {
     name: 'Persona 5 Arena',
     short: 'P5A',
   };

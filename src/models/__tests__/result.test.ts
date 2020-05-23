@@ -1,20 +1,29 @@
+import {
+  DocumentType,
+  isDocument,
+  isDocumentArray,
+} from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { default as moment } from 'moment';
-import { Tournament, TOURNAMENT_TYPE, ITournament } from '@models/tournament';
-import { Player, IPlayer } from '@models/player';
-import { IResult, Result } from '@models/result';
+import {
+  Tournament,
+  TOURNAMENT_TYPE,
+  TournamentClass,
+} from '@models/tournament';
+import { Player, PlayerClass } from '@models/player';
+import { ResultClass, Result } from '@models/result';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('Result model test', () => {
-  let tournaments: Array<Tournament>;
-  let players: Array<Player>;
+  let tournaments: Array<DocumentType<TournamentClass>>;
+  let players: Array<DocumentType<PlayerClass>>;
 
-  let resultFull: IResult;
-  let resultTeam: IResult;
-  let result: Result;
+  let resultFull: ResultClass;
+  let resultTeam: ResultClass;
+  let result: DocumentType<ResultClass>;
 
   beforeEach(async () => {
     // fake some tournaments
@@ -29,7 +38,7 @@ describe('Result model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<ITournament>);
+    ] as Array<TournamentClass>);
 
     // fake some players
     players = await Player.create([
@@ -39,7 +48,7 @@ describe('Result model test', () => {
       {
         handle: 'Player 1',
       },
-    ] as Array<IPlayer>);
+    ] as Array<PlayerClass>);
 
     resultFull = {
       tournament: tournaments[0]._id,
@@ -53,7 +62,7 @@ describe('Result model test', () => {
       rank: 2,
     };
 
-    [result] = await Result.create([resultFull] as Array<IResult>);
+    [result] = await Result.create([resultFull] as Array<ResultClass>);
   });
 
   it('should create & save result successfully', async () => {
@@ -61,16 +70,21 @@ describe('Result model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(resultFull.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[0].id);
-    expect(output.players).toHaveLength(1);
-    expect(output.players[0].toString()).toBe(resultFull.players[0].toString());
-    expect(output.players[0].toString()).toBe(players[0].id);
-    expect(output.rank).toBe(1);
 
     // shouldn't populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._players).toBeUndefined();
+    expect(isDocumentArray(output?.players)).toBe(false);
+    expect(isDocument(output?.tournament)).toBe(false);
+
+    expect(output.tournament?.toString()).toBe(
+      resultFull.tournament?.toString(),
+    );
+    expect(output.tournament?.toString()).toBe(tournaments[0].id);
+    expect(output.players).toHaveLength(1);
+    expect(output.players[0]?.toString()).toBe(
+      resultFull.players[0]?.toString(),
+    );
+    expect(output.players[0]?.toString()).toBe(players[0].id);
+    expect(output.rank).toBe(1);
   });
 
   it('should create & save result with multiple players successfully', async () => {
@@ -78,50 +92,69 @@ describe('Result model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.tournament.toString()).toBe(resultTeam.tournament.toString());
-    expect(output.tournament.toString()).toBe(tournaments[0].id);
-    expect(output.players).toHaveLength(2);
-    expect(output.players[0].toString()).toBe(resultTeam.players[0].toString());
-    expect(output.players[0].toString()).toBe(players[0].id);
-    expect(output.players[1].toString()).toBe(resultTeam.players[1].toString());
-    expect(output.players[1].toString()).toBe(players[1].id);
-    expect(output.rank).toBe(2);
 
     // shouldn't populate virtuals
-    expect(output._tournament).toBeUndefined();
-    expect(output._players).toBeUndefined();
+    expect(isDocumentArray(output?.players)).toBe(false);
+    expect(isDocument(output?.tournament)).toBe(false);
+
+    expect(output.tournament?.toString()).toBe(
+      resultTeam.tournament?.toString(),
+    );
+    expect(output.tournament?.toString()).toBe(tournaments[0].id);
+    expect(output.players).toHaveLength(2);
+    expect(output.players[0]?.toString()).toBe(
+      resultTeam.players[0]?.toString(),
+    );
+    expect(output.players[0]?.toString()).toBe(players[0].id);
+    expect(output.players[1]?.toString()).toBe(
+      resultTeam.players[1]?.toString(),
+    );
+    expect(output.players[1]?.toString()).toBe(players[1].id);
+    expect(output.rank).toBe(2);
   });
 
   it('should populate tournament', async () => {
-    const output = await Result.findById(result.id).populate('_tournament');
+    const output = await Result.findById(result.id).populate('tournament');
 
-    expect(output?._tournament).toBeDefined();
-    expect(output?._tournament?.id).toBe(tournaments[0].id);
-
-    expect(output?._players).toBeUndefined();
+    expect(output).toBeDefined();
+    if (output) {
+      expect(isDocumentArray(output?.players)).toBe(false);
+      expect(isDocument(output?.tournament)).toBe(true);
+      if (isDocumentArray(output?.players) && isDocument(output?.tournament)) {
+        expect(output?.tournament.id).toBe(tournaments[0].id);
+      }
+    }
   });
 
   it('should populate players', async () => {
-    const output = await Result.findById(result.id).populate('_players');
+    const output = await Result.findById(result.id).populate('players');
 
-    expect(output?._players).toBeDefined();
-    expect(output?._players).toHaveLength(1);
-    expect(output?._players?.[0].id).toBe(players[0].id);
-
-    expect(output?._tournament).toBeUndefined();
+    expect(output).toBeDefined();
+    if (output) {
+      expect(isDocumentArray(output?.players)).toBe(true);
+      expect(isDocument(output?.tournament)).toBe(false);
+      if (isDocumentArray(output?.players)) {
+        expect(output?.players).toHaveLength(1);
+        expect(output?.players?.[0].id).toBe(players[0].id);
+      }
+    }
   });
 
   it('should populate all fields', async () => {
     const output = await Result.findById(result.id)
-      .populate('_tournament')
-      .populate('_players');
+      .populate('tournament')
+      .populate('players');
 
-    expect(output?._tournament).toBeDefined();
-    expect(output?._tournament?.id).toBe(tournaments[0].id);
-
-    expect(output?._players).toBeDefined();
-    expect(output?._players).toHaveLength(1);
-    expect(output?._players?.[0].id).toBe(players[0].id);
+    expect(output).toBeDefined();
+    if (output) {
+      expect(isDocumentArray(output?.players)).toBe(true);
+      expect(isDocument(output?.tournament)).toBe(true);
+      if (isDocumentArray(output?.players) && isDocument(output?.tournament)) {
+        expect(output?.players).toHaveLength(1);
+        expect(output?.players?.[0].id).toBe(players[0].id);
+        expect(output?.tournament.id).toBe(tournaments[0].id);
+      }
+    }
   });
 
   it('should fail validation if rank is less than 0', async () => {

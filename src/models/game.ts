@@ -1,39 +1,33 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { Tournament } from '@models/tournament';
+import { default as mongoose } from 'mongoose';
+import {
+  prop as Property,
+  getModelForClass,
+  Severity,
+} from '@typegoose/typegoose';
 
-export interface IGame {
-  name: string;
-  short: string;
-  logo?: string;
-  bg?: string;
+export class GameClass {
+  @Property({ required: true })
+  public name!: string;
+
+  @Property({ required: true })
+  public short!: string;
+
+  @Property()
+  public logo?: string;
+
+  @Property()
+  public bg?: string;
+
+  @Property({ type: mongoose.Schema.Types.Mixed })
   meta?: any;
 }
 
-export interface Game extends IGame, Document {
-  tournaments?: Tournament;
-}
-
-const GameSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
+export const Game = getModelForClass(GameClass, {
+  options: {
+    customName: 'Game',
+    allowMixed: Severity.ALLOW,
   },
-  short: {
-    type: String,
-    required: true,
-  },
-  logo: {
-    type: String,
-    required: false,
-  },
-  bg: {
-    type: String,
-    required: false,
-  },
-  meta: {
-    type: Schema.Types.Mixed,
-    required: false,
+  schemaOptions: {
+    collection: 'game',
   },
 });
-
-export const Game = mongoose.model<Game>('Game', GameSchema, 'game');

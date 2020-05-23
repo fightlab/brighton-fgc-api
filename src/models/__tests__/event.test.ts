@@ -1,17 +1,18 @@
 import { default as faker } from 'faker';
 import { default as moment } from 'moment';
-import { Event, IEvent } from '@models/event';
-import { Venue, IVenue } from '@models/venue';
+import { DocumentType, isDocument } from '@typegoose/typegoose';
+import { Event, EventClass } from '@models/event';
+import { Venue, VenueClass } from '@models/venue';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('Event model test', () => {
-  let venues: Array<Venue>;
-  let eventFull: IEvent;
-  let eventMin: IEvent;
-  let event: Event;
+  let venues: Array<DocumentType<VenueClass>>;
+  let eventFull: EventClass;
+  let eventMin: EventClass;
+  let event: DocumentType<EventClass>;
   const invalidDateString = 'lmao fake date';
 
   beforeEach(async () => {
@@ -25,7 +26,7 @@ describe('Event model test', () => {
         name: 'A Flat',
         short: 'FLAT',
       },
-    ] as Array<IVenue>);
+    ] as Array<VenueClass>);
 
     eventFull = {
       name: 'Event Full',
@@ -51,7 +52,7 @@ describe('Event model test', () => {
         date_end: moment.utc().add(5, 'h').toDate(),
         venue: venues[0]._id,
       },
-    ] as Array<IEvent>);
+    ] as Array<EventClass>);
   });
 
   it('should create & save event successfully', async () => {
@@ -59,16 +60,17 @@ describe('Event model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
+
+    // shouldn't populate virtuals
+    expect(isDocument(output.venue)).toBe(false);
+
     expect(output.name).toBe(eventFull.name);
     expect(output.date_start.getTime()).toBe(eventFull.date_start.getTime());
     expect(output.date_end.getTime()).toBe(eventFull.date_end.getTime());
-    expect(output.venue.toString()).toBe(eventFull.venue.toString());
-    expect(output.venue.toString()).toBe(venues[0]._id.toString());
+    expect(output.venue?.toString()).toBe(eventFull.venue?.toString());
+    expect(output.venue?.toString()).toBe(venues[0]._id.toString());
     expect(output.short).toBe(eventFull.short);
     expect(output.info).toBe(eventFull.info);
-
-    // shouldn't populate virtuals
-    expect(output._venue).toBeUndefined();
   });
 
   it('should create & save min event successfully', async () => {
@@ -76,16 +78,17 @@ describe('Event model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
+
+    // shouldn't populate virtuals
+    expect(isDocument(output.venue)).toBe(false);
+
     expect(output.name).toBe(eventMin.name);
     expect(output.date_start.getTime()).toBe(eventMin.date_start.getTime());
     expect(output.date_end.getTime()).toBe(eventMin.date_end.getTime());
-    expect(output.venue.toString()).toBe(eventMin.venue.toString());
-    expect(output.venue.toString()).toBe(venues[1]._id.toString());
+    expect(output.venue?.toString()).toBe(eventMin.venue?.toString());
+    expect(output.venue?.toString()).toBe(venues[1]._id.toString());
     expect(output.short).toBeUndefined();
     expect(output.info).toBeUndefined();
-
-    // shouldn't populate virtuals
-    expect(output._venue).toBeUndefined();
   });
 
   it('should fail validation if trying to save with invalid start date', async () => {
@@ -155,8 +158,11 @@ describe('Event model test', () => {
   });
 
   it('should populate venue', async () => {
-    const output = await Event.findById(event.id).populate('_venue');
-    expect(output?._venue).toBeDefined();
-    expect(output?._venue?.id).toBe(venues[0].id);
+    const output = await Event.findById(event.id).populate('venue');
+    expect(isDocument(output?.venue)).toBe(true);
+    if (isDocument(output?.venue)) {
+      expect(output?.venue?.id).toBe(venues[0].id);
+      expect(output?.venue?.name).toBe(venues[0].name);
+    }
   });
 });

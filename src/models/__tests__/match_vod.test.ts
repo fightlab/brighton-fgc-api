@@ -1,17 +1,22 @@
+import {
+  DocumentType,
+  isDocument,
+  isDocumentArray,
+} from '@typegoose/typegoose';
 import { Types } from 'mongoose';
-import { MatchVod, IMatchVod } from '@models/match_vod';
-import { Match, IMatch } from '@models/match';
-import { Vod, IVod } from '@models/vod';
-import { Character, ICharacter } from '@models/character';
+import { MatchVod, MatchVodClass } from '@models/match_vod';
+import { Match, MatchClass } from '@models/match';
+import { Vod, VodClass } from '@models/vod';
+import { Character, CharacterClass } from '@models/character';
 
 describe('MatchVod model test', () => {
-  let matches: Array<Match>;
-  let vods: Array<Vod>;
-  let characters: Array<Character>;
+  let matches: Array<DocumentType<MatchClass>>;
+  let vods: Array<DocumentType<VodClass>>;
+  let characters: Array<DocumentType<CharacterClass>>;
 
-  let matchVodFull: IMatchVod;
-  let matchVodMin: IMatchVod;
-  let matchVod: MatchVod;
+  let matchVodFull: MatchVodClass;
+  let matchVodMin: MatchVodClass;
+  let matchVod: DocumentType<MatchVodClass>;
 
   beforeEach(async () => {
     // fake some tournament ids
@@ -31,7 +36,7 @@ describe('MatchVod model test', () => {
       {
         tournament: tournaments[1],
       },
-    ] as Array<IMatch>);
+    ] as Array<MatchClass>);
 
     // fake some vods
     vods = await Vod.create([
@@ -47,7 +52,7 @@ describe('MatchVod model test', () => {
         tournament: tournaments[1],
         url: 'https://youtube.com/1',
       },
-    ] as Array<IVod>);
+    ] as Array<VodClass>);
 
     // fake some characters
     characters = await Character.create([
@@ -71,7 +76,7 @@ describe('MatchVod model test', () => {
         name: 'Char 3',
         short: 'C3',
       },
-    ] as Array<ICharacter>);
+    ] as Array<CharacterClass>);
 
     matchVodFull = {
       match: matches[0]._id,
@@ -92,7 +97,7 @@ describe('MatchVod model test', () => {
         vod: vods[0]._id,
         characters: characters.map((c) => c._id),
       },
-    ] as Array<IMatchVod>);
+    ] as Array<MatchVodClass>);
   });
 
   it('should create & save match vod successfully', async () => {
@@ -100,18 +105,21 @@ describe('MatchVod model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.match.toString()).toBe(matchVodFull.match.toString());
-    expect(output.match.toString()).toBe(matches[0].id);
-    expect(output.vod.toString()).toBe(matchVodFull.vod.toString());
-    expect(output.vod.toString()).toBe(vods[0].id);
+
+    // shouldn't populate virtuals
+    expect(output?.characters && isDocumentArray(output?.characters)).toBe(
+      false,
+    );
+    expect(isDocument(output?.match)).toBe(false);
+    expect(isDocument(output?.vod)).toBe(false);
+
+    expect(output.match?.toString()).toBe(matchVodFull.match?.toString());
+    expect(output.match?.toString()).toBe(matches[0].id);
+    expect(output.vod?.toString()).toBe(matchVodFull.vod?.toString());
+    expect(output.vod?.toString()).toBe(vods[0].id);
     expect(output.characters?.length).toBe(matchVodFull.characters?.length);
     expect(output.characters?.length).toBe(characters.length);
     expect(output.timestamp).toBe(matchVodFull.timestamp);
-
-    // shouldn't populate virtuals
-    expect(output._match).toBeUndefined();
-    expect(output._vod).toBeUndefined();
-    expect(output._characters).toBeUndefined();
   });
 
   it('should create & save min match vod successfully', async () => {
@@ -119,44 +127,92 @@ describe('MatchVod model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.match.toString()).toBe(matchVodMin.match.toString());
-    expect(output.match.toString()).toBe(matches[1].id);
-    expect(output.vod.toString()).toBe(matchVodMin.vod.toString());
-    expect(output.vod.toString()).toBe(vods[1].id);
-    expect(output.characters).toHaveLength(0);
-    expect(output.timestamp).toBe('0');
 
     // shouldn't populate virtuals
-    expect(output._match).toBeUndefined();
-    expect(output._vod).toBeUndefined();
-    expect(output._characters).toBeUndefined();
+    expect(isDocument(output?.match)).toBe(false);
+    expect(isDocument(output?.vod)).toBe(false);
+
+    expect(output.match?.toString()).toBe(matchVodMin.match?.toString());
+    expect(output.match?.toString()).toBe(matches[1].id);
+    expect(output.vod?.toString()).toBe(matchVodMin.vod?.toString());
+    expect(output.vod?.toString()).toBe(vods[1].id);
+    expect(output.characters).toHaveLength(0);
+    expect(output.timestamp).toBe('0');
   });
 
   it('should populate match', async () => {
-    const output = await MatchVod.findById(matchVod.id).populate('_match');
-    expect(output?._match).toBeDefined();
-    expect(output?._match?.id).toBe(matches[0].id);
+    const output = await MatchVod.findById(matchVod.id).populate('match');
 
-    expect(output?._vod).toBeUndefined();
-    expect(output?._characters).toBeUndefined();
+    expect(output).toBeDefined();
+    if (output) {
+      expect(output?.characters && isDocumentArray(output?.characters)).toBe(
+        false,
+      );
+      expect(isDocument(output?.match)).toBe(true);
+      expect(isDocument(output?.vod)).toBe(false);
+      if (isDocument(output?.match)) {
+        expect(output?.match.id).toBe(matches[0].id);
+      }
+    }
   });
 
   it('should populate vod', async () => {
-    const output = await MatchVod.findById(matchVod.id).populate('_vod');
-    expect(output?._vod).toBeDefined();
-    expect(output?._vod?.id).toBe(vods[0].id);
+    const output = await MatchVod.findById(matchVod.id).populate('vod');
 
-    expect(output?._match).toBeUndefined();
-    expect(output?._characters).toBeUndefined();
+    expect(output).toBeDefined();
+    if (output) {
+      expect(output?.characters && isDocumentArray(output?.characters)).toBe(
+        false,
+      );
+      expect(isDocument(output?.match)).toBe(false);
+      expect(isDocument(output?.vod)).toBe(true);
+      if (isDocument(output?.vod)) {
+        expect(output?.vod?.id).toBe(vods[0].id);
+      }
+    }
   });
 
   it('should populate characters', async () => {
-    const output = await MatchVod.findById(matchVod.id).populate('_characters');
+    const output = await MatchVod.findById(matchVod.id).populate('characters');
 
-    expect(output?.characters).toHaveLength(4);
-    expect(output?.characters?.[0].toString()).toBe(characters[0].id);
+    expect(output).toBeDefined();
+    if (output) {
+      expect(output?.characters && isDocumentArray(output?.characters)).toBe(
+        true,
+      );
+      expect(isDocument(output?.match)).toBe(false);
+      expect(isDocument(output?.vod)).toBe(false);
+      if (output?.characters && isDocumentArray(output?.characters)) {
+        expect(output?.characters).toHaveLength(4);
+        expect(output?.characters?.[0].id).toBe(characters[0].id);
+      }
+    }
+  });
 
-    expect(output?._match).toBeUndefined();
-    expect(output?._vod).toBeUndefined();
+  it('should populate all fields', async () => {
+    const output = await MatchVod.findById(matchVod.id)
+      .populate('match')
+      .populate('vod')
+      .populate('characters');
+
+    expect(output).toBeDefined();
+    if (output) {
+      expect(output?.characters && isDocumentArray(output?.characters)).toBe(
+        true,
+      );
+      expect(isDocument(output?.match)).toBe(true);
+      expect(isDocument(output?.vod)).toBe(true);
+      if (
+        output?.characters &&
+        isDocumentArray(output?.characters) &&
+        isDocument(output?.match) &&
+        isDocument(output?.vod)
+      ) {
+        expect(output?.characters).toHaveLength(4);
+        expect(output?.characters?.[0].id).toBe(characters[0].id);
+        expect(output?.match.id).toBe(matches[0].id);
+        expect(output?.vod?.id).toBe(vods[0].id);
+      }
+    }
   });
 });

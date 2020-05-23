@@ -1,46 +1,28 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { Game } from '@models/game';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import { GameClass } from '@models/game';
 
-export interface ICharacter {
-  game: Game['_id'];
-  name: string;
-  short: string;
-  image?: string;
+export class CharacterClass {
+  @Property({
+    required: true,
+    ref: () => GameClass,
+  })
+  public game!: Ref<GameClass>;
+
+  @Property({ required: true })
+  public name!: string;
+
+  @Property({ required: true })
+  public short!: string;
+
+  @Property()
+  public image?: string;
 }
 
-export interface Character extends ICharacter, Document {
-  _game?: Game;
-}
-
-const CharacterSchema: Schema = new Schema({
-  game: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Game',
+export const Character = getModelForClass(CharacterClass, {
+  options: {
+    customName: 'Venue',
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  short: {
-    type: String,
-    required: true,
-  },
-  image: {
-    type: String,
-    required: false,
+  schemaOptions: {
+    collection: 'venue',
   },
 });
-
-CharacterSchema.virtual('_game', {
-  ref: 'Game',
-  localField: 'game',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const Character = mongoose.model<Character>(
-  'Character',
-  CharacterSchema,
-  'character',
-);

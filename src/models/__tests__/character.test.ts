@@ -1,12 +1,13 @@
 import { default as faker } from 'faker';
-import { Character, ICharacter } from '@models/character';
-import { Game, IGame } from '@models/game';
+import { DocumentType, isDocument } from '@typegoose/typegoose';
+import { Character, CharacterClass } from '@models/character';
+import { Game, GameClass } from '@models/game';
 
 describe('Character model test', () => {
-  let games: Array<Game>;
-  let characterFull: ICharacter;
-  let characterMin: ICharacter;
-  let character: Character;
+  let games: Array<DocumentType<GameClass>>;
+  let characterFull: CharacterClass;
+  let characterMin: CharacterClass;
+  let character: DocumentType<CharacterClass>;
 
   beforeEach(async () => {
     // fake some games
@@ -19,7 +20,7 @@ describe('Character model test', () => {
         name: 'Game #2',
         short: 'G2',
       },
-    ] as Array<IGame>);
+    ] as Array<GameClass>);
 
     characterFull = {
       game: games[0]._id,
@@ -40,7 +41,7 @@ describe('Character model test', () => {
         name: 'Another Waifu',
         short: 'WAIFU',
       },
-    ] as Array<ICharacter>);
+    ] as Array<CharacterClass>);
   });
 
   it('should create & save character successfully', async () => {
@@ -48,14 +49,15 @@ describe('Character model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.game.toString()).toBe(characterFull.game.toString());
-    expect(output.game.toString()).toBe(games[0]._id.toString());
+
+    // shouldn't populate virtuals
+    expect(isDocument(output.game)).toBe(false);
+
+    expect(output.game?.toString()).toBe(characterFull.game?.toString());
+    expect(output.game?.toString()).toBe(games[0]._id.toString());
     expect(output.name).toBe(characterFull.name);
     expect(output.short).toBe(characterFull.short);
     expect(output.image).toBe(characterFull.image);
-
-    // shouldn't populate virtuals
-    expect(output._game).toBeUndefined();
   });
 
   it('create & save minimum character successfully', async () => {
@@ -63,19 +65,23 @@ describe('Character model test', () => {
     const output = await input.save();
 
     expect(output._id).toBeDefined();
-    expect(output.game.toString()).toBe(characterMin.game.toString());
-    expect(output.game.toString()).toBe(games[1]._id.toString());
+
+    // shouldn't populate virtuals
+    expect(isDocument(output.game)).toBe(false);
+
+    expect(output.game?.toString()).toBe(characterMin.game?.toString());
+    expect(output.game?.toString()).toBe(games[1]._id.toString());
     expect(output.name).toBe(characterMin.name);
     expect(output.short).toBe(characterMin.short);
     expect(output.image).toBeUndefined();
-
-    // shouldn't populate virtuals
-    expect(output._game).toBeUndefined();
   });
 
   it('should populate game', async () => {
-    const output = await Character.findById(character._id).populate('_game');
-    expect(output?._game).toBeDefined();
-    expect(output?._game?.id).toBe(games[0].id);
+    const output = await Character.findById(character._id).populate('game');
+    expect(isDocument(output?.game)).toBe(true);
+    if (isDocument(output?.game)) {
+      expect(output?.game.id).toBe(games[0].id);
+      expect(output?.game.name).toBe(games[0].name);
+    }
   });
 });

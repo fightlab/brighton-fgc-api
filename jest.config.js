@@ -7,4 +7,5 @@ module.exports = {
     '@lib/([^\\.]*)$': '<rootDir>/src/lib/$1',
     '@models/([^\\.]*)$': '<rootDir>/src/models/$1',
   },
+  preset: 'ts-jest',
 };

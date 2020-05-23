@@ -1,56 +1,32 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { Match } from '@models/match';
-import { Player } from '@models/player';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import { MatchClass } from '@models/match';
+import { PlayerClass } from '@models/player';
 
-export interface IMatchElo {
-  match: Match['_id'];
-  player: Player['_id'];
-  before: number;
-  after: number;
+export class MatchEloClass {
+  @Property({
+    required: true,
+    ref: () => MatchClass,
+  })
+  public match!: Ref<MatchClass>;
+
+  @Property({
+    required: true,
+    ref: () => PlayerClass,
+  })
+  public player!: Ref<PlayerClass>;
+
+  @Property({ required: true })
+  public before!: number;
+
+  @Property({ required: true })
+  public after!: number;
 }
 
-export interface MatchElo extends IMatchElo, Document {
-  _match?: Match;
-  _player?: Player;
-}
-
-const MatchEloSchema: Schema = new Schema({
-  match: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Match',
+export const MatchElo = getModelForClass(MatchEloClass, {
+  options: {
+    customName: 'MatchElo',
   },
-  player: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Player',
-  },
-  before: {
-    type: Number,
-    required: true,
-  },
-  after: {
-    type: Number,
-    required: true,
+  schemaOptions: {
+    collection: 'match_elo',
   },
 });
-
-MatchEloSchema.virtual('_match', {
-  ref: 'Match',
-  localField: 'match',
-  foreignField: '_id',
-  justOne: true,
-});
-
-MatchEloSchema.virtual('_player', {
-  ref: 'Player',
-  localField: 'player',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const MatchElo = mongoose.model<MatchElo>(
-  'MatchElo',
-  MatchEloSchema,
-  'match_elo',
-);

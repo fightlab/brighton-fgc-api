@@ -1,36 +1,26 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isNumber } from 'lodash';
-import { Tournament } from '@models/tournament';
-import { Player } from '@models/player';
+import { TournamentClass } from '@models/tournament';
+import { PlayerClass } from '@models/player';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
-export interface IResult {
-  tournament: Tournament['_id'];
-  players: Array<Player['_id']>;
-  rank: number;
-}
-
-export interface Result extends IResult, Document {
-  _tournament?: Tournament;
-  _players?: Array<Player>;
-}
-
-const ResultSchema: Schema = new Schema({
-  tournament: {
-    type: Schema.Types.ObjectId,
+export class ResultClass {
+  @Property({
     required: true,
-    ref: 'Tournament',
-  },
-  players: {
-    type: [Schema.Types.ObjectId],
+    ref: () => TournamentClass,
+  })
+  public tournament!: Ref<TournamentClass>;
+
+  @Property({
     required: true,
-    ref: 'Player',
-  },
-  rank: {
-    type: Number,
+    ref: () => PlayerClass,
+  })
+  public players!: Array<Ref<PlayerClass>>;
+
+  @Property({
     required: true,
     default: 0,
     validate: {
@@ -40,20 +30,15 @@ const ResultSchema: Schema = new Schema({
       ),
       validator: (v: any) => isNumber(v) && v >= 0,
     },
+  })
+  public rank!: number;
+}
+
+export const Result = getModelForClass(ResultClass, {
+  options: {
+    customName: 'Result',
+  },
+  schemaOptions: {
+    collection: 'result',
   },
 });
-
-ResultSchema.virtual('_tournament', {
-  ref: 'Tournament',
-  localField: 'tournament',
-  foreignField: '_id',
-  justOne: true,
-});
-
-ResultSchema.virtual('_players', {
-  ref: 'Player',
-  localField: 'players',
-  foreignField: '_id',
-});
-
-export const Result = mongoose.model<Result>('Result', ResultSchema, 'result');

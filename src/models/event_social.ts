@@ -1,40 +1,22 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { default as validator } from 'validator';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
-import { Event } from '@models/event';
+import { EventClass } from '@models/event';
 
-export interface IEventSocial {
-  event: Event['_id'];
-  facebook?: string;
-  web?: string;
-  twitter?: string;
-  discord?: string;
-  instagram?: string;
-  meta?: any;
-  twitch?: string;
-  youtube?: string;
-}
-
-export interface EventSocial extends IEventSocial, Document {
-  _event?: Event;
-}
-
-const EventSocialSchema: Schema = new Schema({
-  event: {
-    type: Schema.Types.ObjectId,
+export class EventSocialCLass {
+  @Property({
     required: true,
-    ref: 'Event',
-  },
-  facebook: {
-    type: String,
-    required: false,
-  },
-  web: {
-    type: String,
-    required: false,
+    ref: () => EventClass,
+  })
+  public event!: Ref<EventClass>;
+
+  @Property()
+  public facebook?: string;
+
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -42,42 +24,33 @@ const EventSocialSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
+  })
+  public web?: string;
+
+  @Property()
+  public twitter?: string;
+
+  @Property()
+  public discord?: string;
+
+  @Property()
+  public instagram?: string;
+
+  @Property()
+  public meta?: any;
+
+  @Property()
+  public twitch?: string;
+
+  @Property()
+  public youtube?: string;
+}
+
+export const EventSocial = getModelForClass(EventSocialCLass, {
+  options: {
+    customName: 'EventSeries',
   },
-  twitter: {
-    type: String,
-    required: false,
-  },
-  discord: {
-    type: String,
-    required: false,
-  },
-  instagram: {
-    type: String,
-    required: false,
-  },
-  twitch: {
-    type: String,
-    required: false,
-  },
-  youtube: {
-    type: String,
-    required: false,
-  },
-  meta: {
-    type: Schema.Types.Mixed,
-    required: false,
+  schemaOptions: {
+    collection: 'event_social',
   },
 });
-
-EventSocialSchema.virtual('_event', {
-  ref: 'Event',
-  localField: 'event',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const EventSocial = mongoose.model<EventSocial>(
-  'EventSocial',
-  EventSocialSchema,
-  'event_social',
-);

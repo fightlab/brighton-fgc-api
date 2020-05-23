@@ -1,44 +1,29 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { default as validator } from 'validator';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
-import { BracketPlatform } from '@models/bracket_platform';
-import { Tournament } from '@models/tournament';
+import { BracketPlatformClass } from '@models/bracket_platform';
+import { TournamentClass } from '@models/tournament';
 
-export interface IBracket {
-  tournament: Tournament['_id'];
-  platform: BracketPlatform['_id'];
-  platform_id: string;
-  url?: string;
-  slug?: string;
-  image?: string;
-}
+export class BracketClass {
+  @Property({
+    required: true,
+    ref: () => TournamentClass,
+  })
+  public tournament!: Ref<TournamentClass>;
 
-export interface Bracket extends IBracket, Document {
-  _platform?: BracketPlatform;
-  _tournament?: Tournament;
-}
+  @Property({
+    required: true,
+    ref: () => BracketPlatformClass,
+  })
+  public platform!: Ref<BracketPlatformClass>;
 
-const BracketSchema: Schema = new Schema({
-  tournament: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Tournament',
-  },
-  platform: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'BracketPlatform',
-  },
-  platform_id: {
-    type: String,
-    required: true,
-  },
-  url: {
-    type: String,
-    required: false,
+  @Property({ required: true })
+  public platform_id!: string;
+
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -46,33 +31,21 @@ const BracketSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
+  })
+  public url?: string;
+
+  @Property()
+  public slug?: string;
+
+  @Property()
+  public image?: string;
+}
+
+export const Bracket = getModelForClass(BracketClass, {
+  options: {
+    customName: 'Bracket',
   },
-  slug: {
-    type: String,
-    required: false,
-  },
-  image: {
-    type: String,
-    required: false,
+  schemaOptions: {
+    collection: 'bracket',
   },
 });
-
-BracketSchema.virtual('_platform', {
-  ref: 'BracketPlatform',
-  localField: 'platform',
-  foreignField: '_id',
-  justOne: true,
-});
-
-BracketSchema.virtual('_tournament', {
-  ref: 'Tournament',
-  localField: 'tournament',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const Bracket = mongoose.model<Bracket>(
-  'Bracket',
-  BracketSchema,
-  'bracket',
-);

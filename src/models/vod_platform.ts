@@ -1,35 +1,54 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass } from '@typegoose/typegoose';
+import { default as validator } from 'validator';
+import {
+  VALIDATION_MESSAGES,
+  generateValidationMessage,
+} from '@lib/validation';
 
-export interface IVodPlatform {
-  name: string;
-  url: string;
-  watch_url?: string;
-  embed_url?: string;
+export class VodPlatformClass {
+  @Property({ required: true })
+  public name!: string;
+
+  @Property({
+    required: true,
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'url',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
+  })
+  public url!: string;
+
+  @Property({
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'watch_url',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
+  })
+  public watch_url?: string;
+
+  @Property({
+    validate: {
+      validator: (v: any) => validator.isURL(v),
+      message: generateValidationMessage(
+        'embed_url',
+        VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
+      ),
+    },
+  })
+  public embed_url?: string;
 }
 
-export interface VodPlatform extends IVodPlatform, Document {}
-
-const VodPlatformSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
+export const VodPlatform = getModelForClass(VodPlatformClass, {
+  options: {
+    customName: 'VodPlatform',
   },
-  url: {
-    type: String,
-    required: true,
-  },
-  watch_url: {
-    type: String,
-    required: false,
-  },
-  embed_url: {
-    type: String,
-    required: false,
+  schemaOptions: {
+    collection: 'vod_platform',
   },
 });
-
-export const VodPlatform = mongoose.model<VodPlatform>(
-  'VodPlatform',
-  VodPlatformSchema,
-  'vod_platform',
-);

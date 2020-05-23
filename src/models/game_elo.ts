@@ -1,51 +1,29 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
-import { Game } from '@models/game';
-import { Player } from '@models/player';
+import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import { GameClass } from '@models/game';
+import { PlayerClass } from '@models/player';
 
-export interface IGameElo {
-  game: Game['_id'];
-  player: Player['_id'];
-  score: number;
+export class GameEloClass {
+  @Property({
+    required: true,
+    ref: () => GameClass,
+  })
+  public game!: Ref<GameClass>;
+
+  @Property({
+    required: true,
+    ref: () => PlayerClass,
+  })
+  public player!: Ref<PlayerClass>;
+
+  @Property({ required: true })
+  public score!: number;
 }
 
-export interface GameElo extends IGameElo, Document {
-  _game?: Game;
-  _player?: Player;
-}
-
-const GameEloSchema: Schema = new Schema({
-  game: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Game',
+export const GameElo = getModelForClass(GameEloClass, {
+  options: {
+    customName: 'GameElo',
   },
-  player: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Player',
-  },
-  score: {
-    type: Number,
-    required: true,
+  schemaOptions: {
+    collection: 'game_elo',
   },
 });
-
-GameEloSchema.virtual('_game', {
-  ref: 'Game',
-  localField: 'game',
-  foreignField: '_id',
-  justOne: true,
-});
-
-GameEloSchema.virtual('_player', {
-  ref: 'Player',
-  localField: 'player',
-  foreignField: '_id',
-  justOne: true,
-});
-
-export const GameElo = mongoose.model<GameElo>(
-  'GameElo',
-  GameEloSchema,
-  'game_elo',
-);

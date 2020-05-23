@@ -1,28 +1,20 @@
+import {
+  prop as Property,
+  getModelForClass,
+  Severity,
+} from '@typegoose/typegoose';
 import { default as validator } from 'validator';
+import { default as mongoose } from 'mongoose';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
-import { default as mongoose, Document, Schema } from 'mongoose';
 
-export interface IBracketPlatform {
-  name: string;
-  url?: string;
-  api_url?: string;
-  api_docs?: string;
-  meta?: any;
-}
+export class BracketPlatformClass {
+  @Property({ required: true })
+  public name!: string;
 
-export interface BracketPlatform extends IBracketPlatform, Document {}
-
-const BracketPlatformSchema: Schema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  url: {
-    type: String,
-    required: false,
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -30,10 +22,10 @@ const BracketPlatformSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
-  },
-  api_url: {
-    type: String,
-    required: false,
+  })
+  public url?: string;
+
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -41,10 +33,10 @@ const BracketPlatformSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
-  },
-  api_docs: {
-    type: String,
-    required: false,
+  })
+  public api_url?: string;
+
+  @Property({
     validate: {
       validator: (v: any) => validator.isURL(v),
       message: generateValidationMessage(
@@ -52,15 +44,19 @@ const BracketPlatformSchema: Schema = new Schema({
         VALIDATION_MESSAGES.URL_VALIDATION_ERROR_NO_KEY,
       ),
     },
+  })
+  public api_docs?: string;
+
+  @Property({ type: mongoose.Schema.Types.Mixed })
+  meta?: any;
+}
+
+export const BracketPlatform = getModelForClass(BracketPlatformClass, {
+  options: {
+    customName: 'BracketPlatform',
+    allowMixed: Severity.ALLOW,
   },
-  meta: {
-    type: Schema.Types.Mixed,
-    required: false,
+  schemaOptions: {
+    collection: 'bracket_platform',
   },
 });
-
-export const BracketPlatform = mongoose.model<BracketPlatform>(
-  'BracketPlatform',
-  BracketPlatformSchema,
-  'bracket_platform',
-);

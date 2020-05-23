@@ -1,32 +1,24 @@
-import { default as mongoose, Document, Schema } from 'mongoose';
+import { prop as Property, getModelForClass } from '@typegoose/typegoose';
 
-export interface IPlayer {
-  handle: string;
-  icon?: string;
-  team?: string;
-  is_staff?: boolean;
+export class PlayerClass {
+  @Property({ required: true })
+  public handle!: string;
+
+  @Property()
+  public icon?: string;
+
+  @Property()
+  public team?: string;
+
+  @Property({ default: false })
+  public is_staff?: boolean;
 }
 
-export interface Player extends IPlayer, Document {}
-
-const PlayerSchema: Schema = new Schema({
-  handle: {
-    type: String,
-    required: true,
+export const Player = getModelForClass(PlayerClass, {
+  options: {
+    customName: 'Player',
   },
-  icon: {
-    type: String,
-    required: false,
-  },
-  team: {
-    type: String,
-    required: false,
-  },
-  is_staff: {
-    type: Boolean,
-    required: false,
-    default: false,
+  schemaOptions: {
+    collection: 'player',
   },
 });
-
-export const Player = mongoose.model<Player>('Player', PlayerSchema, 'player');
