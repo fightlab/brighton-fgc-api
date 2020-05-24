@@ -5,3 +5,4 @@ node_modules
 build
 mongodb-binaries
 coverage
+src/lib/schema.gql

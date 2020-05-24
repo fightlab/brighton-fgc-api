@@ -4,35 +4,43 @@ import { default as express } from '@lib/express';
 import { getConfig } from '@lib/config';
 
 import { fakeData } from '@lib/faker';
-import { server } from '@lib/graphql';
+import { makeApolloServer } from '@lib/graphql';
 
 const { mongo, port, seedDB, env } = getConfig();
-// get express app with all middleware enabled
-const app = express();
 
-// get the graphql server, and add express app
-server.applyMiddleware({ app });
+// startup function
+const main = async () => {
+  // get express app with all middleware enabled
+  const app = express();
 
-// default 404 route for all request methods
-app.use((_: Request, res: Response) => {
-  return res.sendStatus(404);
-});
+  // get the graphql server, and add express app
+  const server = await makeApolloServer();
+  server.applyMiddleware({ app });
 
-// connect to the mongo database
-mongoose.connect(mongo.uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+  // default 404 route for all request methods
+  app.use((_: Request, res: Response) => {
+    return res.sendStatus(404);
+  });
 
-// start the express server
-app.listen(port, async () => {
-  console.log(`Express server listening on port ${port}, in ${env} mode`);
-  console.log(
-    `GraphQL server ready on port ${port} at path ${server.graphqlPath}`,
-  );
+  // connect to the mongo database
+  mongoose.connect(mongo.uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 
-  // fake some data for development, if needed
-  if (seedDB) {
-    await fakeData();
-  }
-});
+  // start the express server
+  app.listen(port, async () => {
+    console.log(`Express server listening on port ${port}, in ${env} mode`);
+    console.log(
+      `GraphQL server ready on port ${port} at path ${server.graphqlPath}`,
+    );
+
+    // fake some data for development, if needed
+    if (seedDB) {
+      await fakeData();
+    }
+  });
+};
+
+// run main function
+main();

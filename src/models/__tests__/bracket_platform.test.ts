@@ -1,6 +1,6 @@
 import {
+  BracketPlatformModel,
   BracketPlatform,
-  BracketPlatformClass,
 } from '@models/bracket_platform';
 import {
   VALIDATION_MESSAGES,
@@ -8,7 +8,7 @@ import {
 } from '@lib/validation';
 
 describe('BracketPlatform model test', () => {
-  const bracketPlatformFull: BracketPlatformClass = {
+  const bracketPlatformFull: BracketPlatform = {
     name: 'Habrewken Tournaments',
     url: 'https://hbk.gg',
     api_docs: 'https://github.com/fightlab/brighton-fgc-api',
@@ -18,12 +18,12 @@ describe('BracketPlatform model test', () => {
     },
   };
 
-  const bracketPlatformMin: BracketPlatformClass = {
+  const bracketPlatformMin: BracketPlatform = {
     name: 'Pen and Paper',
   };
 
   it('create & save bracketPlatform successfully', async () => {
-    const input = new BracketPlatform(bracketPlatformFull);
+    const input = new BracketPlatformModel(bracketPlatformFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -35,7 +35,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('create & save minimum bracketPlatform successfully', async () => {
-    const input = new BracketPlatform(bracketPlatformMin);
+    const input = new BracketPlatformModel(bracketPlatformMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -47,7 +47,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('should not validate if url not valid', async () => {
-    const input = new BracketPlatform({
+    const input = new BracketPlatformModel({
       ...bracketPlatformFull,
       url: 'not-valid-url',
     });
@@ -63,7 +63,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('should not validate if url not correct type', async () => {
-    const input = new BracketPlatform({
+    const input = new BracketPlatformModel({
       ...bracketPlatformFull,
       url: 1993,
     });
@@ -79,7 +79,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('should not validate if api url not valid', async () => {
-    const input = new BracketPlatform({
+    const input = new BracketPlatformModel({
       ...bracketPlatformFull,
       api_url: 'not-valid-url',
     });
@@ -95,7 +95,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('should not validate if api url not correct type', async () => {
-    const input = new BracketPlatform({
+    const input = new BracketPlatformModel({
       ...bracketPlatformFull,
       api_url: 1993,
     });
@@ -111,7 +111,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('should not validate if api_docs not valid', async () => {
-    const input = new BracketPlatform({
+    const input = new BracketPlatformModel({
       ...bracketPlatformFull,
       api_docs: 'not-valid-api_docs',
     });
@@ -127,7 +127,7 @@ describe('BracketPlatform model test', () => {
   });
 
   it('should not validate if api_docs not correct type', async () => {
-    const input = new BracketPlatform({
+    const input = new BracketPlatformModel({
       ...bracketPlatformFull,
       api_docs: 1993,
     });

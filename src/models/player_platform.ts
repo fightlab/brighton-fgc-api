@@ -1,13 +1,13 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { BracketPlatformClass } from '@models/bracket_platform';
+import { BracketPlatform } from '@models/bracket_platform';
 import { PlayerClass } from '@models/player';
 
 export class PlayerPlatformClass {
   @Property({
     required: true,
-    ref: () => BracketPlatformClass,
+    ref: () => BracketPlatform,
   })
-  public platform!: Ref<BracketPlatformClass>;
+  public platform!: Ref<BracketPlatform>;
 
   @Property({
     required: true,

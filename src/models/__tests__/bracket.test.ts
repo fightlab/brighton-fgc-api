@@ -9,8 +9,8 @@ import {
   TOURNAMENT_TYPE,
 } from '@models/tournament';
 import {
+  BracketPlatformModel,
   BracketPlatform,
-  BracketPlatformClass,
 } from '@models/bracket_platform';
 import {
   VALIDATION_MESSAGES,
@@ -19,7 +19,7 @@ import {
 
 describe('Bracket model test', () => {
   let tournaments: Array<DocumentType<TournamentClass>>;
-  let platforms: Array<DocumentType<BracketPlatformClass>>;
+  let platforms: Array<DocumentType<BracketPlatform>>;
   let bracketFull: BracketClass;
   let bracketMin: BracketClass;
   let bracket: DocumentType<BracketClass>;
@@ -50,7 +50,7 @@ describe('Bracket model test', () => {
     ] as Array<TournamentClass>);
 
     // fake some platforms
-    platforms = await BracketPlatform.create([
+    platforms = await BracketPlatformModel.create([
       {
         name: 'HBK Tournaments',
         url: 'https://hbk.gg',
@@ -59,7 +59,7 @@ describe('Bracket model test', () => {
       {
         name: 'Pen & Paper',
       },
-    ] as Array<BracketPlatformClass>);
+    ] as Array<BracketPlatform>);
 
     const uuidFull = faker.random.uuid().split('-')[0];
     bracketFull = {

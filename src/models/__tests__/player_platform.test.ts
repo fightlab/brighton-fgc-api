@@ -1,13 +1,13 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { PlayerPlatformClass, PlayerPlatform } from '@models/player_platform';
 import {
-  BracketPlatformClass,
   BracketPlatform,
+  BracketPlatformModel,
 } from '@models/bracket_platform';
 import { PlayerClass, Player } from '@models/player';
 
 describe('PlayerPlatform model test', () => {
-  let platforms: Array<DocumentType<BracketPlatformClass>>;
+  let platforms: Array<DocumentType<BracketPlatform>>;
   let players: Array<DocumentType<PlayerClass>>;
 
   let playerPlatformFull: PlayerPlatformClass;
@@ -16,7 +16,7 @@ describe('PlayerPlatform model test', () => {
 
   beforeEach(async () => {
     // fake some platforms
-    platforms = await BracketPlatform.create([
+    platforms = await BracketPlatformModel.create([
       {
         name: 'HBK Tournaments',
         url: 'https://hbk.gg',
@@ -25,7 +25,7 @@ describe('PlayerPlatform model test', () => {
       {
         name: 'Pen & Paper',
       },
-    ] as Array<BracketPlatformClass>);
+    ] as Array<BracketPlatform>);
 
     // fake some players
     players = await Player.create([

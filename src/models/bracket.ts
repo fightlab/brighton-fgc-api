@@ -4,7 +4,7 @@ import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
-import { BracketPlatformClass } from '@models/bracket_platform';
+import { BracketPlatform } from '@models/bracket_platform';
 import { TournamentClass } from '@models/tournament';
 
 export class BracketClass {
@@ -16,9 +16,9 @@ export class BracketClass {
 
   @Property({
     required: true,
-    ref: () => BracketPlatformClass,
+    ref: () => BracketPlatform,
   })
-  public platform!: Ref<BracketPlatformClass>;
+  public platform!: Ref<BracketPlatform>;
 
   @Property({ required: true })
   public platform_id!: string;

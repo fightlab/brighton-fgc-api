@@ -19,8 +19,8 @@ import { createHash } from 'crypto';
 
 // import all the models and interfaces;
 import {
-  BracketPlatformClass,
   BracketPlatform,
+  BracketPlatformModel,
 } from '@models/bracket_platform';
 import { BracketClass, Bracket } from '@models/bracket';
 import { CharacterClass, Character } from '@models/character';
@@ -110,7 +110,7 @@ const venues: Array<VenueClass> = [
 ];
 
 // BRACKET PLATFORMS
-const bracketPlatforms: Array<BracketPlatformClass> = [
+const bracketPlatforms: Array<BracketPlatform> = [
   {
     name: 'Challonge',
     url: 'https://challonge.com',
@@ -163,7 +163,7 @@ const generateEvent = (
 // bracket
 const generateBracket = (
   tournament: DocumentType<TournamentClass>,
-  platform: DocumentType<BracketPlatformClass>,
+  platform: DocumentType<BracketPlatform>,
 ): BracketClass => {
   const slug = faker.lorem.slug();
   return {
@@ -241,7 +241,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
   const Venues = await Venue.create(venues);
 
   // generate bracket platforms
-  const BracketPlatforms = await BracketPlatform.create(bracketPlatforms);
+  const BracketPlatforms = await BracketPlatformModel.create(bracketPlatforms);
 
   // generate vod platforms
   const VodPlatforms = await VodPlatform.create(vodPlatforms);
