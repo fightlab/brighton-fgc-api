@@ -18,6 +18,9 @@ module.exports = {
       loader: 'awesome-typescript-loader',
     });
 
+    // disable minimize to preserve classnames in prod
+    config.optimization.minimize = false;
+
     return config;
   },
 };
