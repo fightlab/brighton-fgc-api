@@ -3,6 +3,7 @@ services:
   hbk-api:
     build:
       context: .
+      target: base
     command: sh -c "yarn && yarn dev"
     volumes:
       - .:/app
