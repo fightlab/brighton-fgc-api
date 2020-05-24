@@ -14,10 +14,6 @@ export class EventClass {
     required: true,
     validate: {
       validator: function (this: EventClass) {
-        if (!isDate(this.date_start)) {
-          return false;
-        }
-
         if (
           !isDate(this.date_end) ||
           this.date_end.getTime() < this.date_start.getTime()
@@ -38,10 +34,6 @@ export class EventClass {
     required: true,
     validate: {
       validator: function (this: EventClass) {
-        if (!isDate(this.date_end)) {
-          return false;
-        }
-
         if (
           !isDate(this.date_start) ||
           this.date_start.getTime() > this.date_end.getTime()

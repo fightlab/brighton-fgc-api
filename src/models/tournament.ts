@@ -22,10 +22,6 @@ export class TournamentClass {
     required: true,
     validate: {
       validator: function (this: TournamentClass) {
-        if (!isDate(this.date_start)) {
-          return false;
-        }
-
         // since date end can be undefined, check for existence and then check if not valid
         if (
           isDate(this.date_end) &&
@@ -71,8 +67,12 @@ export class TournamentClass {
   })
   date_end?: Date;
 
-  @Property({ required: true })
-  type!: number;
+  @Property({
+    required: true,
+    enum: TOURNAMENT_TYPE,
+    type: Number,
+  })
+  type!: TOURNAMENT_TYPE;
 
   @Property({
     required: true,
