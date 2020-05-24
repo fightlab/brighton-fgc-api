@@ -5,7 +5,6 @@
   "main": "src",
   "private": true,
   "scripts": {
-    "prestart": "yarn build",
     "build": "backpack build",
     "start": "node ./build/main.js",
     "dev": "backpack --inspect",
