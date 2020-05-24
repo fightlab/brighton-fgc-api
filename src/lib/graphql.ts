@@ -18,5 +18,7 @@ export const makeApolloServer: () => Promise<ApolloServer> = async () => {
 
   return new ApolloServer({
     schema,
+    playground: true,
+    introspection: true,
   });
 };
