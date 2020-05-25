@@ -3937,6 +3937,11 @@ data-urls@^2.0.0:
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
 
+dataloader@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.0.0.tgz#41eaf123db115987e21ca93c005cd7753c55fe6f"
+  integrity sha512-YzhyDAwA4TaQIhM5go+vCLmU0UikghC/t9DTQYZR2M/UvZ1MdOhPezSDZcjj9uqQJOMqjLcpWtyW2iNINdlatQ==
+
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -8369,6 +8374,11 @@ sift@7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/sift/-/sift-7.0.1.tgz#47d62c50b159d316f1372f8b53f9c10cd21a4b08"
   integrity sha512-oqD7PMJ+uO6jV9EQCl0LrRw1OwsiPsiFQR5AR30heR+4Dl7jBBbDLnNvWiak20tzZlSE1H7RB30SX/1j/YYT7g==
+
+sift@^13.0.2:
+  version "13.0.2"
+  resolved "https://registry.yarnpkg.com/sift/-/sift-13.0.2.tgz#167b34ad3f8f9f426289d54c6b5e45ae6606bffc"
+  integrity sha512-ZiwkpACZCUMX4riQkfbXGo4hnOSCk7DZ3yJZrv/dn+R9vGmVgUDMATp3ShtMZURxVoH+AWW6MX/GWOq+afvLnA==
 
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"

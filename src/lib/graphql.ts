@@ -4,13 +4,24 @@ import { buildSchema } from 'type-graphql';
 import { BracketPlatformResolver } from '@graphql/resolvers/bracket_platform';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
+import { loaders, Loaders } from '@graphql/loaders';
+
+export interface Context {
+  loaders: Loaders;
+}
 
 export const createSchema = () =>
   buildSchema({
     resolvers: [BracketPlatformResolver],
     // can't use getConfig to check for node env as it breaks test
     emitSchemaFile: process.env.NODE_ENV !== 'test',
-    scalarsMap: [{ type: ObjectId, scalar: ObjectIdScalar }],
+    scalarsMap: [
+      {
+        type: ObjectId,
+        scalar: ObjectIdScalar,
+      },
+    ],
+    dateScalarMode: 'isoDate',
   });
 
 export const makeApolloServer: () => Promise<ApolloServer> = async () => {
@@ -18,6 +29,9 @@ export const makeApolloServer: () => Promise<ApolloServer> = async () => {
 
   return new ApolloServer({
     schema,
+    context: {
+      loaders,
+    } as Context,
     playground: true,
     introspection: true,
   });
