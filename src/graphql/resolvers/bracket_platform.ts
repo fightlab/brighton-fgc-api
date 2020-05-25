@@ -1,13 +1,6 @@
-// import { ObjectId } from 'mongodb';
-import {
-  Resolver,
-  Query,
-  // FieldResolver,
-  Arg,
-  // Root,
-  // Mutation,
-  Ctx,
-} from 'type-graphql';
+// GraphQL Resolver for Bracket Platforms
+
+import { Resolver, Query, Arg, Ctx } from 'type-graphql';
 import {
   BracketPlatform,
   BRACKET_PLATFORM_DESCRIPTIONS,

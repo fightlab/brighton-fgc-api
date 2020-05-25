@@ -1,17 +1,17 @@
 import { default as faker } from 'faker';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { Character, CharacterClass } from '@models/character';
-import { Game, GameClass } from '@models/game';
+import { GameModel, Game } from '@models/game';
 
 describe('Character model test', () => {
-  let games: Array<DocumentType<GameClass>>;
+  let games: Array<DocumentType<Game>>;
   let characterFull: CharacterClass;
   let characterMin: CharacterClass;
   let character: DocumentType<CharacterClass>;
 
   beforeEach(async () => {
     // fake some games
-    games = await Game.create([
+    games = await GameModel.create([
       {
         name: 'Game #1',
         short: 'G1',
@@ -20,7 +20,7 @@ describe('Character model test', () => {
         name: 'Game #2',
         short: 'G2',
       },
-    ] as Array<GameClass>);
+    ] as Array<Game>);
 
     characterFull = {
       game: games[0]._id,

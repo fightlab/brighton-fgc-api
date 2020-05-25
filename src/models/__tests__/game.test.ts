@@ -1,8 +1,8 @@
 import { default as faker } from 'faker';
-import { Game, GameClass } from '@models/game';
+import { GameModel, Game } from '@models/game';
 
 describe('Game model test', () => {
-  const gameFull: GameClass = {
+  const gameFull: Game = {
     name: 'Blade Arcus from Shining',
     short: 'BAFS',
     bg: faker.image.imageUrl(),
@@ -12,13 +12,13 @@ describe('Game model test', () => {
     },
   };
 
-  const gameMin: GameClass = {
+  const gameMin: Game = {
     name: 'Persona 5 Arena',
     short: 'P5A',
   };
 
   it('create & save game successfully', async () => {
-    const input = new Game(gameFull);
+    const input = new GameModel(gameFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -30,7 +30,7 @@ describe('Game model test', () => {
   });
 
   it('create & save minimum game successfully', async () => {
-    const input = new Game(gameMin);
+    const input = new GameModel(gameMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();

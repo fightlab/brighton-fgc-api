@@ -9,6 +9,7 @@ import { ObjectId } from 'mongodb';
 
 import { BracketPlatformModel } from '@models/bracket_platform';
 import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
+import { GameModel } from '@models/game';
 
 // use general loader to return multiple values (e.g. an array of events)
 const makeGeneralLoader = (
@@ -54,13 +55,19 @@ const makeSingleGeneralLoader = (
 
 const BracketPlatformsLoader = makeGeneralLoader(BracketPlatformModel);
 const BracketPlatformLoader = makeSingleGeneralLoader(BracketPlatformModel);
+const GamesLoader = makeGeneralLoader(GameModel);
+const GameLoader = makeSingleGeneralLoader(GameModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
   BracketPlatformLoader: DataLoader<unknown, any, unknown>;
+  GamesLoader: DataLoader<unknown, any[], unknown>;
+  GameLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
   BracketPlatformsLoader,
   BracketPlatformLoader,
+  GamesLoader,
+  GameLoader,
 };

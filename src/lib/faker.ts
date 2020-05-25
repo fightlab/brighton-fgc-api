@@ -28,7 +28,7 @@ import { EventSeriesClass, EventSeries } from '@models/event_series';
 import { EventSocialCLass, EventSocial } from '@models/event_social';
 import { EventClass, Event } from '@models/event';
 import { GameEloClass, GameElo } from '@models/game_elo';
-import { GameClass, Game } from '@models/game';
+import { Game, GameModel } from '@models/game';
 import { MatchEloClass, MatchElo } from '@models/match_elo';
 import { MatchVodClass, MatchVod } from '@models/match_vod';
 import { MatchClass, Match } from '@models/match';
@@ -83,7 +83,7 @@ const generateDates = (num: number, length: number): [Moment, Moment] => {
 // ENUMERABLE GENERATION
 
 // GAME
-const generateGame = (num: number): GameClass => ({
+const generateGame = (num: number): Game => ({
   name: `Game #${num}`,
   short: `G${num}`,
   logo: getOptional(faker.image.imageUrl()),
@@ -210,7 +210,7 @@ const generatePlayerSocial = (
 });
 
 // generate character
-const generateCharacter = (game: DocumentType<GameClass>): CharacterClass => ({
+const generateCharacter = (game: DocumentType<Game>): CharacterClass => ({
   game: game._id,
   name: faker.name.findName(),
   short: faker.name.firstName(),
@@ -230,12 +230,11 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
 
   // ADDING ENUMERABLE TO THE DB
   // generate games
-  const games: Array<GameClass> = Array.from(
-    { length: dataLengths.game },
-    (_, i) => generateGame(i),
+  const games: Array<Game> = Array.from({ length: dataLengths.game }, (_, i) =>
+    generateGame(i),
   );
   // add games to db
-  const Games = await Game.create(games);
+  const Games = await GameModel.create(games);
 
   // generate venues
   const Venues = await Venue.create(venues);

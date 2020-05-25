@@ -10,7 +10,7 @@ import {
   TOURNAMENT_TYPE,
   TournamentClass,
 } from '@models/tournament';
-import { Game, GameClass } from '@models/game';
+import { GameModel, Game } from '@models/game';
 import {
   TournamentSeriesClass,
   TournamentSeries,
@@ -18,7 +18,7 @@ import {
 
 describe('Result model test', () => {
   let tournaments: Array<DocumentType<TournamentClass>>;
-  let game: DocumentType<GameClass>;
+  let game: DocumentType<Game>;
 
   let tournamentSeriesFull: TournamentSeriesClass;
   let tournamentSeriesMin: TournamentSeriesClass;
@@ -26,12 +26,12 @@ describe('Result model test', () => {
 
   beforeEach(async () => {
     // fake a game
-    [game] = await Game.create([
+    [game] = await GameModel.create([
       {
         name: 'Game 1',
         short: 'G1',
       },
-    ] as Array<GameClass>);
+    ] as Array<Game>);
 
     // fake some tournaments
     tournaments = await Tournament.create([

@@ -1,7 +1,7 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isDate } from 'moment';
 import { EventClass } from '@models/event';
-import { GameClass } from '@models/game';
+import { Game } from '@models/game';
 import { PlayerClass } from '@models/player';
 import {
   VALIDATION_MESSAGES,
@@ -82,10 +82,10 @@ export class TournamentClass {
 
   @Property({
     required: true,
-    ref: () => GameClass,
+    ref: () => Game,
     default: [],
   })
-  games!: Array<Ref<GameClass>>;
+  games!: Array<Ref<Game>>;
 
   @Property({
     required: true,

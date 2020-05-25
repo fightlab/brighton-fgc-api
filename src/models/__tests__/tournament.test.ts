@@ -6,7 +6,7 @@ import {
 import { default as moment } from 'moment';
 import { Types } from 'mongoose';
 import { Event, EventClass } from '@models/event';
-import { Game, GameClass } from '@models/game';
+import { GameModel, Game } from '@models/game';
 import { Player, PlayerClass } from '@models/player';
 import { Tournament, TournamentClass, TOURNAMENT_TYPE } from '../tournament';
 import {
@@ -16,7 +16,7 @@ import {
 
 describe('Tournament model test', () => {
   let events: Array<DocumentType<EventClass>>;
-  let games: Array<DocumentType<GameClass>>;
+  let games: Array<DocumentType<Game>>;
   let players: Array<DocumentType<PlayerClass>>;
 
   let tournamentFull: TournamentClass;
@@ -43,7 +43,7 @@ describe('Tournament model test', () => {
     ] as Array<EventClass>);
 
     // fake some games
-    games = await Game.create([
+    games = await GameModel.create([
       {
         name: 'Game 1',
         short: 'G1',
@@ -52,7 +52,7 @@ describe('Tournament model test', () => {
         name: 'Game 1',
         short: 'G2',
       },
-    ] as Array<GameClass>);
+    ] as Array<Game>);
 
     // fake some players
     players = await Player.create([

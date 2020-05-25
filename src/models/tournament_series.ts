@@ -1,6 +1,6 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { TournamentClass } from '@models/tournament';
-import { GameClass } from '@models/game';
+import { Game } from '@models/game';
 
 export class TournamentSeriesClass {
   @Property({ required: true })
@@ -16,9 +16,9 @@ export class TournamentSeriesClass {
   public info?: string;
 
   @Property({
-    ref: () => GameClass,
+    ref: () => Game,
   })
-  public game?: Ref<GameClass>;
+  public game?: Ref<Game>;
 }
 
 export const TournamentSeries = getModelForClass(TournamentSeriesClass, {

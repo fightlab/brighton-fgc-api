@@ -4,10 +4,10 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
-import { BracketPlatformResolver } from '@graphql/resolvers/bracket_platform';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { loaders, Loaders } from '@graphql/loaders';
+import { resolvers } from '@graphql/resolvers';
 import { NODE_ENV } from '@lib/config';
 
 // our user defined Context interface to be used to type the context object
@@ -19,7 +19,7 @@ export interface Context {
 export const createSchema = () =>
   buildSchema({
     // add resolvers here
-    resolvers: [BracketPlatformResolver],
+    resolvers,
     // can't use getConfig to check for node env as it breaks test
     emitSchemaFile: process.env.NODE_ENV !== NODE_ENV.TEST,
     // custom scalars here
@@ -31,6 +31,8 @@ export const createSchema = () =>
     ],
     // we prefer dates in iso date format
     dateScalarMode: 'isoDate',
+    // we validate using mongoose/typegoose
+    validate: false,
   });
 
 // generate and return an instance of the apollo server

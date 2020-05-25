@@ -1,21 +1,21 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { GameElo, GameEloClass } from '@models/game_elo';
-import { Game, GameClass } from '@models/game';
+import { GameModel, Game } from '@models/game';
 import { Player, PlayerClass } from '@models/player';
 
 describe('GameElo model test', () => {
-  let game: DocumentType<GameClass>;
+  let game: DocumentType<Game>;
   let player: DocumentType<PlayerClass>;
   let gameElo: GameEloClass;
 
   beforeEach(async () => {
     // fake a game
-    [game] = await Game.create([
+    [game] = await GameModel.create([
       {
         name: 'Game 1',
         short: 'G1',
       },
-    ] as Array<GameClass>);
+    ] as Array<Game>);
     [player] = await Player.create([
       {
         handle: 'xXx_Ep1c-G4m3r_xXx',

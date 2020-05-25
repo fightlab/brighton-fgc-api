@@ -1,13 +1,13 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { GameClass } from '@models/game';
+import { Game } from '@models/game';
 import { PlayerClass } from '@models/player';
 
 export class GameEloClass {
   @Property({
     required: true,
-    ref: () => GameClass,
+    ref: () => Game,
   })
-  public game!: Ref<GameClass>;
+  public game!: Ref<Game>;
 
   @Property({
     required: true,
