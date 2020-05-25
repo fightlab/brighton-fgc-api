@@ -1,6 +1,7 @@
 import { GraphQLScalarType, Kind } from 'graphql';
 import { ObjectId } from 'mongodb';
 
+// allow ObjectId to be used as a scalar in GraphQL
 export const ObjectIdScalar = new GraphQLScalarType({
   name: 'ObjectId',
   description: 'Mongo object id scalar type',

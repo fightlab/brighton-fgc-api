@@ -1,13 +1,18 @@
+// Testing the configuration
+
 import { getConfig } from '@lib/config';
 
 describe('Configuration', () => {
+  // since we're modifying env vars, put a copy of the current env vars into memory
   const ORIGINAL_ENVIRONMENT_VARIABLES = process.env;
 
+  // before each test, set env obj
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...ORIGINAL_ENVIRONMENT_VARIABLES };
   });
 
+  // after each test reset to original vars
   afterEach(() => {
     process.env = ORIGINAL_ENVIRONMENT_VARIABLES;
   });

@@ -32,6 +32,7 @@ beforeAll(async () => {
   );
 });
 
+// after each test remove all data from the database ready for the next test
 afterEach(async () => {
   const { collections } = mongoose.connection;
   const promises: Array<Promise<any>> = Object.keys(
@@ -40,6 +41,7 @@ afterEach(async () => {
   await Promise.all(promises);
 });
 
+// disconnect from the database, and stop the memory database server after all tests done
 afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();

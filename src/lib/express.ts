@@ -1,3 +1,6 @@
+// All express related things, returns function which returns an instance
+// of an express app with all middleware included
+
 import { default as express, Express, Request, Response } from 'express';
 import { default as helmet } from 'helmet';
 import { default as cors } from 'cors';

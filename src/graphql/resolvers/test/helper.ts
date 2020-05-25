@@ -11,8 +11,10 @@ interface GqlCallOptions {
   }>;
 }
 
+// cache the schema so we don't need to generate it each test
 let schema: GraphQLSchema;
 
+// helper method to call graphql without needing an server
 export const gqlCall = async ({ source, variableValues }: GqlCallOptions) => {
   if (!schema) {
     schema = await createSchema();

@@ -1,3 +1,7 @@
+// config file, to pull any useful configuration information into a single callable function
+// that returns an object containing our app configuration
+
+// the config object, properties in here are returned to be used
 interface Config {
   env: string;
   port: number;
@@ -10,13 +14,14 @@ interface Config {
   isProd: () => boolean;
 }
 
-enum NODE_ENV {
+// enum to check the possible values for the node environment
+export enum NODE_ENV {
   DEV = 'development',
   TEST = 'test',
   PROD = 'production',
 }
 
-// check node environment is valid
+// check node environment is valid, return development as default
 const checkNodeEnv = (env?: string): string => {
   switch (env) {
     case NODE_ENV.DEV:
@@ -29,6 +34,7 @@ const checkNodeEnv = (env?: string): string => {
 };
 
 // check if environment variable exists, or throw
+// this will mean app will not startup without the variable
 const getOrThrowEnv = (key: string): string => {
   const value = process.env[key];
   if (!value) {
@@ -37,9 +43,10 @@ const getOrThrowEnv = (key: string): string => {
   return value;
 };
 
-// node env
+// get the node env based on the environment variable
 const env = checkNodeEnv(process.env.NODE_ENV);
 
+// export a function that will retrieve the configuration
 export const getConfig = (): Config => ({
   env,
   port: +getOrThrowEnv('PORT'),

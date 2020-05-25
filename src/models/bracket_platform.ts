@@ -1,3 +1,7 @@
+// Bracket Platform Model
+// The platform on which tournament brackets are hosted on
+// e.g. challonge / smash.gg / offline pen+paper
+
 import {
   prop as Property,
   getModelForClass,

@@ -29,7 +29,7 @@ export class BracketPlatformResolver {
     id: ObjectId,
     @Ctx() ctx: Context,
   ) {
-    return ctx.loaders.BracketPlatformLoader.load({ _id: new ObjectId(id) });
+    return ctx.loaders.BracketPlatformLoader.load(id);
   }
 
   @Query(() => [BracketPlatform], {
