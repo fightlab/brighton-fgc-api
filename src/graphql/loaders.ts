@@ -6,10 +6,11 @@ import { default as sift } from 'sift';
 import { ReturnModelType } from '@typegoose/typegoose';
 import { default as objectHash } from 'object-hash';
 import { ObjectId } from 'mongodb';
+import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 
 import { BracketPlatformModel } from '@models/bracket_platform';
-import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 import { GameModel } from '@models/game';
+import { CharacterModel } from '@models/character';
 
 // use general loader to return multiple values (e.g. an array of events)
 const makeGeneralLoader = (
@@ -49,7 +50,7 @@ const makeSingleGeneralLoader = (
       }
     },
     {
-      cacheKeyFn: (key: ObjectId) => key.toHexString() || key.toString(),
+      cacheKeyFn: (key: ObjectId) => key?.toHexString() || key?.toString(),
     },
   );
 
@@ -57,12 +58,16 @@ const BracketPlatformsLoader = makeGeneralLoader(BracketPlatformModel);
 const BracketPlatformLoader = makeSingleGeneralLoader(BracketPlatformModel);
 const GamesLoader = makeGeneralLoader(GameModel);
 const GameLoader = makeSingleGeneralLoader(GameModel);
+const CharactersLoader = makeGeneralLoader(CharacterModel);
+const CharacterLoader = makeSingleGeneralLoader(CharacterModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
   BracketPlatformLoader: DataLoader<unknown, any, unknown>;
   GamesLoader: DataLoader<unknown, any[], unknown>;
   GameLoader: DataLoader<unknown, any, unknown>;
+  CharactersLoader: DataLoader<unknown, any[], unknown>;
+  CharacterLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -70,4 +75,6 @@ export const loaders: Loaders = {
   BracketPlatformLoader,
   GamesLoader,
   GameLoader,
+  CharactersLoader,
+  CharacterLoader,
 };

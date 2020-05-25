@@ -23,7 +23,7 @@ import {
   BracketPlatformModel,
 } from '@models/bracket_platform';
 import { BracketClass, Bracket } from '@models/bracket';
-import { CharacterClass, Character } from '@models/character';
+import { Character, CharacterModel } from '@models/character';
 import { EventSeriesClass, EventSeries } from '@models/event_series';
 import { EventSocialCLass, EventSocial } from '@models/event_social';
 import { EventClass, Event } from '@models/event';
@@ -210,7 +210,7 @@ const generatePlayerSocial = (
 });
 
 // generate character
-const generateCharacter = (game: DocumentType<Game>): CharacterClass => ({
+const generateCharacter = (game: DocumentType<Game>): Character => ({
   game: game._id,
   name: faker.name.findName(),
   short: faker.name.firstName(),
@@ -470,7 +470,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       generateCharacter(game),
     ),
   );
-  const Characters = await Character.create(characters);
+  const Characters = await CharacterModel.create(characters);
 
   // generate random match vods, for a random number of matches
   const matchVods: Array<MatchVodClass> = compact(

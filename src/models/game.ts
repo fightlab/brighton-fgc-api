@@ -28,6 +28,7 @@ export enum GAME_DESCRIPTIONS {
 @Index({ name: 'text' }) // text index on the name field for searching
 @Index({ short: 1 })
 export class Game {
+  // only in graphql
   @Field({
     description: GAME_DESCRIPTIONS.ID,
   })
@@ -35,12 +36,14 @@ export class Game {
 
   @Field({
     description: GAME_DESCRIPTIONS.NAME,
+    nullable: true,
   })
   @Property({ required: true })
   public name!: string;
 
   @Field({
     description: GAME_DESCRIPTIONS.SHORT,
+    nullable: true,
   })
   @Property({ required: true })
   public short!: string;
@@ -60,7 +63,7 @@ export class Game {
   public bg?: string;
 
   @Property({ type: mongoose.Schema.Types.Mixed })
-  meta?: any;
+  public meta?: any;
 }
 
 export const GameModel = getModelForClass(Game, {

@@ -1,13 +1,13 @@
 import { default as faker } from 'faker';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { Character, CharacterClass } from '@models/character';
+import { CharacterModel, Character } from '@models/character';
 import { GameModel, Game } from '@models/game';
 
 describe('Character model test', () => {
   let games: Array<DocumentType<Game>>;
-  let characterFull: CharacterClass;
-  let characterMin: CharacterClass;
-  let character: DocumentType<CharacterClass>;
+  let characterFull: Character;
+  let characterMin: Character;
+  let character: DocumentType<Character>;
 
   beforeEach(async () => {
     // fake some games
@@ -35,17 +35,17 @@ describe('Character model test', () => {
       short: faker.name.firstName(),
     };
 
-    [character] = await Character.create([
+    [character] = await CharacterModel.create([
       {
         game: games[0]._id,
         name: 'Another Waifu',
         short: 'WAIFU',
       },
-    ] as Array<CharacterClass>);
+    ] as Array<Character>);
   });
 
   it('should create & save character successfully', async () => {
-    const input = new Character(characterFull);
+    const input = new CharacterModel(characterFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -61,7 +61,7 @@ describe('Character model test', () => {
   });
 
   it('create & save minimum character successfully', async () => {
-    const input = new Character(characterMin);
+    const input = new CharacterModel(characterMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -77,7 +77,9 @@ describe('Character model test', () => {
   });
 
   it('should populate game', async () => {
-    const output = await Character.findById(character._id).populate('game');
+    const output = await CharacterModel.findById(character._id).populate(
+      'game',
+    );
     expect(isDocument(output?.game)).toBe(true);
     if (isDocument(output?.game)) {
       expect(output?.game.id).toBe(games[0].id);

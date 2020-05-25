@@ -7,12 +7,12 @@ import { Types } from 'mongoose';
 import { MatchVod, MatchVodClass } from '@models/match_vod';
 import { Match, MatchClass } from '@models/match';
 import { Vod, VodClass } from '@models/vod';
-import { Character, CharacterClass } from '@models/character';
+import { CharacterModel, Character } from '@models/character';
 
 describe('MatchVod model test', () => {
   let matches: Array<DocumentType<MatchClass>>;
   let vods: Array<DocumentType<VodClass>>;
-  let characters: Array<DocumentType<CharacterClass>>;
+  let characters: Array<DocumentType<Character>>;
 
   let matchVodFull: MatchVodClass;
   let matchVodMin: MatchVodClass;
@@ -55,7 +55,7 @@ describe('MatchVod model test', () => {
     ] as Array<VodClass>);
 
     // fake some characters
-    characters = await Character.create([
+    characters = await CharacterModel.create([
       {
         game,
         name: 'Char 0',
@@ -76,7 +76,7 @@ describe('MatchVod model test', () => {
         name: 'Char 3',
         short: 'C3',
       },
-    ] as Array<CharacterClass>);
+    ] as Array<Character>);
 
     matchVodFull = {
       match: matches[0]._id,

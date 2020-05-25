@@ -45,7 +45,7 @@ describe('Bracket Platform GraphQL Resolver Test', () => {
 
     // check values matches for every element
     // e: each element in every, s: each element in some
-    expect(() =>
+    expect(
       every(
         output.data?.bracket_platforms,
         (e) =>
@@ -55,7 +55,7 @@ describe('Bracket Platform GraphQL Resolver Test', () => {
           some(bracketPlatforms, (s) => s.api_docs === e.api_docs) &&
           some(bracketPlatforms, (s) => s.url === e.url),
       ),
-    );
+    ).toBe(true);
   });
 
   it('should return a single bracket platform by id', async () => {

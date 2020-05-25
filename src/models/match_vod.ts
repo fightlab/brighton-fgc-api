@@ -1,7 +1,7 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { VodClass } from '@models/vod';
 import { MatchClass } from '@models/match';
-import { CharacterClass } from '@models/character';
+import { Character } from '@models/character';
 
 export class MatchVodClass {
   @Property({
@@ -17,9 +17,9 @@ export class MatchVodClass {
   public match!: Ref<MatchClass>;
 
   @Property({
-    ref: () => CharacterClass,
+    ref: () => Character,
   })
-  public characters?: Array<Ref<CharacterClass>>;
+  public characters?: Array<Ref<Character>>;
 
   @Property({
     default: '0',
