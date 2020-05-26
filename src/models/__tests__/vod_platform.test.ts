@@ -1,24 +1,24 @@
-import { VodPlatform, VodPlatformClass } from '@models/vod_platform';
+import { VodPlatformModel, VodPlatform } from '@models/vod_platform';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('VodPlatform model test', () => {
-  const vodPlatformFull: VodPlatformClass = {
+  const vodPlatformFull: VodPlatform = {
     name: 'VodPlatform #1',
     url: 'https://hbk.gg',
     watch_url: 'https://hbk.gg/watch/',
     embed_url: 'https://hbk.gg/embed/',
   };
 
-  const vodPlatformMin: VodPlatformClass = {
+  const vodPlatformMin: VodPlatform = {
     name: 'VodPlatform #2',
     url: 'https://hbk.gg',
   };
 
   it('create & save vodPlatform successfully', async () => {
-    const input = new VodPlatform(vodPlatformFull);
+    const input = new VodPlatformModel(vodPlatformFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -29,7 +29,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('create & save minimum vodPlatform successfully', async () => {
-    const input = new VodPlatform(vodPlatformMin);
+    const input = new VodPlatformModel(vodPlatformMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -40,7 +40,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('should not validate if url not valid', async () => {
-    const input = new VodPlatform({
+    const input = new VodPlatformModel({
       ...vodPlatformFull,
       url: 'not-valid-url',
     });
@@ -56,7 +56,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('should not validate if url not correct type', async () => {
-    const input = new VodPlatform({
+    const input = new VodPlatformModel({
       ...vodPlatformFull,
       url: 1993,
     });
@@ -72,7 +72,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('should not validate if watch_url not valid', async () => {
-    const input = new VodPlatform({
+    const input = new VodPlatformModel({
       ...vodPlatformFull,
       watch_url: 'not-valid-watch_url',
     });
@@ -88,7 +88,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('should not validate if watch_url not correct type', async () => {
-    const input = new VodPlatform({
+    const input = new VodPlatformModel({
       ...vodPlatformFull,
       watch_url: 1993,
     });
@@ -104,7 +104,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('should not validate if embed_url not valid', async () => {
-    const input = new VodPlatform({
+    const input = new VodPlatformModel({
       ...vodPlatformFull,
       embed_url: 'not-valid-embed_url',
     });
@@ -120,7 +120,7 @@ describe('VodPlatform model test', () => {
   });
 
   it('should not validate if embed_url not correct type', async () => {
-    const input = new VodPlatform({
+    const input = new VodPlatformModel({
       ...vodPlatformFull,
       embed_url: 1993,
     });

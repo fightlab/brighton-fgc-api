@@ -1,22 +1,22 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { EventClass } from '@models/event';
+import { Event } from '@models/event';
 
-export class EventSeriesClass {
+export class EventSeries {
   @Property({ required: true })
   public name!: string;
 
   @Property({
     required: true,
-    ref: () => EventClass,
+    ref: () => Event,
     default: [],
   })
-  public events!: Array<Ref<EventClass>>;
+  public events!: Array<Ref<Event>>;
 
   @Property()
   public info?: string;
 }
 
-export const EventSeries = getModelForClass(EventSeriesClass, {
+export const EventSeriesModel = getModelForClass(EventSeries, {
   options: {
     customName: 'EventSeries',
   },

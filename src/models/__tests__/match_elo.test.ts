@@ -1,26 +1,26 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { MatchElo, MatchEloClass } from '@models/match_elo';
-import { Match, MatchClass } from '@models/match';
-import { Player, PlayerClass } from '@models/player';
+import { MatchEloModel, MatchElo } from '@models/match_elo';
+import { MatchModel, Match } from '@models/match';
+import { PlayerModel, Player } from '@models/player';
 import { Types } from 'mongoose';
 
 describe('MatchElo model test', () => {
-  let match: DocumentType<MatchClass>;
-  let player: DocumentType<PlayerClass>;
-  let matchElo: MatchEloClass;
+  let match: DocumentType<Match>;
+  let player: DocumentType<Player>;
+  let matchElo: MatchElo;
 
   beforeEach(async () => {
     // fake a match
-    [match] = await Match.create([
+    [match] = await MatchModel.create([
       {
         tournament: new Types.ObjectId(),
       },
-    ] as Array<MatchClass>);
-    [player] = await Player.create([
+    ] as Array<Match>);
+    [player] = await PlayerModel.create([
       {
         handle: 'LAD',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     matchElo = {
       match: match?._id,
@@ -31,7 +31,7 @@ describe('MatchElo model test', () => {
   });
 
   it('should create & save matchElo successfully', async () => {
-    const input = new MatchElo(matchElo);
+    const input = new MatchEloModel(matchElo);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -49,8 +49,8 @@ describe('MatchElo model test', () => {
   });
 
   it('should populate match', async () => {
-    const input = await new MatchElo(matchElo).save();
-    const output = await MatchElo.findById(input?.id).populate('match');
+    const input = await new MatchEloModel(matchElo).save();
+    const output = await MatchEloModel.findById(input?.id).populate('match');
 
     expect(isDocument(output?.match)).toBe(true);
     expect(isDocument(output?.player)).toBe(false);
@@ -60,8 +60,8 @@ describe('MatchElo model test', () => {
   });
 
   it('should populate match', async () => {
-    const input = await new MatchElo(matchElo).save();
-    const output = await MatchElo.findById(input?.id).populate('player');
+    const input = await new MatchEloModel(matchElo).save();
+    const output = await MatchEloModel.findById(input?.id).populate('player');
 
     expect(isDocument(output?.match)).toBe(false);
     expect(isDocument(output?.player)).toBe(true);
@@ -71,8 +71,8 @@ describe('MatchElo model test', () => {
   });
 
   it('should populate match and player', async () => {
-    const input = await new MatchElo(matchElo).save();
-    const output = await MatchElo.findById(input?.id)
+    const input = await new MatchEloModel(matchElo).save();
+    const output = await MatchEloModel.findById(input?.id)
       .populate('match')
       .populate('player');
 

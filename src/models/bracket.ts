@@ -5,14 +5,14 @@ import {
   generateValidationMessage,
 } from '@lib/validation';
 import { BracketPlatform } from '@models/bracket_platform';
-import { TournamentClass } from '@models/tournament';
+import { Tournament } from '@models/tournament';
 
-export class BracketClass {
+export class Bracket {
   @Property({
     required: true,
-    ref: () => TournamentClass,
+    ref: () => Tournament,
   })
-  public tournament!: Ref<TournamentClass>;
+  public tournament!: Ref<Tournament>;
 
   @Property({
     required: true,
@@ -41,7 +41,7 @@ export class BracketClass {
   public image?: string;
 }
 
-export const Bracket = getModelForClass(BracketClass, {
+export const BracketModel = getModelForClass(Bracket, {
   options: {
     customName: 'Bracket',
   },

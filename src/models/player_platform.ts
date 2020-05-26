@@ -1,8 +1,8 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { BracketPlatform } from '@models/bracket_platform';
-import { PlayerClass } from '@models/player';
+import { Player } from '@models/player';
 
-export class PlayerPlatformClass {
+export class PlayerPlatform {
   @Property({
     required: true,
     ref: () => BracketPlatform,
@@ -11,9 +11,9 @@ export class PlayerPlatformClass {
 
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player!: Ref<PlayerClass>;
+  public player!: Ref<Player>;
 
   @Property()
   public platform_id?: string;
@@ -22,7 +22,7 @@ export class PlayerPlatformClass {
   public email_hash?: string;
 }
 
-export const PlayerPlatform = getModelForClass(PlayerPlatformClass, {
+export const PlayerPlatformModel = getModelForClass(PlayerPlatform, {
   options: {
     customName: 'PlayerPlatform',
   },

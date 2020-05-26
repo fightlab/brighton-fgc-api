@@ -5,7 +5,7 @@ import {
   generateValidationMessage,
 } from '@lib/validation';
 
-export class VenueClass {
+export class Venue {
   @Property({ required: true })
   public name!: string;
 
@@ -30,7 +30,7 @@ export class VenueClass {
   public website?: string;
 }
 
-export const Venue = getModelForClass(VenueClass, {
+export const VenueModel = getModelForClass(Venue, {
   options: {
     customName: 'Venue',
   },

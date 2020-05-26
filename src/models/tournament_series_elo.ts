@@ -1,25 +1,25 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { TournamentSeriesClass } from '@models/tournament_series';
-import { PlayerClass } from '@models/player';
+import { TournamentSeries } from '@models/tournament_series';
+import { Player } from '@models/player';
 
-export class TournamentSeriesEloClass {
+export class TournamentSeriesElo {
   @Property({
     required: true,
-    ref: () => TournamentSeriesClass,
+    ref: () => TournamentSeries,
   })
-  public tournament_series!: Ref<TournamentSeriesClass>;
+  public tournament_series!: Ref<TournamentSeries>;
 
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player!: Ref<PlayerClass>;
+  public player!: Ref<Player>;
 
   @Property({ required: true })
   public score!: number;
 }
 
-export const TournamentSeriesElo = getModelForClass(TournamentSeriesEloClass, {
+export const TournamentSeriesEloModel = getModelForClass(TournamentSeriesElo, {
   options: {
     customName: 'TournamentSeriesElo',
   },

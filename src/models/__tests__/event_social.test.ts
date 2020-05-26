@@ -1,7 +1,7 @@
 import { default as moment } from 'moment';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { EventSocial, EventSocialCLass } from '@models/event_social';
-import { Event, EventClass } from '@models/event';
+import { EventSocialModel, EventSocial } from '@models/event_social';
+import { EventModel, Event } from '@models/event';
 import { Types } from 'mongoose';
 import {
   VALIDATION_MESSAGES,
@@ -9,14 +9,14 @@ import {
 } from '@lib/validation';
 
 describe('EventSocial model test', () => {
-  let events: Array<DocumentType<EventClass>>;
-  let eventSocialFull: EventSocialCLass;
-  let eventSocialMin: EventSocialCLass;
-  let eventSocial: DocumentType<EventSocialCLass>;
+  let events: Array<DocumentType<Event>>;
+  let eventSocialFull: EventSocial;
+  let eventSocialMin: EventSocial;
+  let eventSocial: DocumentType<EventSocial>;
 
   beforeEach(async () => {
     // fake some events
-    events = await Event.create([
+    events = await EventModel.create([
       {
         name: 'Event 1',
         venue: new Types.ObjectId(),
@@ -29,7 +29,7 @@ describe('EventSocial model test', () => {
         date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
         date_end: moment.utc().subtract(2, 'd').toDate(),
       },
-    ] as Array<EventClass>);
+    ] as Array<Event>);
 
     eventSocialFull = {
       event: events[0]._id,
@@ -51,15 +51,15 @@ describe('EventSocial model test', () => {
     };
 
     // add an event social to the collection
-    [eventSocial] = await EventSocial.create([
+    [eventSocial] = await EventSocialModel.create([
       {
         event: events[0]._id,
       },
-    ] as Array<EventSocialCLass>);
+    ] as Array<EventSocial>);
   });
 
   it('should create & save eventSocial successfully', async () => {
-    const input = new EventSocial(eventSocialFull);
+    const input = new EventSocialModel(eventSocialFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -76,7 +76,7 @@ describe('EventSocial model test', () => {
   });
 
   it('should create & save min eventSocial successfully', async () => {
-    const input = new EventSocial(eventSocialMin);
+    const input = new EventSocialModel(eventSocialMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -93,7 +93,9 @@ describe('EventSocial model test', () => {
   });
 
   it('should populate event', async () => {
-    const output = await EventSocial.findById(eventSocial.id).populate('event');
+    const output = await EventSocialModel.findById(eventSocial.id).populate(
+      'event',
+    );
     expect(isDocument(output?.event)).toBe(true);
     if (isDocument(output?.event)) {
       expect(output?.event.id).toBe(events[0].id);
@@ -101,7 +103,7 @@ describe('EventSocial model test', () => {
   });
 
   it('should not validate if web not valid', async () => {
-    const input = new EventSocial({
+    const input = new EventSocialModel({
       ...eventSocialFull,
       web: 'not-valid-web',
     });
@@ -117,7 +119,7 @@ describe('EventSocial model test', () => {
   });
 
   it('should not validate if web not correct type', async () => {
-    const input = new EventSocial({
+    const input = new EventSocialModel({
       ...eventSocialFull,
       web: 1993,
     });

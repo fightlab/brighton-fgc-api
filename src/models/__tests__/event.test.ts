@@ -1,23 +1,23 @@
 import { default as faker } from 'faker';
 import { default as moment } from 'moment';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { Event, EventClass } from '@models/event';
-import { Venue, VenueClass } from '@models/venue';
+import { EventModel, Event } from '@models/event';
+import { VenueModel, Venue } from '@models/venue';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('Event model test', () => {
-  let venues: Array<DocumentType<VenueClass>>;
-  let eventFull: EventClass;
-  let eventMin: EventClass;
-  let event: DocumentType<EventClass>;
+  let venues: Array<DocumentType<Venue>>;
+  let eventFull: Event;
+  let eventMin: Event;
+  let event: DocumentType<Event>;
   const invalidDateString = 'lmao fake date';
 
   beforeEach(async () => {
     // fake some venues
-    venues = await Venue.create([
+    venues = await VenueModel.create([
       {
         name: 'A Pub',
         short: 'PUB',
@@ -26,7 +26,7 @@ describe('Event model test', () => {
         name: 'A Flat',
         short: 'FLAT',
       },
-    ] as Array<VenueClass>);
+    ] as Array<Venue>);
 
     eventFull = {
       name: 'Event Full',
@@ -45,18 +45,18 @@ describe('Event model test', () => {
     };
 
     // add an event to the collection
-    [event] = await Event.create([
+    [event] = await EventModel.create([
       {
         name: 'Event',
         date_start: moment.utc().add(1, 'h').toDate(),
         date_end: moment.utc().add(5, 'h').toDate(),
         venue: venues[0]._id,
       },
-    ] as Array<EventClass>);
+    ] as Array<Event>);
   });
 
   it('should create & save event successfully', async () => {
-    const input = new Event(eventFull);
+    const input = new EventModel(eventFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -74,7 +74,7 @@ describe('Event model test', () => {
   });
 
   it('should create & save min event successfully', async () => {
-    const input = new Event(eventMin);
+    const input = new EventModel(eventMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -92,7 +92,7 @@ describe('Event model test', () => {
   });
 
   it('should fail validation if trying to save with invalid start date', async () => {
-    const input = new Event({
+    const input = new EventModel({
       name: 'Event Invalid Start Date',
       date_start: invalidDateString,
       date_end: moment.utc().add(5, 'h').toDate(),
@@ -107,7 +107,7 @@ describe('Event model test', () => {
   });
 
   it('should fail validation if trying to save with invalid end date', async () => {
-    const input = new Event({
+    const input = new EventModel({
       name: 'Event Invalid End Date',
       date_start: moment.utc().add(1, 'h').toDate(),
       date_end: invalidDateString,
@@ -122,7 +122,7 @@ describe('Event model test', () => {
   });
 
   it('should fail validation if start date after end date', async () => {
-    const input = new Event({
+    const input = new EventModel({
       name: 'Event Min',
       date_start: moment.utc().add(5, 'h').toDate(),
       date_end: moment.utc().add(1, 'h').toDate(),
@@ -140,7 +140,7 @@ describe('Event model test', () => {
   });
 
   it('should fail validation if end date before start date', async () => {
-    const input = new Event({
+    const input = new EventModel({
       name: 'Event Min',
       date_start: moment.utc().add(5, 'h').toDate(),
       date_end: moment.utc().add(1, 'h').toDate(),
@@ -158,7 +158,7 @@ describe('Event model test', () => {
   });
 
   it('should populate venue', async () => {
-    const output = await Event.findById(event.id).populate('venue');
+    const output = await EventModel.findById(event.id).populate('venue');
     expect(isDocument(output?.venue)).toBe(true);
     if (isDocument(output?.venue)) {
       expect(output?.venue?.id).toBe(venues[0].id);

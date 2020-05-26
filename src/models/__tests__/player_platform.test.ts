@@ -1,18 +1,18 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { PlayerPlatformClass, PlayerPlatform } from '@models/player_platform';
+import { PlayerPlatform, PlayerPlatformModel } from '@models/player_platform';
 import {
   BracketPlatform,
   BracketPlatformModel,
 } from '@models/bracket_platform';
-import { PlayerClass, Player } from '@models/player';
+import { Player, PlayerModel } from '@models/player';
 
 describe('PlayerPlatform model test', () => {
   let platforms: Array<DocumentType<BracketPlatform>>;
-  let players: Array<DocumentType<PlayerClass>>;
+  let players: Array<DocumentType<Player>>;
 
-  let playerPlatformFull: PlayerPlatformClass;
-  let playerPlatformMin: PlayerPlatformClass;
-  let playerPlatform: DocumentType<PlayerPlatformClass>;
+  let playerPlatformFull: PlayerPlatform;
+  let playerPlatformMin: PlayerPlatform;
+  let playerPlatform: DocumentType<PlayerPlatform>;
 
   beforeEach(async () => {
     // fake some platforms
@@ -28,14 +28,14 @@ describe('PlayerPlatform model test', () => {
     ] as Array<BracketPlatform>);
 
     // fake some players
-    players = await Player.create([
+    players = await PlayerModel.create([
       {
         handle: 'Player 0',
       },
       {
         handle: 'Player 1',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     playerPlatformFull = {
       platform: platforms[0]._id,
@@ -50,13 +50,13 @@ describe('PlayerPlatform model test', () => {
     };
 
     // generate to test populate
-    [playerPlatform] = await PlayerPlatform.create([
+    [playerPlatform] = await PlayerPlatformModel.create([
       playerPlatformFull,
-    ] as Array<PlayerPlatformClass>);
+    ] as Array<PlayerPlatform>);
   });
 
   it('should create & save a player platform successfully', async () => {
-    const input = new PlayerPlatform(playerPlatformFull);
+    const input = new PlayerPlatformModel(playerPlatformFull);
     const output = await input.save();
 
     // shouldn't populate virtuals
@@ -77,7 +77,7 @@ describe('PlayerPlatform model test', () => {
   });
 
   it('should create & save a min player platform successfully', async () => {
-    const input = new PlayerPlatform(playerPlatformMin);
+    const input = new PlayerPlatformModel(playerPlatformMin);
     const output = await input.save();
 
     // shouldn't populate virtuals
@@ -98,9 +98,9 @@ describe('PlayerPlatform model test', () => {
   });
 
   it('should populate platform', async () => {
-    const output = await PlayerPlatform.findById(playerPlatform.id).populate(
-      'platform',
-    );
+    const output = await PlayerPlatformModel.findById(
+      playerPlatform.id,
+    ).populate('platform');
 
     expect(isDocument(output?.platform)).toBe(true);
     expect(isDocument(output?.player)).toBe(false);
@@ -110,9 +110,9 @@ describe('PlayerPlatform model test', () => {
   });
 
   it('should populate player', async () => {
-    const output = await PlayerPlatform.findById(playerPlatform.id).populate(
-      'player',
-    );
+    const output = await PlayerPlatformModel.findById(
+      playerPlatform.id,
+    ).populate('player');
 
     expect(isDocument(output?.platform)).toBe(false);
     expect(isDocument(output?.player)).toBe(true);
@@ -122,7 +122,7 @@ describe('PlayerPlatform model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await PlayerPlatform.findById(playerPlatform.id)
+    const output = await PlayerPlatformModel.findById(playerPlatform.id)
       .populate('platform')
       .populate('player');
 

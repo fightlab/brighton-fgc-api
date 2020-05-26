@@ -1,19 +1,19 @@
-import { Player, PlayerClass } from '@models/player';
+import { PlayerModel, Player } from '@models/player';
 
 describe('Player model test', () => {
-  const playerFull: PlayerClass = {
+  const playerFull: Player = {
     handle: 'Player 1',
     icon: 'https://hbk.gg/p1.jpg',
     team: 'HBK',
     is_staff: true,
   };
 
-  const playerMin: PlayerClass = {
+  const playerMin: Player = {
     handle: 'Player 2',
   };
 
   it('create & save Player successfully', async () => {
-    const input = new Player(playerFull);
+    const input = new PlayerModel(playerFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -24,7 +24,7 @@ describe('Player model test', () => {
   });
 
   it('create & save minimum Player successfully', async () => {
-    const input = new Player(playerMin);
+    const input = new PlayerModel(playerMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();

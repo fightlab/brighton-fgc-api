@@ -1,19 +1,19 @@
 import { default as moment } from 'moment';
 import { chunk } from 'lodash';
 import { DocumentType, isDocumentArray } from '@typegoose/typegoose';
-import { EventSeries, EventSeriesClass } from '@models/event_series';
-import { Event, EventClass } from '@models/event';
+import { EventSeriesModel, EventSeries } from '@models/event_series';
+import { EventModel, Event } from '@models/event';
 import { Types } from 'mongoose';
 
 describe('EventSeries model test', () => {
-  let events: Array<DocumentType<EventClass>>;
-  let eventSeriesFull: EventSeriesClass;
-  let eventSeriesMin: EventSeriesClass;
-  let eventSeries: DocumentType<EventSeriesClass>;
+  let events: Array<DocumentType<Event>>;
+  let eventSeriesFull: EventSeries;
+  let eventSeriesMin: EventSeries;
+  let eventSeries: DocumentType<EventSeries>;
 
   beforeEach(async () => {
     // fake some events
-    events = await Event.create([
+    events = await EventModel.create([
       {
         name: 'Event #1',
         venue: new Types.ObjectId(),
@@ -38,7 +38,7 @@ describe('EventSeries model test', () => {
         date_end: moment.utc().subtract(4, 'd').toDate(),
         date_start: moment.utc().subtract(4, 'd').subtract(4, 'h').toDate(),
       },
-    ] as Array<EventClass>);
+    ] as Array<Event>);
 
     eventSeriesFull = {
       name: 'Event Series Full',
@@ -51,16 +51,16 @@ describe('EventSeries model test', () => {
       events: chunk(events, 2)[1].map((e) => e._id),
     };
 
-    [eventSeries] = await EventSeries.create([
+    [eventSeries] = await EventSeriesModel.create([
       {
         name: 'Event Series',
         events: events.map((e) => e._id),
       },
-    ] as Array<EventSeriesClass>);
+    ] as Array<EventSeries>);
   });
 
   it('should create & save eventSeries successfully', async () => {
-    const input = new EventSeries(eventSeriesFull);
+    const input = new EventSeriesModel(eventSeriesFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -73,7 +73,7 @@ describe('EventSeries model test', () => {
   });
 
   it('should create & save min eventSeries successfully', async () => {
-    const input = new EventSeries(eventSeriesMin);
+    const input = new EventSeriesModel(eventSeriesMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -86,7 +86,7 @@ describe('EventSeries model test', () => {
   });
 
   it('should populate events', async () => {
-    const output = await EventSeries.findById(eventSeries._id).populate(
+    const output = await EventSeriesModel.findById(eventSeries._id).populate(
       'events',
     );
     expect(output).toBeDefined();

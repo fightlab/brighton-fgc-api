@@ -5,25 +5,25 @@ import {
   Severity,
 } from '@typegoose/typegoose';
 import { Schema } from 'mongoose';
-import { TournamentClass } from '@models/tournament';
-import { PlayerClass } from '@models/player';
+import { Tournament } from '@models/tournament';
+import { Player } from '@models/player';
 
-export class MatchClass {
+export class Match {
   @Property({
     required: true,
-    ref: () => TournamentClass,
+    ref: () => Tournament,
   })
-  public tournament: Ref<TournamentClass>;
+  public tournament: Ref<Tournament>;
 
   @Property({
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player1?: Array<Ref<PlayerClass>>;
+  public player1?: Array<Ref<Player>>;
 
   @Property({
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player2?: Array<Ref<PlayerClass>>;
+  public player2?: Array<Ref<Player>>;
 
   @Property()
   public score1?: number;
@@ -32,14 +32,14 @@ export class MatchClass {
   public score2?: number;
 
   @Property({
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public winner?: Array<Ref<PlayerClass>>;
+  public winner?: Array<Ref<Player>>;
 
   @Property({
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public loser?: Array<Ref<PlayerClass>>;
+  public loser?: Array<Ref<Player>>;
 
   @Property()
   public round?: number;
@@ -51,7 +51,7 @@ export class MatchClass {
   public meta?: any;
 }
 
-export const Match = getModelForClass(MatchClass, {
+export const MatchModel = getModelForClass(Match, {
   options: {
     customName: 'Match',
     allowMixed: Severity.ALLOW,

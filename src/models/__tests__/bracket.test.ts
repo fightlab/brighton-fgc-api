@@ -2,10 +2,10 @@ import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { default as faker } from 'faker';
 import { default as moment } from 'moment';
 import { Types } from 'mongoose';
-import { Bracket, BracketClass } from '@models/bracket';
+import { BracketModel, Bracket } from '@models/bracket';
 import {
+  TournamentModel,
   Tournament,
-  TournamentClass,
   TOURNAMENT_TYPE,
 } from '@models/tournament';
 import {
@@ -18,17 +18,17 @@ import {
 } from '@lib/validation';
 
 describe('Bracket model test', () => {
-  let tournaments: Array<DocumentType<TournamentClass>>;
+  let tournaments: Array<DocumentType<Tournament>>;
   let platforms: Array<DocumentType<BracketPlatform>>;
-  let bracketFull: BracketClass;
-  let bracketMin: BracketClass;
-  let bracket: DocumentType<BracketClass>;
+  let bracketFull: Bracket;
+  let bracketMin: Bracket;
+  let bracket: DocumentType<Bracket>;
 
   // adding to before each is the only way to guarantee documents available
   // since collections are cleared after each test
   beforeEach(async () => {
     // fake some tournaments
-    tournaments = await Tournament.create([
+    tournaments = await TournamentModel.create([
       {
         name: 'Tournament #1',
         date_start: moment.utc().subtract(1, 'd').toDate(),
@@ -47,7 +47,7 @@ describe('Bracket model test', () => {
         type: TOURNAMENT_TYPE.ROUND_ROBIN,
         is_team_based: true,
       },
-    ] as Array<TournamentClass>);
+    ] as Array<Tournament>);
 
     // fake some platforms
     platforms = await BracketPlatformModel.create([
@@ -79,7 +79,7 @@ describe('Bracket model test', () => {
 
     // add a tournament bracket to the collection
     const bracketUuid = faker.random.uuid().split('-')[0];
-    [bracket] = await Bracket.create([
+    [bracket] = await BracketModel.create([
       {
         platform: platforms[0]._id,
         tournament: tournaments[0]._id,
@@ -87,11 +87,11 @@ describe('Bracket model test', () => {
         slug: faker.lorem.slug(),
         url: `${platforms[0]?.url}/${bracketUuid}`,
       },
-    ] as Array<BracketClass>);
+    ] as Array<Bracket>);
   });
 
   it('create & save bracket successfully', async () => {
-    const input = new Bracket(bracketFull);
+    const input = new BracketModel(bracketFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -113,7 +113,7 @@ describe('Bracket model test', () => {
   });
 
   it('create & save minimum bracket successfully', async () => {
-    const input = new Bracket(bracketMin);
+    const input = new BracketModel(bracketMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -135,7 +135,7 @@ describe('Bracket model test', () => {
   });
 
   it('should populate platform', async () => {
-    const output = await Bracket.findById(bracket.id).populate('platform');
+    const output = await BracketModel.findById(bracket.id).populate('platform');
 
     expect(isDocument(output?.platform)).toBe(true);
     expect(isDocument(output?.tournament)).toBe(false);
@@ -145,7 +145,9 @@ describe('Bracket model test', () => {
   });
 
   it('should populate tournament', async () => {
-    const output = await Bracket.findById(bracket.id).populate('tournament');
+    const output = await BracketModel.findById(bracket.id).populate(
+      'tournament',
+    );
 
     expect(isDocument(output?.platform)).toBe(false);
     expect(isDocument(output?.tournament)).toBe(true);
@@ -155,7 +157,7 @@ describe('Bracket model test', () => {
   });
 
   it('should populate platform and tournament', async () => {
-    const output = await Bracket.findById(bracket.id)
+    const output = await BracketModel.findById(bracket.id)
       .populate('platform')
       .populate('tournament');
 
@@ -168,7 +170,7 @@ describe('Bracket model test', () => {
   });
 
   it('should not validate if url not valid', async () => {
-    const input = new Bracket({
+    const input = new BracketModel({
       ...bracketFull,
       url: 'not-valid-url',
     });
@@ -184,7 +186,7 @@ describe('Bracket model test', () => {
   });
 
   it('should not validate if url not correct type', async () => {
-    const input = new Bracket({
+    const input = new BracketModel({
       ...bracketFull,
       url: 1993,
     });

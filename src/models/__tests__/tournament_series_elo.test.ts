@@ -1,35 +1,35 @@
 import { Types } from 'mongoose';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import {
+  TournamentSeriesEloModel,
   TournamentSeriesElo,
-  TournamentSeriesEloClass,
 } from '@models/tournament_series_elo';
 import {
+  TournamentSeriesModel,
   TournamentSeries,
-  TournamentSeriesClass,
 } from '@models/tournament_series';
-import { Player, PlayerClass } from '@models/player';
+import { PlayerModel, Player } from '@models/player';
 
 describe('TournamentSeriesElo model test', () => {
-  let tournament_series: DocumentType<TournamentSeriesClass>;
-  let player: DocumentType<PlayerClass>;
-  let tournamentSeriesElo: TournamentSeriesEloClass;
+  let tournament_series: DocumentType<TournamentSeries>;
+  let player: DocumentType<Player>;
+  let tournamentSeriesElo: TournamentSeriesElo;
 
   beforeEach(async () => {
     // fake a tournament_series
-    [tournament_series] = await TournamentSeries.create([
+    [tournament_series] = await TournamentSeriesModel.create([
       {
         name: 'TournamentSeries 1',
         tournaments: [new Types.ObjectId()],
       },
-    ] as Array<TournamentSeriesClass>);
+    ] as Array<TournamentSeries>);
 
     // fake a player
-    [player] = await Player.create([
+    [player] = await PlayerModel.create([
       {
         handle: 'xXx_Ep1c-G4m3r_xXx',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     tournamentSeriesElo = {
       tournament_series: tournament_series?._id,
@@ -39,7 +39,7 @@ describe('TournamentSeriesElo model test', () => {
   });
 
   it('should create & save tournamentSeriesElo successfully', async () => {
-    const input = new TournamentSeriesElo(tournamentSeriesElo);
+    const input = new TournamentSeriesEloModel(tournamentSeriesElo);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -57,8 +57,10 @@ describe('TournamentSeriesElo model test', () => {
   });
 
   it('should populate tournament_series', async () => {
-    const input = await new TournamentSeriesElo(tournamentSeriesElo).save();
-    const output = await TournamentSeriesElo.findById(input.id).populate(
+    const input = await new TournamentSeriesEloModel(
+      tournamentSeriesElo,
+    ).save();
+    const output = await TournamentSeriesEloModel.findById(input.id).populate(
       'tournament_series',
     );
 
@@ -70,8 +72,10 @@ describe('TournamentSeriesElo model test', () => {
   });
 
   it('should populate player', async () => {
-    const input = await new TournamentSeriesElo(tournamentSeriesElo).save();
-    const output = await TournamentSeriesElo.findById(input.id).populate(
+    const input = await new TournamentSeriesEloModel(
+      tournamentSeriesElo,
+    ).save();
+    const output = await TournamentSeriesEloModel.findById(input.id).populate(
       'player',
     );
 
@@ -83,8 +87,10 @@ describe('TournamentSeriesElo model test', () => {
   });
 
   it('should populate tournament_series and player', async () => {
-    const input = await new TournamentSeriesElo(tournamentSeriesElo).save();
-    const output = await TournamentSeriesElo.findById(input.id)
+    const input = await new TournamentSeriesEloModel(
+      tournamentSeriesElo,
+    ).save();
+    const output = await TournamentSeriesEloModel.findById(input.id)
       .populate('tournament_series')
       .populate('player');
 

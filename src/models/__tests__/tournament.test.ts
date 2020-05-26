@@ -5,29 +5,29 @@ import {
 } from '@typegoose/typegoose';
 import { default as moment } from 'moment';
 import { Types } from 'mongoose';
-import { Event, EventClass } from '@models/event';
+import { EventModel, Event } from '@models/event';
 import { GameModel, Game } from '@models/game';
-import { Player, PlayerClass } from '@models/player';
-import { Tournament, TournamentClass, TOURNAMENT_TYPE } from '../tournament';
+import { PlayerModel, Player } from '@models/player';
+import { TournamentModel, Tournament, TOURNAMENT_TYPE } from '../tournament';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('Tournament model test', () => {
-  let events: Array<DocumentType<EventClass>>;
+  let events: Array<DocumentType<Event>>;
   let games: Array<DocumentType<Game>>;
-  let players: Array<DocumentType<PlayerClass>>;
+  let players: Array<DocumentType<Player>>;
 
-  let tournamentFull: TournamentClass;
-  let tournamentMin: TournamentClass;
-  let tournament: DocumentType<TournamentClass>;
+  let tournamentFull: Tournament;
+  let tournamentMin: Tournament;
+  let tournament: DocumentType<Tournament>;
 
   const invalidDateString = 'lmao fake date';
 
   beforeEach(async () => {
     // fake some events
-    events = await Event.create([
+    events = await EventModel.create([
       {
         name: 'Event #1',
         venue: new Types.ObjectId(),
@@ -40,7 +40,7 @@ describe('Tournament model test', () => {
         date_end: moment.utc().subtract(2, 'd').toDate(),
         date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
       },
-    ] as Array<EventClass>);
+    ] as Array<Event>);
 
     // fake some games
     games = await GameModel.create([
@@ -55,7 +55,7 @@ describe('Tournament model test', () => {
     ] as Array<Game>);
 
     // fake some players
-    players = await Player.create([
+    players = await PlayerModel.create([
       {
         handle: 'LADS',
       },
@@ -65,7 +65,7 @@ describe('Tournament model test', () => {
       {
         handle: 'TOUR',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     tournamentFull = {
       name: 'Tournament Full',
@@ -86,13 +86,13 @@ describe('Tournament model test', () => {
       games: [games[0]._id],
     };
 
-    [tournament] = await Tournament.create([tournamentFull] as Array<
-      TournamentClass
+    [tournament] = await TournamentModel.create([tournamentFull] as Array<
+      Tournament
     >);
   });
 
   it('should create & save tournament successfully', async () => {
-    const input = new Tournament(tournamentFull);
+    const input = new TournamentModel(tournamentFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -112,7 +112,7 @@ describe('Tournament model test', () => {
   });
 
   it('should create & save min tournament successfully', async () => {
-    const input = new Tournament(tournamentMin);
+    const input = new TournamentModel(tournamentMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -130,7 +130,7 @@ describe('Tournament model test', () => {
   });
 
   it('should fail validation if trying to save with invalid start date', async () => {
-    const input = new Tournament({
+    const input = new TournamentModel({
       ...tournamentMin,
       date_start: invalidDateString,
     });
@@ -143,7 +143,7 @@ describe('Tournament model test', () => {
   });
 
   it('should fail validation if start date after end date', async () => {
-    const input = new Tournament({
+    const input = new TournamentModel({
       ...tournamentMin,
       date_start: moment.utc().add(5, 'h').toDate(),
       date_end: moment.utc().add(1, 'h').toDate(),
@@ -160,7 +160,7 @@ describe('Tournament model test', () => {
   });
 
   it('should fail validation if trying to save with invalid end date', async () => {
-    const input = new Tournament({
+    const input = new TournamentModel({
       ...tournamentMin,
       date_end: invalidDateString,
     });
@@ -173,7 +173,7 @@ describe('Tournament model test', () => {
   });
 
   it('should fail validation if end date before start date', async () => {
-    const input = new Tournament({
+    const input = new TournamentModel({
       ...tournamentMin,
       date_start: moment.utc().add(5, 'h').toDate(),
       date_end: moment.utc().add(1, 'h').toDate(),
@@ -190,7 +190,9 @@ describe('Tournament model test', () => {
   });
 
   it('should populate event', async () => {
-    const output = await Tournament.findById(tournament._id).populate('event');
+    const output = await TournamentModel.findById(tournament._id).populate(
+      'event',
+    );
 
     expect(output).toBeDefined();
 
@@ -206,7 +208,9 @@ describe('Tournament model test', () => {
   });
 
   it('should populate games', async () => {
-    const output = await Tournament.findById(tournament._id).populate('games');
+    const output = await TournamentModel.findById(tournament._id).populate(
+      'games',
+    );
 
     expect(output).toBeDefined();
 
@@ -223,7 +227,7 @@ describe('Tournament model test', () => {
   });
 
   it('should populate players', async () => {
-    const output = await Tournament.findById(tournament._id).populate(
+    const output = await TournamentModel.findById(tournament._id).populate(
       'players',
     );
 
@@ -242,7 +246,7 @@ describe('Tournament model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await Tournament.findById(tournament._id)
+    const output = await TournamentModel.findById(tournament._id)
       .populate('event')
       .populate('games')
       .populate('players');

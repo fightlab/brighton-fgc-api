@@ -1,8 +1,8 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { Game } from '@models/game';
-import { PlayerClass } from '@models/player';
+import { Player } from '@models/player';
 
-export class GameEloClass {
+export class GameElo {
   @Property({
     required: true,
     ref: () => Game,
@@ -11,15 +11,15 @@ export class GameEloClass {
 
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player!: Ref<PlayerClass>;
+  public player!: Ref<Player>;
 
   @Property({ required: true })
   public score!: number;
 }
 
-export const GameElo = getModelForClass(GameEloClass, {
+export const GameEloModel = getModelForClass(GameElo, {
   options: {
     customName: 'GameElo',
   },

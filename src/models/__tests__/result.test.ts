@@ -6,28 +6,28 @@ import {
 import { Types } from 'mongoose';
 import { default as moment } from 'moment';
 import {
-  Tournament,
+  TournamentModel,
   TOURNAMENT_TYPE,
-  TournamentClass,
+  Tournament,
 } from '@models/tournament';
-import { Player, PlayerClass } from '@models/player';
-import { ResultClass, Result } from '@models/result';
+import { PlayerModel, Player } from '@models/player';
+import { Result, ResultModel } from '@models/result';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
 describe('Result model test', () => {
-  let tournaments: Array<DocumentType<TournamentClass>>;
-  let players: Array<DocumentType<PlayerClass>>;
+  let tournaments: Array<DocumentType<Tournament>>;
+  let players: Array<DocumentType<Player>>;
 
-  let resultFull: ResultClass;
-  let resultTeam: ResultClass;
-  let result: DocumentType<ResultClass>;
+  let resultFull: Result;
+  let resultTeam: Result;
+  let result: DocumentType<Result>;
 
   beforeEach(async () => {
     // fake some tournaments
-    tournaments = await Tournament.create([
+    tournaments = await TournamentModel.create([
       {
         name: 'Tournament #1',
         date_start: moment.utc().subtract(1, 'd').toDate(),
@@ -38,17 +38,17 @@ describe('Result model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<TournamentClass>);
+    ] as Array<Tournament>);
 
     // fake some players
-    players = await Player.create([
+    players = await PlayerModel.create([
       {
         handle: 'Player 0',
       },
       {
         handle: 'Player 1',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     resultFull = {
       tournament: tournaments[0]._id,
@@ -62,11 +62,11 @@ describe('Result model test', () => {
       rank: 2,
     };
 
-    [result] = await Result.create([resultFull] as Array<ResultClass>);
+    [result] = await ResultModel.create([resultFull] as Array<Result>);
   });
 
   it('should create & save result successfully', async () => {
-    const input = new Result(resultFull);
+    const input = new ResultModel(resultFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -88,7 +88,7 @@ describe('Result model test', () => {
   });
 
   it('should create & save result with multiple players successfully', async () => {
-    const input = new Result(resultTeam);
+    const input = new ResultModel(resultTeam);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -114,7 +114,7 @@ describe('Result model test', () => {
   });
 
   it('should populate tournament', async () => {
-    const output = await Result.findById(result.id).populate('tournament');
+    const output = await ResultModel.findById(result.id).populate('tournament');
 
     expect(output).toBeDefined();
     if (output) {
@@ -127,7 +127,7 @@ describe('Result model test', () => {
   });
 
   it('should populate players', async () => {
-    const output = await Result.findById(result.id).populate('players');
+    const output = await ResultModel.findById(result.id).populate('players');
 
     expect(output).toBeDefined();
     if (output) {
@@ -141,7 +141,7 @@ describe('Result model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await Result.findById(result.id)
+    const output = await ResultModel.findById(result.id)
       .populate('tournament')
       .populate('players');
 
@@ -158,7 +158,7 @@ describe('Result model test', () => {
   });
 
   it('should fail validation if rank is less than 0', async () => {
-    const input = new Result({
+    const input = new ResultModel({
       tournament: tournaments[0]._id,
       players: [players[0]._id],
       rank: -1,
@@ -175,7 +175,7 @@ describe('Result model test', () => {
   });
 
   it('should fail validation if rank is not a number', async () => {
-    const input = new Result({
+    const input = new ResultModel({
       tournament: tournaments[0]._id,
       players: [players[0]._id],
       rank: '-1',

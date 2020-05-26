@@ -5,7 +5,7 @@ import {
   generateValidationMessage,
 } from '@lib/validation';
 
-export class VodPlatformClass {
+export class VodPlatform {
   @Property({ required: true })
   public name!: string;
 
@@ -44,7 +44,7 @@ export class VodPlatformClass {
   public embed_url?: string;
 }
 
-export const VodPlatform = getModelForClass(VodPlatformClass, {
+export const VodPlatformModel = getModelForClass(VodPlatform, {
   options: {
     customName: 'VodPlatform',
   },

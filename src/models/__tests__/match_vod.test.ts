@@ -4,19 +4,19 @@ import {
   isDocumentArray,
 } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
-import { MatchVod, MatchVodClass } from '@models/match_vod';
-import { Match, MatchClass } from '@models/match';
-import { Vod, VodClass } from '@models/vod';
+import { MatchVodModel, MatchVod } from '@models/match_vod';
+import { MatchModel, Match } from '@models/match';
+import { VodModel, Vod } from '@models/vod';
 import { CharacterModel, Character } from '@models/character';
 
 describe('MatchVod model test', () => {
-  let matches: Array<DocumentType<MatchClass>>;
-  let vods: Array<DocumentType<VodClass>>;
+  let matches: Array<DocumentType<Match>>;
+  let vods: Array<DocumentType<Vod>>;
   let characters: Array<DocumentType<Character>>;
 
-  let matchVodFull: MatchVodClass;
-  let matchVodMin: MatchVodClass;
-  let matchVod: DocumentType<MatchVodClass>;
+  let matchVodFull: MatchVod;
+  let matchVodMin: MatchVod;
+  let matchVod: DocumentType<MatchVod>;
 
   beforeEach(async () => {
     // fake some tournament ids
@@ -29,17 +29,17 @@ describe('MatchVod model test', () => {
     const game: Types.ObjectId = new Types.ObjectId();
 
     // fake some match
-    matches = await Match.create([
+    matches = await MatchModel.create([
       {
         tournament: tournaments[0],
       },
       {
         tournament: tournaments[1],
       },
-    ] as Array<MatchClass>);
+    ] as Array<Match>);
 
     // fake some vods
-    vods = await Vod.create([
+    vods = await VodModel.create([
       {
         platform: new Types.ObjectId(),
         platform_id: '0',
@@ -52,7 +52,7 @@ describe('MatchVod model test', () => {
         tournament: tournaments[1],
         url: 'https://youtube.com/1',
       },
-    ] as Array<VodClass>);
+    ] as Array<Vod>);
 
     // fake some characters
     characters = await CharacterModel.create([
@@ -91,17 +91,17 @@ describe('MatchVod model test', () => {
     };
 
     // add a match vod to the collection
-    [matchVod] = await MatchVod.create([
+    [matchVod] = await MatchVodModel.create([
       {
         match: matches[0]._id,
         vod: vods[0]._id,
         characters: characters.map((c) => c._id),
       },
-    ] as Array<MatchVodClass>);
+    ] as Array<MatchVod>);
   });
 
   it('should create & save match vod successfully', async () => {
-    const input = new MatchVod(matchVodFull);
+    const input = new MatchVodModel(matchVodFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -123,7 +123,7 @@ describe('MatchVod model test', () => {
   });
 
   it('should create & save min match vod successfully', async () => {
-    const input = new MatchVod(matchVodMin);
+    const input = new MatchVodModel(matchVodMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -141,7 +141,7 @@ describe('MatchVod model test', () => {
   });
 
   it('should populate match', async () => {
-    const output = await MatchVod.findById(matchVod.id).populate('match');
+    const output = await MatchVodModel.findById(matchVod.id).populate('match');
 
     expect(output).toBeDefined();
     if (output) {
@@ -157,7 +157,7 @@ describe('MatchVod model test', () => {
   });
 
   it('should populate vod', async () => {
-    const output = await MatchVod.findById(matchVod.id).populate('vod');
+    const output = await MatchVodModel.findById(matchVod.id).populate('vod');
 
     expect(output).toBeDefined();
     if (output) {
@@ -173,7 +173,9 @@ describe('MatchVod model test', () => {
   });
 
   it('should populate characters', async () => {
-    const output = await MatchVod.findById(matchVod.id).populate('characters');
+    const output = await MatchVodModel.findById(matchVod.id).populate(
+      'characters',
+    );
 
     expect(output).toBeDefined();
     if (output) {
@@ -190,7 +192,7 @@ describe('MatchVod model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await MatchVod.findById(matchVod.id)
+    const output = await MatchVodModel.findById(matchVod.id)
       .populate('match')
       .populate('vod')
       .populate('characters');

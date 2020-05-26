@@ -1,19 +1,19 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isDate } from 'moment';
-import { VenueClass } from '@models/venue';
+import { Venue } from '@models/venue';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
-export class EventClass {
+export class Event {
   @Property({ required: true })
   public name!: string;
 
   @Property({
     required: true,
     validate: {
-      validator: function (this: EventClass) {
+      validator: function (this: Event) {
         if (
           !isDate(this.date_end) ||
           this.date_end.getTime() < this.date_start.getTime()
@@ -33,7 +33,7 @@ export class EventClass {
   @Property({
     required: true,
     validate: {
-      validator: function (this: EventClass) {
+      validator: function (this: Event) {
         if (
           !isDate(this.date_start) ||
           this.date_start.getTime() > this.date_end.getTime()
@@ -52,9 +52,9 @@ export class EventClass {
 
   @Property({
     required: true,
-    ref: () => VenueClass,
+    ref: () => Venue,
   })
-  public venue!: Ref<VenueClass>;
+  public venue!: Ref<Venue>;
 
   @Property()
   public short?: string;
@@ -63,7 +63,7 @@ export class EventClass {
   public info?: string;
 }
 
-export const Event = getModelForClass(EventClass, {
+export const EventModel = getModelForClass(Event, {
   options: {
     customName: 'Event',
   },

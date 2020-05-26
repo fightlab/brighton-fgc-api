@@ -1,20 +1,20 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { VodClass } from '@models/vod';
-import { MatchClass } from '@models/match';
+import { Vod } from '@models/vod';
+import { Match } from '@models/match';
 import { Character } from '@models/character';
 
-export class MatchVodClass {
+export class MatchVod {
   @Property({
     required: true,
-    ref: () => VodClass,
+    ref: () => Vod,
   })
-  public vod!: Ref<VodClass>;
+  public vod!: Ref<Vod>;
 
   @Property({
     required: true,
-    ref: () => MatchClass,
+    ref: () => Match,
   })
-  public match!: Ref<MatchClass>;
+  public match!: Ref<Match>;
 
   @Property({
     ref: () => Character,
@@ -27,7 +27,7 @@ export class MatchVodClass {
   public timestamp?: string;
 }
 
-export const MatchVod = getModelForClass(MatchVodClass, {
+export const MatchVodModel = getModelForClass(MatchVod, {
   options: {
     customName: 'MatchVod',
   },

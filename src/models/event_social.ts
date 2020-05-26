@@ -4,14 +4,14 @@ import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
-import { EventClass } from '@models/event';
+import { Event } from '@models/event';
 
-export class EventSocialCLass {
+export class EventSocial {
   @Property({
     required: true,
-    ref: () => EventClass,
+    ref: () => Event,
   })
-  public event!: Ref<EventClass>;
+  public event!: Ref<Event>;
 
   @Property()
   public facebook?: string;
@@ -46,7 +46,7 @@ export class EventSocialCLass {
   public youtube?: string;
 }
 
-export const EventSocial = getModelForClass(EventSocialCLass, {
+export const EventSocialModel = getModelForClass(EventSocial, {
   options: {
     customName: 'EventSeries',
   },

@@ -1,8 +1,8 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isDate } from 'moment';
-import { EventClass } from '@models/event';
+import { Event } from '@models/event';
 import { Game } from '@models/game';
-import { PlayerClass } from '@models/player';
+import { Player } from '@models/player';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
@@ -14,14 +14,14 @@ export enum TOURNAMENT_TYPE {
   ROUND_ROBIN,
 }
 
-export class TournamentClass {
+export class Tournament {
   @Property({ required: true })
   name!: string;
 
   @Property({
     required: true,
     validate: {
-      validator: function (this: TournamentClass) {
+      validator: function (this: Tournament) {
         // since date end can be undefined, check for existence and then check if not valid
         if (
           isDate(this.date_end) &&
@@ -41,7 +41,7 @@ export class TournamentClass {
 
   @Property({
     validate: {
-      validator: function (this: TournamentClass) {
+      validator: function (this: Tournament) {
         // undefined is a valid end date
         if (this.date_end === undefined) {
           return true;
@@ -76,9 +76,9 @@ export class TournamentClass {
 
   @Property({
     required: true,
-    ref: () => EventClass,
+    ref: () => Event,
   })
-  event!: Ref<EventClass>;
+  event!: Ref<Event>;
 
   @Property({
     required: true,
@@ -89,16 +89,16 @@ export class TournamentClass {
 
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
     default: [],
   })
-  players?: Array<Ref<PlayerClass>>;
+  players?: Array<Ref<Player>>;
 
   @Property()
   is_team_based?: boolean;
 }
 
-export const Tournament = getModelForClass(TournamentClass, {
+export const TournamentModel = getModelForClass(Tournament, {
   options: {
     customName: 'Tournament',
   },

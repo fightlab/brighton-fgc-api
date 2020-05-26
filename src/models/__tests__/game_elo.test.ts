@@ -1,12 +1,12 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { GameElo, GameEloClass } from '@models/game_elo';
+import { GameEloModel, GameElo } from '@models/game_elo';
 import { GameModel, Game } from '@models/game';
-import { Player, PlayerClass } from '@models/player';
+import { PlayerModel, Player } from '@models/player';
 
 describe('GameElo model test', () => {
   let game: DocumentType<Game>;
-  let player: DocumentType<PlayerClass>;
-  let gameElo: GameEloClass;
+  let player: DocumentType<Player>;
+  let gameElo: GameElo;
 
   beforeEach(async () => {
     // fake a game
@@ -16,11 +16,11 @@ describe('GameElo model test', () => {
         short: 'G1',
       },
     ] as Array<Game>);
-    [player] = await Player.create([
+    [player] = await PlayerModel.create([
       {
         handle: 'xXx_Ep1c-G4m3r_xXx',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     gameElo = {
       game: game?._id,
@@ -30,7 +30,7 @@ describe('GameElo model test', () => {
   });
 
   it('should create & save gameElo successfully', async () => {
-    const input = new GameElo(gameElo);
+    const input = new GameEloModel(gameElo);
     const output = await input.save();
 
     // shouldn't populate virtuals
@@ -46,8 +46,8 @@ describe('GameElo model test', () => {
   });
 
   it('should populate game', async () => {
-    const input = await new GameElo(gameElo).save();
-    const output = await GameElo.findById(input.id).populate('game');
+    const input = await new GameEloModel(gameElo).save();
+    const output = await GameEloModel.findById(input.id).populate('game');
 
     expect(isDocument(output?.game)).toBe(true);
     expect(isDocument(output?.player)).toBe(false);
@@ -57,8 +57,8 @@ describe('GameElo model test', () => {
   });
 
   it('should populate player', async () => {
-    const input = await new GameElo(gameElo).save();
-    const output = await GameElo.findById(input.id).populate('player');
+    const input = await new GameEloModel(gameElo).save();
+    const output = await GameEloModel.findById(input.id).populate('player');
 
     expect(isDocument(output?.game)).toBe(false);
     expect(isDocument(output?.player)).toBe(true);
@@ -68,8 +68,8 @@ describe('GameElo model test', () => {
   });
 
   it('should populate game and player', async () => {
-    const input = await new GameElo(gameElo).save();
-    const output = await GameElo.findById(input.id)
+    const input = await new GameEloModel(gameElo).save();
+    const output = await GameEloModel.findById(input.id)
       .populate('game')
       .populate('player');
 

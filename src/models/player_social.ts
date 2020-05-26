@@ -1,17 +1,17 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import validator from 'validator';
-import { PlayerClass } from '@models/player';
+import { Player } from '@models/player';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
-export class PlayerSocialClass {
+export class PlayerSocial {
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player!: Ref<PlayerClass>;
+  public player!: Ref<Player>;
 
   @Property()
   public facebook?: string;
@@ -55,7 +55,7 @@ export class PlayerSocialClass {
   public switch?: string;
 }
 
-export const PlayerSocial = getModelForClass(PlayerSocialClass, {
+export const PlayerSocialModel = getModelForClass(PlayerSocial, {
   options: {
     customName: 'PlayerSocial',
   },

@@ -1,6 +1,6 @@
 import { prop as Property, getModelForClass } from '@typegoose/typegoose';
 
-export class PlayerClass {
+export class Player {
   @Property({ required: true })
   public handle!: string;
 
@@ -14,7 +14,7 @@ export class PlayerClass {
   public is_staff?: boolean;
 }
 
-export const Player = getModelForClass(PlayerClass, {
+export const PlayerModel = getModelForClass(Player, {
   options: {
     customName: 'Player',
   },

@@ -6,23 +6,23 @@ import {
   isDocumentArray,
 } from '@typegoose/typegoose';
 import {
-  Tournament,
+  TournamentModel,
   TOURNAMENT_TYPE,
-  TournamentClass,
+  Tournament,
 } from '@models/tournament';
 import { GameModel, Game } from '@models/game';
 import {
-  TournamentSeriesClass,
   TournamentSeries,
+  TournamentSeriesModel,
 } from '@models/tournament_series';
 
 describe('Result model test', () => {
-  let tournaments: Array<DocumentType<TournamentClass>>;
+  let tournaments: Array<DocumentType<Tournament>>;
   let game: DocumentType<Game>;
 
-  let tournamentSeriesFull: TournamentSeriesClass;
-  let tournamentSeriesMin: TournamentSeriesClass;
-  let tournamentSeries: DocumentType<TournamentSeriesClass>;
+  let tournamentSeriesFull: TournamentSeries;
+  let tournamentSeriesMin: TournamentSeries;
+  let tournamentSeries: DocumentType<TournamentSeries>;
 
   beforeEach(async () => {
     // fake a game
@@ -34,7 +34,7 @@ describe('Result model test', () => {
     ] as Array<Game>);
 
     // fake some tournaments
-    tournaments = await Tournament.create([
+    tournaments = await TournamentModel.create([
       {
         name: 'Tournament #1',
         date_start: moment.utc().subtract(1, 'd').toDate(),
@@ -55,7 +55,7 @@ describe('Result model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<TournamentClass>);
+    ] as Array<Tournament>);
 
     tournamentSeriesFull = {
       name: 'Tournament Series Full',
@@ -69,13 +69,13 @@ describe('Result model test', () => {
       tournaments: tournaments.map((t) => t._id),
     };
 
-    [tournamentSeries] = await TournamentSeries.create([
+    [tournamentSeries] = await TournamentSeriesModel.create([
       tournamentSeriesFull,
-    ] as Array<TournamentSeriesClass>);
+    ] as Array<TournamentSeries>);
   });
 
   it('should create & save tournament series successfully', async () => {
-    const input = new TournamentSeries(tournamentSeriesFull);
+    const input = new TournamentSeriesModel(tournamentSeriesFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -91,7 +91,7 @@ describe('Result model test', () => {
   });
 
   it('should create & save min tournament series successfully', async () => {
-    const input = new TournamentSeries(tournamentSeriesMin);
+    const input = new TournamentSeriesModel(tournamentSeriesMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -106,7 +106,7 @@ describe('Result model test', () => {
   });
 
   it('should populate tournaments', async () => {
-    const output = await TournamentSeries.findById(
+    const output = await TournamentSeriesModel.findById(
       tournamentSeries.id,
     ).populate('tournaments');
 
@@ -122,7 +122,7 @@ describe('Result model test', () => {
   });
 
   it('should populate game', async () => {
-    const output = await TournamentSeries.findById(
+    const output = await TournamentSeriesModel.findById(
       tournamentSeries.id,
     ).populate('game');
 
@@ -137,7 +137,7 @@ describe('Result model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await TournamentSeries.findById(tournamentSeries.id)
+    const output = await TournamentSeriesModel.findById(tournamentSeries.id)
       .populate('tournaments')
       .populate('game');
 

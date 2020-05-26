@@ -1,27 +1,27 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { PlayerSocial, PlayerSocialClass } from '@models/player_social';
-import { Player, PlayerClass } from '@models/player';
+import { PlayerSocialModel, PlayerSocial } from '@models/player_social';
+import { PlayerModel, Player } from '@models/player';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
 describe('PlayerSocial model test', () => {
-  let players: Array<DocumentType<PlayerClass>>;
-  let playerSocialFull: PlayerSocialClass;
-  let playerSocialMin: PlayerSocialClass;
-  let playerSocial: DocumentType<PlayerSocialClass>;
+  let players: Array<DocumentType<Player>>;
+  let playerSocialFull: PlayerSocial;
+  let playerSocialMin: PlayerSocial;
+  let playerSocial: DocumentType<PlayerSocial>;
 
   beforeEach(async () => {
     // fake some players
-    players = await Player.create([
+    players = await PlayerModel.create([
       {
         handle: 'Player 1',
       },
       {
         handle: 'Player 2',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     playerSocialFull = {
       player: players[0]._id,
@@ -44,15 +44,15 @@ describe('PlayerSocial model test', () => {
     };
 
     // add an player social to the collection
-    [playerSocial] = await PlayerSocial.create([
+    [playerSocial] = await PlayerSocialModel.create([
       {
         player: players[0]._id,
       },
-    ] as Array<PlayerSocialClass>);
+    ] as Array<PlayerSocial>);
   });
 
   it('should create & save playerSocial successfully', async () => {
-    const input = new PlayerSocial(playerSocialFull);
+    const input = new PlayerSocialModel(playerSocialFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -72,7 +72,7 @@ describe('PlayerSocial model test', () => {
   });
 
   it('should create & save min playerSocial successfully', async () => {
-    const input = new PlayerSocial(playerSocialMin);
+    const input = new PlayerSocialModel(playerSocialMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -92,7 +92,7 @@ describe('PlayerSocial model test', () => {
   });
 
   it('should populate player', async () => {
-    const output = await PlayerSocial.findById(playerSocial.id).populate(
+    const output = await PlayerSocialModel.findById(playerSocial.id).populate(
       'player',
     );
 
@@ -103,7 +103,7 @@ describe('PlayerSocial model test', () => {
   });
 
   it('should not validate if web not valid', async () => {
-    const input = new PlayerSocial({
+    const input = new PlayerSocialModel({
       ...playerSocialFull,
       web: 'not-valid-web',
     });
@@ -119,7 +119,7 @@ describe('PlayerSocial model test', () => {
   });
 
   it('should not validate if web not correct type', async () => {
-    const input = new PlayerSocial({
+    const input = new PlayerSocialModel({
       ...playerSocialFull,
       web: 1993,
     });

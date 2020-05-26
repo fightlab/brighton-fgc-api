@@ -1,11 +1,11 @@
-import { Venue, VenueClass } from '@models/venue';
+import { VenueModel, Venue } from '@models/venue';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
 describe('Venue model test', () => {
-  const venueFull: VenueClass = {
+  const venueFull: Venue = {
     name: 'Venue #1',
     short: 'v1',
     address: 'V1, 1 Venue Street, Venue City, V3 9UE',
@@ -13,13 +13,13 @@ describe('Venue model test', () => {
     website: 'https://some-web-address.co.uk',
   };
 
-  const venueMin: VenueClass = {
+  const venueMin: Venue = {
     name: 'Venue #2',
     short: 'v2',
   };
 
   it('create & save venue successfully', async () => {
-    const input = new Venue(venueFull);
+    const input = new VenueModel(venueFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -31,7 +31,7 @@ describe('Venue model test', () => {
   });
 
   it('create & save minimum venue successfully', async () => {
-    const input = new Venue(venueMin);
+    const input = new VenueModel(venueMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -43,7 +43,7 @@ describe('Venue model test', () => {
   });
 
   it('should not validate if website not valid', async () => {
-    const input = new Venue({
+    const input = new VenueModel({
       ...venueMin,
       website: 'not-valid-website',
     });
@@ -59,7 +59,7 @@ describe('Venue model test', () => {
   });
 
   it('should not validate if website not correct type', async () => {
-    const input = new Venue({
+    const input = new VenueModel({
       ...venueMin,
       website: 1993,
     });

@@ -1,19 +1,19 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { MatchClass } from '@models/match';
-import { PlayerClass } from '@models/player';
+import { Match } from '@models/match';
+import { Player } from '@models/player';
 
-export class MatchEloClass {
+export class MatchElo {
   @Property({
     required: true,
-    ref: () => MatchClass,
+    ref: () => Match,
   })
-  public match!: Ref<MatchClass>;
+  public match!: Ref<Match>;
 
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public player!: Ref<PlayerClass>;
+  public player!: Ref<Player>;
 
   @Property({ required: true })
   public before!: number;
@@ -22,7 +22,7 @@ export class MatchEloClass {
   public after!: number;
 }
 
-export const MatchElo = getModelForClass(MatchEloClass, {
+export const MatchEloModel = getModelForClass(MatchElo, {
   options: {
     customName: 'MatchElo',
   },

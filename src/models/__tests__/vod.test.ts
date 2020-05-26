@@ -2,28 +2,28 @@ import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { default as moment } from 'moment';
 import {
+  TournamentModel,
   Tournament,
-  TournamentClass,
   TOURNAMENT_TYPE,
 } from '@models/tournament';
-import { VodPlatform, VodPlatformClass } from '@models/vod_platform';
-import { VodClass, Vod } from '@models/vod';
+import { VodPlatformModel, VodPlatform } from '@models/vod_platform';
+import { Vod, VodModel } from '@models/vod';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
 describe('Vod model test', () => {
-  let tournaments: Array<DocumentType<TournamentClass>>;
-  let platforms: Array<DocumentType<VodPlatformClass>>;
+  let tournaments: Array<DocumentType<Tournament>>;
+  let platforms: Array<DocumentType<VodPlatform>>;
 
-  let vodFull: VodClass;
-  let vodMin: VodClass;
-  let vod: DocumentType<VodClass>;
+  let vodFull: Vod;
+  let vodMin: Vod;
+  let vod: DocumentType<Vod>;
 
   beforeEach(async () => {
     // fake some tournaments
-    tournaments = await Tournament.create([
+    tournaments = await TournamentModel.create([
       {
         name: 'Tournament #1',
         date_start: moment.utc().subtract(1, 'd').toDate(),
@@ -44,15 +44,15 @@ describe('Vod model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<TournamentClass>);
+    ] as Array<Tournament>);
 
     // fake some vod platforms
-    platforms = await VodPlatform.create([
+    platforms = await VodPlatformModel.create([
       {
         name: 'Vod Platform #1',
         url: 'https://vodplatform.com',
       },
-    ] as Array<VodPlatformClass>);
+    ] as Array<VodPlatform>);
 
     vodFull = {
       tournament: tournaments[0]._id,
@@ -69,11 +69,11 @@ describe('Vod model test', () => {
       url: 'https://vodplayer.co.uk/vod/vod-full-id',
     };
 
-    [vod] = await Vod.create([vodFull] as Array<VodClass>);
+    [vod] = await VodModel.create([vodFull] as Array<Vod>);
   });
 
   it('should create & save vod successfully', async () => {
-    const input = new Vod(vodFull);
+    const input = new VodModel(vodFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -91,7 +91,7 @@ describe('Vod model test', () => {
   });
 
   it('should create & save min vod successfully', async () => {
-    const input = new Vod(vodMin);
+    const input = new VodModel(vodMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -109,7 +109,7 @@ describe('Vod model test', () => {
   });
 
   it('should populate tournament', async () => {
-    const output = await Vod.findById(vod.id).populate('tournament');
+    const output = await VodModel.findById(vod.id).populate('tournament');
 
     expect(isDocument(output?.platform)).toBe(false);
     expect(isDocument(output?.tournament)).toBe(true);
@@ -119,7 +119,7 @@ describe('Vod model test', () => {
   });
 
   it('should populate platform', async () => {
-    const output = await Vod.findById(vod.id).populate('platform');
+    const output = await VodModel.findById(vod.id).populate('platform');
     expect(isDocument(output?.platform)).toBe(true);
     expect(isDocument(output?.tournament)).toBe(false);
     if (isDocument(output?.platform)) {
@@ -128,7 +128,7 @@ describe('Vod model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await Vod.findById(vod.id)
+    const output = await VodModel.findById(vod.id)
       .populate('tournament')
       .populate('platform');
 
@@ -141,7 +141,7 @@ describe('Vod model test', () => {
   });
 
   it('should not validate if url not valid', async () => {
-    const input = new Vod({
+    const input = new VodModel({
       ...vodFull,
       url: 'not-valid-url',
     });
@@ -157,7 +157,7 @@ describe('Vod model test', () => {
   });
 
   it('should not validate if url not correct type', async () => {
-    const input = new Vod({
+    const input = new VodModel({
       ...vodFull,
       url: 1993,
     });

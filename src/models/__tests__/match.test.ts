@@ -5,26 +5,26 @@ import {
 } from '@typegoose/typegoose';
 import { Types } from 'mongoose';
 import { default as moment } from 'moment';
-import { Match, MatchClass } from '@models/match';
-import { Player, PlayerClass } from '@models/player';
+import { MatchModel, Match } from '@models/match';
+import { PlayerModel, Player } from '@models/player';
 import {
+  TournamentModel,
   Tournament,
-  TournamentClass,
   TOURNAMENT_TYPE,
 } from '@models/tournament';
 
 describe('Match model test', () => {
-  let tournaments: Array<DocumentType<TournamentClass>>;
-  let players: Array<DocumentType<PlayerClass>>;
+  let tournaments: Array<DocumentType<Tournament>>;
+  let players: Array<DocumentType<Player>>;
 
-  let matchFull: MatchClass;
-  let matchMin: MatchClass;
-  let matchTeam: MatchClass;
-  let match: DocumentType<MatchClass>;
+  let matchFull: Match;
+  let matchMin: Match;
+  let matchTeam: Match;
+  let match: DocumentType<Match>;
 
   beforeEach(async () => {
     // fake some tournaments
-    tournaments = await Tournament.create([
+    tournaments = await TournamentModel.create([
       {
         name: 'Tournament #1',
         date_start: moment.utc().subtract(1, 'd').toDate(),
@@ -43,10 +43,10 @@ describe('Match model test', () => {
         type: TOURNAMENT_TYPE.ROUND_ROBIN,
         is_team_based: true,
       },
-    ] as Array<TournamentClass>);
+    ] as Array<Tournament>);
 
     // fake some players
-    players = await Player.create([
+    players = await PlayerModel.create([
       {
         handle: 'Player 0',
       },
@@ -59,7 +59,7 @@ describe('Match model test', () => {
       {
         handle: 'Player 3',
       },
-    ] as Array<PlayerClass>);
+    ] as Array<Player>);
 
     matchFull = {
       tournament: tournaments[0]._id,
@@ -88,11 +88,11 @@ describe('Match model test', () => {
     };
 
     // generate match to test populate
-    [match] = await Match.create([matchFull] as Array<MatchClass>);
+    [match] = await MatchModel.create([matchFull] as Array<Match>);
   });
 
   it('should create & save a match successfully', async () => {
-    const input = new Match(matchFull);
+    const input = new MatchModel(matchFull);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -136,7 +136,7 @@ describe('Match model test', () => {
   });
 
   it('should create & save min match successfully', async () => {
-    const input = new Match(matchMin);
+    const input = new MatchModel(matchMin);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -153,7 +153,7 @@ describe('Match model test', () => {
   });
 
   it('should create & save a team match successfully', async () => {
-    const input = new Match(matchTeam);
+    const input = new MatchModel(matchTeam);
     const output = await input.save();
 
     expect(output._id).toBeDefined();
@@ -209,7 +209,7 @@ describe('Match model test', () => {
   });
 
   it('should populate tournament', async () => {
-    const output = await Match.findById(match.id).populate('tournament');
+    const output = await MatchModel.findById(match.id).populate('tournament');
 
     if (output) {
       expect(isDocument(output?.tournament)).toBe(true);
@@ -225,7 +225,7 @@ describe('Match model test', () => {
   });
 
   it('should populate loser', async () => {
-    const output = await Match.findById(match.id).populate('loser');
+    const output = await MatchModel.findById(match.id).populate('loser');
 
     if (output) {
       expect(isDocument(output?.tournament)).toBe(false);
@@ -242,7 +242,7 @@ describe('Match model test', () => {
   });
 
   it('should populate winner', async () => {
-    const output = await Match.findById(match.id).populate('winner');
+    const output = await MatchModel.findById(match.id).populate('winner');
 
     if (output) {
       expect(isDocument(output?.tournament)).toBe(false);
@@ -259,7 +259,7 @@ describe('Match model test', () => {
   });
 
   it('should populate player 1', async () => {
-    const output = await Match.findById(match.id).populate('player1');
+    const output = await MatchModel.findById(match.id).populate('player1');
 
     if (output) {
       expect(isDocument(output?.tournament)).toBe(false);
@@ -276,7 +276,7 @@ describe('Match model test', () => {
   });
 
   it('should populate player 2', async () => {
-    const output = await Match.findById(match.id).populate('player2');
+    const output = await MatchModel.findById(match.id).populate('player2');
 
     if (output) {
       expect(isDocument(output?.tournament)).toBe(false);
@@ -293,7 +293,7 @@ describe('Match model test', () => {
   });
 
   it('should populate all fields', async () => {
-    const output = await Match.findById(match.id)
+    const output = await MatchModel.findById(match.id)
       .populate('tournament')
       .populate('loser')
       .populate('winner')

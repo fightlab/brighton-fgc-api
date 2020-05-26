@@ -1,24 +1,24 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
 import { isNumber } from 'lodash';
-import { TournamentClass } from '@models/tournament';
-import { PlayerClass } from '@models/player';
+import { Tournament } from '@models/tournament';
+import { Player } from '@models/player';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
 
-export class ResultClass {
+export class Result {
   @Property({
     required: true,
-    ref: () => TournamentClass,
+    ref: () => Tournament,
   })
-  public tournament!: Ref<TournamentClass>;
+  public tournament!: Ref<Tournament>;
 
   @Property({
     required: true,
-    ref: () => PlayerClass,
+    ref: () => Player,
   })
-  public players!: Array<Ref<PlayerClass>>;
+  public players!: Array<Ref<Player>>;
 
   @Property({
     required: true,
@@ -34,7 +34,7 @@ export class ResultClass {
   public rank!: number;
 }
 
-export const Result = getModelForClass(ResultClass, {
+export const ResultModel = getModelForClass(Result, {
   options: {
     customName: 'Result',
   },

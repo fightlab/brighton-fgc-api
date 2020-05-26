@@ -1,24 +1,24 @@
 import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
-import { VodPlatformClass } from '@models/vod_platform';
-import { TournamentClass } from '@models/tournament';
+import { VodPlatform } from '@models/vod_platform';
+import { Tournament } from '@models/tournament';
 import validator from 'validator';
 import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
 
-export class VodClass {
+export class Vod {
   @Property({
     required: true,
-    ref: () => TournamentClass,
+    ref: () => Tournament,
   })
-  public tournament!: Ref<TournamentClass>;
+  public tournament!: Ref<Tournament>;
 
   @Property({
     required: true,
-    ref: () => VodPlatformClass,
+    ref: () => VodPlatform,
   })
-  public platform!: Ref<VodPlatformClass>;
+  public platform!: Ref<VodPlatform>;
 
   @Property({ required: true })
   public platform_id!: string;
@@ -39,7 +39,7 @@ export class VodClass {
   public start_time?: string;
 }
 
-export const Vod = getModelForClass(VodClass, {
+export const VodModel = getModelForClass(Vod, {
   options: {
     customName: 'Vod',
   },
