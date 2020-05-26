@@ -4,6 +4,7 @@ import { Many } from 'lodash';
 import { BracketPlatformResolver } from '@graphql/resolvers/bracket_platform';
 import { GameResolver } from '@graphql/resolvers/game';
 import { CharacterResolver } from '@graphql/resolvers/character';
+import { PlayerResolver } from '@graphql/resolvers/player';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -21,4 +22,5 @@ export const resolvers: [Function, ...Function[]] = [
   BracketPlatformResolver,
   GameResolver,
   CharacterResolver,
+  PlayerResolver,
 ];

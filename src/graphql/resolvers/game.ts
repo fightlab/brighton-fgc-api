@@ -106,7 +106,10 @@ export class GameResolver {
   }
 
   // add characters field to game
-  @FieldResolver(() => [Character], { nullable: true })
+  @FieldResolver(() => [Character], {
+    description: GAME_DESCRIPTIONS.CHARACTERS,
+    nullable: true,
+  })
   characters(@Root() game: DocumentType<Game>, @Ctx() ctx: Context) {
     return ctx.loaders.CharactersLoader.load({ game: game.id });
   }

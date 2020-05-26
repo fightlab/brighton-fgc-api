@@ -19,8 +19,9 @@ export enum GAME_DESCRIPTIONS {
   SHORT = 'Shorthand name of the game',
   LOGO = 'Image URL for the game logo',
   BG = 'Image URL for the game background',
+  CHARACTERS = 'Characters from this game that have appeared in VODs',
   FIND_ONE = 'Find and get a single game by id',
-  FIND = 'Find and get all games',
+  FIND = 'Find and get some or all games',
 }
 
 @ObjectType({
@@ -37,14 +38,12 @@ export class Game {
 
   @Field({
     description: GAME_DESCRIPTIONS.NAME,
-    nullable: true,
   })
   @Property({ required: true })
   public name!: string;
 
   @Field({
     description: GAME_DESCRIPTIONS.SHORT,
-    nullable: true,
   })
   @Property({ required: true })
   public short!: string;

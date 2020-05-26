@@ -3,7 +3,9 @@ import { BracketPlatform } from '@models/bracket_platform';
 import { Game } from '@models/game';
 import { ObjectId } from 'mongodb';
 import { Character } from '@models/character';
+import { Player } from '@models/player';
 
+// generate a fake tournament bracket platform for testing
 export const generateBracketPlatform = (min = true): BracketPlatform => {
   const obj: BracketPlatform = {
     name: faker.company.companyName(),
@@ -24,6 +26,7 @@ export const generateBracketPlatform = (min = true): BracketPlatform => {
   };
 };
 
+// generate a fake game for testing
 export const generateGame = (min = true): Game => {
   const obj: Game = {
     name: faker.hacker.noun(),
@@ -44,6 +47,7 @@ export const generateGame = (min = true): Game => {
   };
 };
 
+// generate a character for testing, requires a game
 export const generateCharacter = (game: ObjectId, min = true): Character => {
   const obj: Character = {
     name: faker.name.findName(),
@@ -58,5 +62,23 @@ export const generateCharacter = (game: ObjectId, min = true): Character => {
   return {
     ...obj,
     image: faker.image.avatar(),
+  };
+};
+
+// generate a player for testing
+export const generatePlayer = (min = true): Player => {
+  const obj: Player = {
+    handle: faker.internet.userName(),
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    icon: faker.internet.avatar(),
+    is_staff: faker.random.boolean(),
+    team: faker.hacker.abbreviation(),
   };
 };

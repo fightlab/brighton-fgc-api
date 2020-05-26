@@ -8,10 +8,11 @@ import { default as objectHash } from 'object-hash';
 import { ObjectId } from 'mongodb';
 import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 
+import { getConfig } from '@lib/config';
 import { BracketPlatformModel } from '@models/bracket_platform';
 import { GameModel } from '@models/game';
 import { CharacterModel } from '@models/character';
-import { getConfig } from '@lib/config';
+import { PlayerModel } from '@models/player';
 
 // replace instances of objectid with string representation
 const replacer = (v: any) => {
@@ -81,6 +82,8 @@ const GamesLoader = makeGeneralLoader(GameModel);
 const GameLoader = makeSingleGeneralLoader(GameModel);
 const CharactersLoader = makeGeneralLoader(CharacterModel);
 const CharacterLoader = makeSingleGeneralLoader(CharacterModel);
+const PlayersLoader = makeGeneralLoader(PlayerModel);
+const PlayerLoader = makeSingleGeneralLoader(PlayerModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -89,6 +92,8 @@ export interface Loaders {
   GameLoader: DataLoader<unknown, any, unknown>;
   CharactersLoader: DataLoader<unknown, any[], unknown>;
   CharacterLoader: DataLoader<unknown, any, unknown>;
+  PlayersLoader: DataLoader<unknown, any[], unknown>;
+  PlayerLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -98,4 +103,6 @@ export const loaders: Loaders = {
   GameLoader,
   CharactersLoader,
   CharacterLoader,
+  PlayersLoader,
+  PlayerLoader,
 };

@@ -18,7 +18,7 @@ export enum CHARACTER_DESCRIPTIONS {
   SHORT = 'Shorthand name of the character',
   IMAGE = 'Image of the character',
   FIND_ONE = 'Find and get a single character by id',
-  FIND = 'Find and get all characters',
+  FIND = 'Find and get some or all characters',
 }
 
 @ObjectType({

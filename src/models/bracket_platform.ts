@@ -26,7 +26,7 @@ export enum BRACKET_PLATFORM_DESCRIPTIONS {
   API_URL = 'API URL endpoint if the platform has one',
   API_DOCS = 'API documentation if the platform has one',
   FIND_ONE = 'Find and get a single platform that brackets are hosted on',
-  FIND = 'Find and get all platforms that brackets are hosted on',
+  FIND = 'Find and get some or all platforms that brackets are hosted on',
 }
 
 @ObjectType({
