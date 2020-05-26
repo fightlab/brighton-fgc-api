@@ -26,7 +26,7 @@ export enum NODE_ENV {
 }
 
 // check node environment is valid, return development as default
-const checkNodeEnv = (env?: string): string => {
+export const checkNodeEnv = (env?: string): string => {
   switch (env) {
     case NODE_ENV.DEV:
     case NODE_ENV.TEST:

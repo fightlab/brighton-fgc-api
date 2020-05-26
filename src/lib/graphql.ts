@@ -8,20 +8,24 @@ import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { loaders, Loaders } from '@graphql/loaders';
 import { resolvers } from '@graphql/resolvers';
-import { NODE_ENV } from '@lib/config';
+import { getConfig } from '@lib/config';
 
 // our user defined Context interface to be used to type the context object
 export interface Context {
   loaders: Loaders;
 }
 
+// disable emitSchemaFile in test, since this will break tests
+const { isTest } = getConfig();
+const emitSchemaFile = !isTest();
+
 // helper method to generate the schema
 export const createSchema = () =>
   buildSchema({
     // add resolvers here
     resolvers,
-    // can't use getConfig to check for node env as it breaks test
-    emitSchemaFile: process.env.NODE_ENV !== NODE_ENV.TEST,
+    // output the schema file
+    emitSchemaFile,
     // custom scalars here
     scalarsMap: [
       {

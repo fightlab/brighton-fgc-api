@@ -11,6 +11,7 @@ import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 import { BracketPlatformModel } from '@models/bracket_platform';
 import { GameModel } from '@models/game';
 import { CharacterModel } from '@models/character';
+import { getConfig } from '@lib/config';
 
 // replace instances of objectid with string representation
 const replacer = (v: any) => {
@@ -22,6 +23,10 @@ const replacer = (v: any) => {
   // nothing to replace, so return the value
   return v;
 };
+
+// disable cache in test, since this will break tests
+const { isTest } = getConfig();
+const enableCache = !isTest();
 
 // caching key function
 const cacheKeyFn = (key: any) => objectHash(key, { replacer });
@@ -41,6 +46,7 @@ const makeGeneralLoader = (
       }
     },
     {
+      cache: enableCache,
       cacheKeyFn,
     },
   );
@@ -64,6 +70,7 @@ const makeSingleGeneralLoader = (
       }
     },
     {
+      cache: enableCache,
       cacheKeyFn,
     },
   );

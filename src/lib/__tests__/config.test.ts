@@ -1,6 +1,6 @@
 // Testing the configuration
 
-import { getConfig } from '@lib/config';
+import { getConfig, checkNodeEnv, NODE_ENV } from '@lib/config';
 
 describe('Configuration', () => {
   // since we're modifying env vars, put a copy of the current env vars into memory
@@ -34,5 +34,21 @@ describe('Configuration', () => {
   test('it throws and exception if an environment variable is not set', () => {
     process.env.PORT = undefined;
     expect(() => getConfig()).toThrow();
+  });
+
+  test('check node env', () => {
+    expect(checkNodeEnv()).toBe(NODE_ENV.DEV);
+    expect(checkNodeEnv('not-an-node-env')).toBe(NODE_ENV.DEV);
+    expect(checkNodeEnv('development')).toBe(NODE_ENV.DEV);
+    expect(checkNodeEnv('test')).toBe(NODE_ENV.TEST);
+    expect(checkNodeEnv('production')).toBe(NODE_ENV.PROD);
+  });
+
+  test('check isDev isTest isProd', async () => {
+    const output = getConfig();
+
+    expect(output.isDev()).toBe(false);
+    expect(output.isTest()).toBe(true);
+    expect(output.isProd()).toBe(false);
   });
 });

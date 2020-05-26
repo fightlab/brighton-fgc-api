@@ -1,7 +1,7 @@
 // set up required env vars to stop tests breaking,
 // they can be set to anything, just need to be defined
-process.env.PORT = '9000';
-process.env.MONGODB_URI = 'localhost';
+process.env.PORT = '9999';
+process.env.MONGODB_URI = 'mongo-uri';
 
 module.exports = {
   testEnvironment: 'node',

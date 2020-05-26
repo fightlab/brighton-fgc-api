@@ -1,9 +1,10 @@
-import { gqlCall } from '@graphql/resolvers/test/helper';
+import { gqlCall, gql } from '@graphql/resolvers/test/helper';
 import { generateCharacter, generateGame } from '@lib/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
-import { every, some } from 'lodash';
+import { every, some, orderBy, isEqual } from 'lodash';
 import { Character, CharacterModel } from '@models/character';
 import { Game, GameModel } from '@models/game';
+import { ObjectId } from 'mongodb';
 
 describe('Character GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -31,7 +32,7 @@ describe('Character GraphQL Resolver Test', () => {
   });
 
   it('should return all characters with fields', async () => {
-    const source = `
+    const source = gql`
       query SelectAllCharacters {
         characters {
           _id
@@ -66,9 +67,9 @@ describe('Character GraphQL Resolver Test', () => {
   });
 
   it('should return a single character by id', async () => {
-    const source = `
+    const source = gql`
       query SelectSingleCharacter($id: ObjectId!) {
-        character(id:$id) {
+        character(id: $id) {
           _id
           name
         }
@@ -90,9 +91,9 @@ describe('Character GraphQL Resolver Test', () => {
   });
 
   it('should return null if character id not found', async () => {
-    const source = `
+    const source = gql`
       query SelectSingleCharacterNull($id: ObjectId!) {
-        character(id:$id) {
+        character(id: $id) {
           _id
           name
         }
@@ -113,18 +114,18 @@ describe('Character GraphQL Resolver Test', () => {
   });
 
   it('should populate game for a given character', async () => {
-    const source = `
-    query SelectSingleCharacter($id: ObjectId!) {
-      character(id:$id) {
-        _id
-        name
-        game {
+    const source = gql`
+      query SelectSingleCharacter($id: ObjectId!) {
+        character(id: $id) {
           _id
           name
+          game {
+            _id
+            name
+          }
         }
       }
-    }
-  `;
+    `;
 
     const variableValues = {
       id: characters[0].id,
@@ -147,5 +148,218 @@ describe('Character GraphQL Resolver Test', () => {
     expect(
       some(games, (g) => g.name === output.data?.character.game.name),
     ).toBe(true);
+  });
+
+  it('should sort character by name asc', async () => {
+    const source = gql`
+      query SortCharacterNameAsc {
+        characters(sort: NAME_ASC) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const expected = orderBy(
+      characters.map((b) => b.name),
+      [],
+      ['asc'],
+    );
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toHaveLength(characters.length);
+
+    const dataFromQuery: Array<any> = output.data?.characters;
+    const received: Array<string> = dataFromQuery.map((p) => p.name);
+
+    expect(isEqual(received, expected)).toBe(true);
+  });
+
+  it('should sort character by name desc', async () => {
+    const source = gql`
+      query SortCharacterNameDesc {
+        characters(sort: NAME_DESC) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const expected = orderBy(
+      characters.map((b) => b.name),
+      [],
+      ['desc'],
+    );
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toHaveLength(characters.length);
+
+    const dataFromQuery: Array<any> = output.data?.characters;
+    const received: Array<string> = dataFromQuery.map((p) => p.name);
+
+    expect(isEqual(received, expected)).toBe(true);
+  });
+
+  it('should sort character by game id asc', async () => {
+    const source = gql`
+      query SortCharacterGameId {
+        characters(sort: GAME_ID) {
+          _id
+          game_id
+        }
+      }
+    `;
+
+    const expected = orderBy(
+      characters.map((b) => b.game?.toString()),
+      [],
+      ['asc'],
+    );
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toHaveLength(characters.length);
+
+    const dataFromQuery: Array<any> = output.data?.characters;
+    const received: Array<string> = dataFromQuery.map((p) => p.game_id);
+
+    expect(isEqual(received, expected)).toBe(true);
+  });
+
+  it('should sort character by id', async () => {
+    const source = gql`
+      query SortCharacterId {
+        characters(sort: ID) {
+          _id
+        }
+      }
+    `;
+
+    const expected = orderBy(
+      characters.map((b) => b.id),
+      [],
+      ['asc'],
+    );
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toHaveLength(characters.length);
+
+    const dataFromQuery: Array<any> = output.data?.characters;
+    const received: Array<string> = dataFromQuery.map((p) => p._id);
+
+    expect(isEqual(received, expected)).toBe(true);
+  });
+
+  it('should search characters by name', async () => {
+    const source = gql`
+      query SearchCharactersByName($search: String!) {
+        characters(search: $search) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const variableValues = {
+      // search by name lowercase to check it works
+      search: characters[0].name.toLowerCase(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toBeDefined();
+    expect(output.data?.characters).toHaveLength(1);
+    expect(output.data?.characters[0]._id).toBe(characters[0].id);
+    expect(output.data?.characters[0].name).toBe(characters[0].name);
+  });
+
+  it('should return empty array if search characters by name returns no results', async () => {
+    const source = gql`
+      query SearchCharactersByName($search: String!) {
+        characters(search: $search) {
+          _id
+          name
+        }
+      }
+    `;
+
+    const variableValues = {
+      // use unintelligible string, highly unlikely it will be an actual name
+      search: 'qqweqewcnoiaskhfnoihoiehtiohfoigafio',
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toBeDefined();
+    expect(output.data?.characters).toHaveLength(0);
+  });
+
+  it('should search characters by list of ids', async () => {
+    const source = gql`
+      query CharactersByIds($ids: [ObjectId!]) {
+        characters(ids: $ids) {
+          _id
+        }
+      }
+    `;
+
+    const variableValues = {
+      ids: characters.map((p) => p.id),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toBeDefined();
+    expect(output.data?.characters).toHaveLength(characters.length);
+  });
+
+  it('should return empty array if search characters by list of ids returns no results', async () => {
+    const source = gql`
+      query CharactersByIds($ids: [ObjectId!]) {
+        characters(ids: $ids) {
+          _id
+        }
+      }
+    `;
+
+    const variableValues = {
+      ids: [new ObjectId().toHexString(), new ObjectId().toHexString()],
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.characters).toBeDefined();
+    expect(output.data?.characters).toHaveLength(0);
   });
 });

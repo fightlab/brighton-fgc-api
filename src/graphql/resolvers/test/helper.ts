@@ -29,3 +29,10 @@ export const gqlCall = async ({ source, variableValues }: GqlCallOptions) => {
     } as Context,
   });
 };
+
+// function which just returns the template literal, used for syntax highlighting
+const highlight = (s: TemplateStringsArray, ...args: any[]) =>
+  s.map((ss, i) => `${ss}${args[i] || ''}`).join('');
+
+// gql tag for gql syntax highlighting
+export const gql = highlight;
