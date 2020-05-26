@@ -14,6 +14,7 @@ import { ObjectId } from 'mongodb';
 export enum GAME_DESCRIPTIONS {
   DESCRIPTIONS = 'Information on games that have been run as tournaments',
   ID = 'Unique identifier of the game',
+  IDS = 'List of unique identifiers (_id) of multiple games',
   NAME = 'Name of the game',
   SHORT = 'Shorthand name of the game',
   LOGO = 'Image URL for the game logo',
@@ -25,7 +26,7 @@ export enum GAME_DESCRIPTIONS {
 @ObjectType({
   description: GAME_DESCRIPTIONS.DESCRIPTIONS,
 })
-@Index({ name: 'text' }) // text index on the name field for searching
+@Index({ name: 1 })
 @Index({ short: 1 })
 export class Game {
   // only in graphql

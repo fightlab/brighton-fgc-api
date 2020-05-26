@@ -15,7 +15,11 @@ import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
 import { Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
-import { generateMongooseQueryObject, MapSort } from '@graphql/resolvers';
+import {
+  generateMongooseQueryObject,
+  MapSort,
+  MongooseQuery,
+} from '@graphql/resolvers';
 import { Character } from '@models/character';
 
 // sorting stuff for game
@@ -65,11 +69,16 @@ export class GameResolver {
     description: GAME_DESCRIPTIONS.FIND,
   })
   async games(
+    @Arg('ids', () => [ObjectIdScalar], {
+      nullable: true,
+      description: GAME_DESCRIPTIONS.IDS,
+    })
+    ids: Array<ObjectId>,
     @Arg('search', {
       nullable: true,
     })
     search: string,
-    @Arg('GameSort', () => GAME_SORT, {
+    @Arg('sort', () => GAME_SORT, {
       nullable: true,
       defaultValue: GAME_SORT.NAME_ASC,
     })
@@ -79,9 +88,16 @@ export class GameResolver {
     const q = generateMongooseQueryObject();
 
     if (search) {
-      q.$text = {
-        $search: search,
-      };
+      q.name = {
+        $regex: `${search}`,
+        $options: 'i',
+      } as MongooseQuery;
+    }
+
+    if (ids) {
+      q._id = {
+        $in: ids,
+      } as MongooseQuery;
     }
 
     const games = await ctx.loaders.GamesLoader.load(q);

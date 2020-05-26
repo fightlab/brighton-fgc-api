@@ -12,6 +12,20 @@ import { BracketPlatformModel } from '@models/bracket_platform';
 import { GameModel } from '@models/game';
 import { CharacterModel } from '@models/character';
 
+// replace instances of objectid with string representation
+const replacer = (v: any) => {
+  // check if value is objectid
+  if (v instanceof ObjectId) {
+    // return hex string
+    return v.toHexString();
+  }
+  // nothing to replace, so return the value
+  return v;
+};
+
+// caching key function
+const cacheKeyFn = (key: any) => objectHash(key, { replacer });
+
 // use general loader to return multiple values (e.g. an array of events)
 const makeGeneralLoader = (
   model: ReturnModelType<AnyParamConstructor<any>, {}>,
@@ -27,7 +41,7 @@ const makeGeneralLoader = (
       }
     },
     {
-      cacheKeyFn: (key) => objectHash.sha1(key),
+      cacheKeyFn,
     },
   );
 
@@ -50,7 +64,7 @@ const makeSingleGeneralLoader = (
       }
     },
     {
-      cacheKeyFn: (key: ObjectId) => key?.toHexString() || key?.toString(),
+      cacheKeyFn,
     },
   );
 

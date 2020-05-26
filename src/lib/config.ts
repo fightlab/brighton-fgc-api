@@ -7,6 +7,10 @@ interface Config {
   port: number;
   mongo: {
     uri: string;
+    options: {
+      [key: string]: boolean;
+      useCreateIndex: boolean;
+    };
   };
   seedDB: boolean;
   isDev: () => boolean;
@@ -52,6 +56,9 @@ export const getConfig = (): Config => ({
   port: +getOrThrowEnv('PORT'),
   mongo: {
     uri: getOrThrowEnv('MONGODB_URI'),
+    options: {
+      useCreateIndex: true,
+    },
   },
   seedDB: !!process.env.SEED_DB || false,
   isDev: () => env === NODE_ENV.DEV,

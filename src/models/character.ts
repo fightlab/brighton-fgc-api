@@ -1,4 +1,9 @@
-import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import {
+  prop as Property,
+  getModelForClass,
+  Ref,
+  Index,
+} from '@typegoose/typegoose';
 import { Game } from '@models/game';
 import { Field, ObjectType } from 'type-graphql';
 import { ObjectId } from 'mongodb';
@@ -6,8 +11,10 @@ import { ObjectId } from 'mongodb';
 export enum CHARACTER_DESCRIPTIONS {
   DESCRIPTIONS = 'Characters that have appeared in game VODs',
   ID = 'Unique identifier of the character',
+  IDS = 'List of unique identifiers (_id) of multiple characters',
   NAME = 'Name of the Character',
   GAME = 'Game in which the character appears',
+  GAME_ID = '_id of the game in which the character appears',
   SHORT = 'Shorthand name of the character',
   IMAGE = 'Image of the character',
   FIND_ONE = 'Find and get a single character by id',
@@ -17,6 +24,9 @@ export enum CHARACTER_DESCRIPTIONS {
 @ObjectType({
   description: CHARACTER_DESCRIPTIONS.DESCRIPTIONS,
 })
+@Index({ name: 1 })
+@Index({ short: 1 })
+@Index({ game: 1 })
 export class Character {
   // only in graphql
   @Field({

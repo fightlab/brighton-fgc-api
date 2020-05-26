@@ -20,6 +20,7 @@ import {
 export enum BRACKET_PLATFORM_DESCRIPTIONS {
   DESCRIPTION = 'Platform information on which brackets are hosted on',
   ID = 'Unique identifier of the platform',
+  IDS = 'List of unique identifiers (_id) of multiple platforms',
   NAME = 'Name of the platform',
   URL = 'URL of the platform',
   API_URL = 'API URL endpoint if the platform has one',
