@@ -4,6 +4,7 @@ import { Game } from '@models/game';
 import { ObjectId } from 'mongodb';
 import { Character } from '@models/character';
 import { Player } from '@models/player';
+import { GameElo } from '@models/game_elo';
 
 // generate a fake tournament bracket platform for testing
 export const generateBracketPlatform = (min = true): BracketPlatform => {
@@ -82,3 +83,13 @@ export const generatePlayer = (min = true): Player => {
     team: faker.hacker.abbreviation(),
   };
 };
+
+// generate a game elo for testing, requires a game and player
+export const generateGameElo = (player: ObjectId, game: ObjectId): GameElo => ({
+  game,
+  player,
+  score: faker.random.number({
+    min: 700,
+    max: 1400,
+  }),
+});

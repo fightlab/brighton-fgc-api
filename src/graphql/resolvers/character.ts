@@ -120,4 +120,6 @@ export class CharacterResolver {
   game(@Root() character: DocumentType<Character>, @Ctx() ctx: Context) {
     return ctx.loaders.GameLoader.load(character.game);
   }
+
+  // TODO: Add matches that character has appeared in
 }

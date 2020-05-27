@@ -9,10 +9,12 @@ import { ObjectId } from 'mongodb';
 import { AnyParamConstructor } from '@typegoose/typegoose/lib/types';
 
 import { getConfig } from '@lib/config';
+
 import { BracketPlatformModel } from '@models/bracket_platform';
 import { GameModel } from '@models/game';
 import { CharacterModel } from '@models/character';
 import { PlayerModel } from '@models/player';
+import { GameEloModel } from '@models/game_elo';
 
 // replace instances of objectid with string representation
 const replacer = (v: any) => {
@@ -84,6 +86,8 @@ const CharactersLoader = makeGeneralLoader(CharacterModel);
 const CharacterLoader = makeSingleGeneralLoader(CharacterModel);
 const PlayersLoader = makeGeneralLoader(PlayerModel);
 const PlayerLoader = makeSingleGeneralLoader(PlayerModel);
+const GameElosLoader = makeGeneralLoader(GameEloModel);
+const GameEloLoader = makeSingleGeneralLoader(GameEloModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -94,6 +98,8 @@ export interface Loaders {
   CharacterLoader: DataLoader<unknown, any, unknown>;
   PlayersLoader: DataLoader<unknown, any[], unknown>;
   PlayerLoader: DataLoader<unknown, any, unknown>;
+  GameElosLoader: DataLoader<unknown, any[], unknown>;
+  GameEloLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -105,4 +111,6 @@ export const loaders: Loaders = {
   CharacterLoader,
   PlayersLoader,
   PlayerLoader,
+  GameElosLoader,
+  GameEloLoader,
 };

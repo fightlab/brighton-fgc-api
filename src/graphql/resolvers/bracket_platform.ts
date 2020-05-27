@@ -97,4 +97,6 @@ export class BracketPlatformResolver {
     const [iteratee, orders] = mapSort(sort);
     return orderBy(platforms, iteratee, orders);
   }
+
+  // TODO: Add brackets that belong to each platform
 }

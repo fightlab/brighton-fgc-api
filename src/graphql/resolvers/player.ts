@@ -92,4 +92,12 @@ export class PlayerResolver {
     const [iteratee, orders] = mapSort(sort);
     return orderBy(players, iteratee, orders);
   }
+
+  // TODO: Add tournaments this player has featured in
+
+  // TODO: Add matches that this player has featured in
+
+  // TODO: Add player social
+
+  // TODO: Add player platform
 }

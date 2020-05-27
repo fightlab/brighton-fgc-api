@@ -113,4 +113,12 @@ export class GameResolver {
   characters(@Root() game: DocumentType<Game>, @Ctx() ctx: Context) {
     return ctx.loaders.CharactersLoader.load({ game: game.id });
   }
+
+  // TODO: Add tournaments that feature this game
+
+  // TODO: Add tournament series that feature this game
+
+  // TODO: add game elo
+
+  // TODO: add tournament series elo
 }
