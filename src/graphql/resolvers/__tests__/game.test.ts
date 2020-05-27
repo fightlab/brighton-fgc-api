@@ -1,10 +1,15 @@
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
-import { generateGame, generateCharacter } from '@lib/test/generate';
+import {
+  generateGame,
+  generateCharacter,
+  generateGameElo,
+} from '@lib/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Game, GameModel } from '@models/game';
 import { Character, CharacterModel } from '@models/character';
 import { ObjectId } from 'mongodb';
+import { GameEloModel } from '@models/game_elo';
 
 describe('Game GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -377,5 +382,89 @@ describe('Game GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.games).toBeDefined();
     expect(output.data?.games).toHaveLength(0);
+  });
+
+  it('should resolve game_elos', async () => {
+    // add a couple of game elos to the database
+    const gameElos = await GameEloModel.create([
+      generateGameElo(new ObjectId(), games[0]._id),
+      generateGameElo(new ObjectId(), games[0]._id),
+    ]);
+
+    const source = gql`
+      query SelectSingleGame($id: ObjectId!) {
+        game(id: $id) {
+          _id
+          game_elos {
+            _id
+            score
+            game_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: games[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game._id).toBe(games[0].id);
+    expect(output.data?.game.game_elos).toHaveLength(gameElos.length);
+    expect(
+      every(
+        output.data?.game.game_elos,
+        (e) =>
+          some(gameElos, (s) => s.id === e._id) &&
+          some(gameElos, (s) => s.score === e.score) &&
+          every(gameElos, (ge) => ge.game?.toString() === e.game_id),
+      ),
+    ).toBe(true);
+  });
+
+  it('should resolve game_elos for a given player', async () => {
+    const fakePlayer = new ObjectId();
+    // add a couple of game elos to the database
+    await GameEloModel.create([
+      generateGameElo(fakePlayer, games[0]._id),
+      generateGameElo(new ObjectId(), games[0]._id),
+    ]);
+
+    const source = gql`
+      query SelectSingleGame($id: ObjectId!, $players: [ObjectId!]) {
+        game(id: $id) {
+          _id
+          game_elos(players: $players) {
+            _id
+            score
+            game_id
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: games[0].id,
+      players: [fakePlayer.toHexString()],
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game._id).toBe(games[0].id);
+    expect(output.data?.game.game_elos).toHaveLength(1);
+    expect(output.data?.game.game_elos[0].game_id).toBe(games[0].id);
+    expect(output.data?.game.game_elos[0].player_id).toBe(
+      fakePlayer.toHexString(),
+    );
   });
 });

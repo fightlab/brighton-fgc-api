@@ -21,6 +21,11 @@ import {
   MongooseQuery,
 } from '@graphql/resolvers';
 import { Character } from '@models/character';
+import { GameElo, GAME_ELO_DESCRIPTIONS } from '@models/game_elo';
+import {
+  GAME_ELO_SORT,
+  mapSort as gameEloMapSort,
+} from '@graphql/resolvers/game_elo';
 
 // sorting stuff for game
 enum GAME_SORT {
@@ -118,7 +123,38 @@ export class GameResolver {
 
   // TODO: Add tournament series that feature this game
 
-  // TODO: add game elo
+  // game elo, also search and sort
+  @FieldResolver(() => [GameElo], {
+    description: GAME_DESCRIPTIONS.GAME_ELO,
+    nullable: true,
+  })
+  async game_elos(
+    @Root() game: DocumentType<Game>,
+    @Arg('players', () => [ObjectIdScalar], {
+      nullable: true,
+      description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
+    })
+    players: Array<ObjectId>,
+    @Arg('sort', () => GAME_ELO_SORT, {
+      nullable: true,
+      defaultValue: GAME_ELO_SORT.SCORE_DESC,
+    })
+    sort: GAME_ELO_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    const q = generateMongooseQueryObject();
+    q.game = game.id;
+
+    if (players) {
+      q.player = {
+        $in: players,
+      } as MongooseQuery;
+    }
+
+    const elos = await ctx.loaders.GameElosLoader.load(q);
+    const [iteratee, orders] = gameEloMapSort(sort);
+    return orderBy(elos, iteratee, orders);
+  }
 
   // TODO: add tournament series elo
 }

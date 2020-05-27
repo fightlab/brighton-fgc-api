@@ -19,7 +19,7 @@ import {
 } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 
-enum GAME_ELO_SORT {
+export enum GAME_ELO_SORT {
   GAME_ID,
   PLAYER_ID,
   SCORE_ASC,
@@ -32,7 +32,7 @@ registerEnumType(GAME_ELO_SORT, {
   description: 'Sort game elo ratings by this enum',
 });
 
-const mapSort = (sort: GAME_ELO_SORT): MapSort => {
+export const mapSort = (sort: GAME_ELO_SORT): MapSort => {
   switch (sort) {
     case GAME_ELO_SORT.GAME_ID:
       return ['game', 'asc'];

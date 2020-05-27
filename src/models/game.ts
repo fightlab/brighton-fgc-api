@@ -22,6 +22,7 @@ export enum GAME_DESCRIPTIONS {
   CHARACTERS = 'Characters from this game that have appeared in VODs',
   FIND_ONE = 'Find and get a single game by id',
   FIND = 'Find and get some or all games',
+  GAME_ELO = 'Player elo rankings for this game',
 }
 
 @ObjectType({
