@@ -1,9 +1,10 @@
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
-import { generatePlayer } from '@lib/test/generate';
+import { generatePlayer, generateGameElo } from '@lib/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Player, PlayerModel } from '@models/player';
 import { ObjectId } from 'mongodb';
+import { GameEloModel } from '@models/game_elo';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -316,5 +317,48 @@ describe('Player GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.players).toBeDefined();
     expect(output.data?.players).toHaveLength(0);
+  });
+
+  it('should resolve game_elos', async () => {
+    // add a couple of game elos to the database
+    const gameElos = await GameEloModel.create([
+      generateGameElo(players[0]._id, new ObjectId()),
+      generateGameElo(players[0]._id, new ObjectId()),
+    ]);
+
+    const source = gql`
+      query SelectSingleGame($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          game_elos {
+            _id
+            score
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.game_elos).toHaveLength(gameElos.length);
+    expect(
+      every(
+        output.data?.player.game_elos,
+        (e) =>
+          some(gameElos, (s) => s.id === e._id) &&
+          some(gameElos, (s) => s.score === e.score) &&
+          every(gameElos, (ge) => ge.player?.toString() === e.player_id),
+      ),
+    ).toBe(true);
   });
 });

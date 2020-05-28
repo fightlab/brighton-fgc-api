@@ -1,4 +1,12 @@
-import { Resolver, Query, Ctx, Arg, registerEnumType } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Ctx,
+  Arg,
+  registerEnumType,
+  FieldResolver,
+  Root,
+} from 'type-graphql';
 import { Player, PLAYER_DESCRIPTIONS } from '@models/player';
 import { Context } from '@lib/graphql';
 import {
@@ -9,6 +17,13 @@ import {
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
 import { orderBy } from 'lodash';
+import { GameElo, GAME_ELO_DESCRIPTIONS } from '@models/game_elo';
+import { GAME_DESCRIPTIONS } from '@models/game';
+import {
+  GAME_ELO_SORT,
+  GameEloResolverMethods,
+} from '@graphql/resolvers/game_elo';
+import { DocumentType } from '@typegoose/typegoose';
 
 enum PLAYER_SORT {
   HANDLE_ASC,
@@ -100,4 +115,31 @@ export class PlayerResolver {
   // TODO: Add player social
 
   // TODO: Add player platform
+
+  // game elo, also search and sort
+  @FieldResolver(() => [GameElo], {
+    description: GAME_DESCRIPTIONS.GAME_ELO,
+    nullable: true,
+  })
+  game_elos(
+    @Arg('games', () => [ObjectIdScalar], {
+      nullable: true,
+      description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
+    })
+    games: Array<ObjectId>,
+    @Root() player: DocumentType<Player>,
+    @Arg('sort', () => GAME_ELO_SORT, {
+      nullable: true,
+      defaultValue: GAME_ELO_SORT.SCORE_DESC,
+    })
+    sort: GAME_ELO_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return GameEloResolverMethods.game_elos({
+      games,
+      players: [player._id],
+      sort,
+      ctx,
+    });
+  }
 }

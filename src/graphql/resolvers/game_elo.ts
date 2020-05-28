@@ -47,6 +47,63 @@ export const mapSort = (sort: GAME_ELO_SORT): MapSort => {
   }
 };
 
+// class used to share methods to other resolvers, use static methods
+export class GameEloResolverMethods {
+  // get a single game elo by game and player
+  static async game_elo({
+    game,
+    player,
+    ctx,
+  }: {
+    game: ObjectId;
+    player: ObjectId;
+    ctx: Context;
+  }) {
+    const q = generateMongooseQueryObject();
+    q.game = game;
+    q.player = player;
+
+    const results = await ctx.loaders.GameElosLoader.load(q);
+    // found a result, so return the first one
+    if (results.length) {
+      return results[0];
+    }
+    // nothing found, return null
+    return null;
+  }
+
+  // get multiple game elos based on a list of games or players
+  static async game_elos({
+    games,
+    players,
+    sort = GAME_ELO_SORT.SCORE_DESC,
+    ctx,
+  }: {
+    games?: Array<ObjectId>;
+    players?: Array<ObjectId>;
+    sort?: GAME_ELO_SORT;
+    ctx: Context;
+  }) {
+    const q = generateMongooseQueryObject();
+
+    if (games) {
+      q.game = {
+        $in: games,
+      } as MongooseQuery;
+    }
+
+    if (players) {
+      q.player = {
+        $in: players,
+      } as MongooseQuery;
+    }
+
+    const elos = await ctx.loaders.GameElosLoader.load(q);
+    const [iteratee, orders] = mapSort(sort);
+    return orderBy(elos, iteratee, orders);
+  }
+}
+
 @Resolver(() => GameElo)
 export class GameEloResolver {
   // get a single game elo by game and player
@@ -65,24 +122,14 @@ export class GameEloResolver {
     player: ObjectId,
     @Ctx() ctx: Context,
   ) {
-    const q = generateMongooseQueryObject();
-    q.game = game;
-    q.player = player;
-
-    const results = await ctx.loaders.GameElosLoader.load(q);
-    // found a result, so return the first one
-    if (results.length) {
-      return results[0];
-    }
-    // nothing found, return null
-    return null;
+    return GameEloResolverMethods.game_elo({ game, player, ctx });
   }
 
   // get multiple game elos based on a list of games or players
   @Query(() => [GameElo], {
     description: GAME_ELO_DESCRIPTIONS.FIND,
   })
-  async game_elos(
+  game_elos(
     @Arg('games', () => [ObjectIdScalar], {
       nullable: true,
       description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
@@ -100,23 +147,7 @@ export class GameEloResolver {
     sort: GAME_ELO_SORT,
     @Ctx() ctx: Context,
   ) {
-    const q = generateMongooseQueryObject();
-
-    if (games) {
-      q.game = {
-        $in: games,
-      } as MongooseQuery;
-    }
-
-    if (players) {
-      q.player = {
-        $in: players,
-      } as MongooseQuery;
-    }
-
-    const elos = await ctx.loaders.GameElosLoader.load(q);
-    const [iteratee, orders] = mapSort(sort);
-    return orderBy(elos, iteratee, orders);
+    return GameEloResolverMethods.game_elos({ games, players, sort, ctx });
   }
 
   // populate player
