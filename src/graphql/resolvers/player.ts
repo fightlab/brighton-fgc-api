@@ -24,6 +24,11 @@ import {
   GameEloResolverMethods,
 } from '@graphql/resolvers/game_elo';
 import { DocumentType } from '@typegoose/typegoose';
+import {
+  PlayerSocial,
+  PLAYER_SOCIAL_DESCRIPTIONS,
+} from '@models/player_social';
+import { PlayerSocialResolverMethods } from './player_social';
 
 enum PLAYER_SORT {
   HANDLE_ASC,
@@ -112,9 +117,19 @@ export class PlayerResolver {
 
   // TODO: Add matches that this player has featured in
 
-  // TODO: Add player social
+  // Player social media information
+  @FieldResolver(() => PlayerSocial, {
+    description: PLAYER_SOCIAL_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  player_social(@Root() player: DocumentType<Player>, @Ctx() ctx: Context) {
+    return PlayerSocialResolverMethods.player_social({
+      player: player._id,
+      ctx,
+    });
+  }
 
-  // TODO: Add player platform
+  // TODO: Add player platform (when auth is done (for admins/update purposes))
 
   // game elo, also search and sort
   @FieldResolver(() => [GameElo], {

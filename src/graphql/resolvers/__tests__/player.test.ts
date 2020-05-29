@@ -2,12 +2,14 @@ import { gqlCall, gql } from '@graphql/resolvers/test/helper';
 import {
   generatePlayer,
   generateGameElo,
+  generatePlayerSocial,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Player, PlayerModel } from '@models/player';
 import { ObjectId } from 'mongodb';
 import { GameEloModel } from '@models/game_elo';
+import { PlayerSocialModel } from '@models/player_social';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -363,5 +365,63 @@ describe('Player GraphQL Resolver Test', () => {
           every(gameElos, (ge) => ge.player?.toString() === e.player_id),
       ),
     ).toBe(true);
+  });
+
+  it('should resolve player social', async () => {
+    const [playerSocial] = await PlayerSocialModel.create([
+      generatePlayerSocial(players[0]._id, 'min'),
+    ]);
+
+    const source = gql`
+      query SelectPlayerSocial($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          player_social {
+            _id
+            web
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player.player_social).toBeDefined();
+    expect(output.data?.player.player_social._id).toBe(playerSocial.id);
+    expect(output.data?.player.player_social.web).toBeNull();
+  });
+
+  it('should return null for player social if not found', async () => {
+    const source = gql`
+      query SelectPlayerSocial($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          player_social {
+            _id
+            web
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player.player_social).toBeNull();
   });
 });
