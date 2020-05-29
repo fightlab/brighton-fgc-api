@@ -1,5 +1,8 @@
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
-import { generatePlayer, generateGameElo } from '@lib/test/generate';
+import {
+  generatePlayer,
+  generateGameElo,
+} from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Player, PlayerModel } from '@models/player';

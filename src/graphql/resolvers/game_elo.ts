@@ -111,7 +111,7 @@ export class GameEloResolver {
     nullable: true,
     description: GAME_ELO_DESCRIPTIONS.FIND_ONE,
   })
-  async game_elo(
+  game_elo(
     @Arg('game', () => ObjectIdScalar, {
       description: GAME_ELO_DESCRIPTIONS.GAME,
     })

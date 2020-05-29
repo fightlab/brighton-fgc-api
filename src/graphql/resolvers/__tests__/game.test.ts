@@ -3,7 +3,7 @@ import {
   generateGame,
   generateCharacter,
   generateGameElo,
-} from '@lib/test/generate';
+} from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Game, GameModel } from '@models/game';

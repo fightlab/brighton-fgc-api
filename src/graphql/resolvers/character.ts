@@ -20,6 +20,7 @@ import {
   MongooseQuery,
 } from '@graphql/resolvers';
 import { orderBy } from 'lodash';
+import { Game } from '@models/game';
 
 // sorting stuff for character
 enum CHARACTER_SORT {
@@ -116,7 +117,9 @@ export class CharacterResolver {
   }
 
   // field resolver for the game
-  @FieldResolver()
+  @FieldResolver(() => Game, {
+    description: CHARACTER_DESCRIPTIONS.GAME,
+  })
   game(@Root() character: DocumentType<Character>, @Ctx() ctx: Context) {
     return ctx.loaders.GameLoader.load(character.game);
   }

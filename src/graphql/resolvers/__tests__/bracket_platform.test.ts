@@ -1,5 +1,5 @@
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
-import { generateBracketPlatform } from '@lib/test/generate';
+import { generateBracketPlatform } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import {

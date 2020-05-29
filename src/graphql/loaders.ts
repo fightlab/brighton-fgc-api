@@ -15,8 +15,10 @@ import { GameModel } from '@models/game';
 import { CharacterModel } from '@models/character';
 import { PlayerModel } from '@models/player';
 import { GameEloModel } from '@models/game_elo';
+import { PlayerPlatformModel } from '@models/player_platform';
+import { PlayerSocialModel } from '@models/player_social';
 
-// replace instances of objectid with string representation
+// replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
   // check if value is objectid
   if (v instanceof ObjectId) {
@@ -31,7 +33,8 @@ const replacer = (v: any) => {
 const { isTest } = getConfig();
 const enableCache = !isTest();
 
-// caching key function
+// caching key function by hashing the object to generate a (most likely unique) hash
+// to be used as the cache key
 const cacheKeyFn = (key: any) => objectHash(key, { replacer });
 
 // use general loader to return multiple values (e.g. an array of events)
@@ -88,6 +91,10 @@ const PlayersLoader = makeGeneralLoader(PlayerModel);
 const PlayerLoader = makeSingleGeneralLoader(PlayerModel);
 const GameElosLoader = makeGeneralLoader(GameEloModel);
 const GameEloLoader = makeSingleGeneralLoader(GameEloModel);
+const PlayerPlatformsLoader = makeGeneralLoader(PlayerPlatformModel);
+const PlayerPlatformLoader = makeSingleGeneralLoader(PlayerPlatformModel);
+const PlayerSocialsLoader = makeGeneralLoader(PlayerSocialModel);
+const PlayerSocialLoader = makeSingleGeneralLoader(PlayerSocialModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -100,6 +107,10 @@ export interface Loaders {
   PlayerLoader: DataLoader<unknown, any, unknown>;
   GameElosLoader: DataLoader<unknown, any[], unknown>;
   GameEloLoader: DataLoader<unknown, any, unknown>;
+  PlayerPlatformsLoader: DataLoader<unknown, any[], unknown>;
+  PlayerPlatformLoader: DataLoader<unknown, any, unknown>;
+  PlayerSocialsLoader: DataLoader<unknown, any[], unknown>;
+  PlayerSocialLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -113,4 +124,8 @@ export const loaders: Loaders = {
   PlayerLoader,
   GameElosLoader,
   GameEloLoader,
+  PlayerPlatformsLoader,
+  PlayerPlatformLoader,
+  PlayerSocialsLoader,
+  PlayerSocialLoader,
 };

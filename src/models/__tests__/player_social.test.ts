@@ -21,6 +21,9 @@ describe('PlayerSocial model test', () => {
       {
         handle: 'Player 2',
       },
+      {
+        handle: 'Player 3',
+      },
     ] as Array<Player>);
 
     playerSocialFull = {
@@ -46,7 +49,7 @@ describe('PlayerSocial model test', () => {
     // add an player social to the collection
     [playerSocial] = await PlayerSocialModel.create([
       {
-        player: players[0]._id,
+        player: players[2]._id,
       },
     ] as Array<PlayerSocial>);
   });
@@ -98,7 +101,7 @@ describe('PlayerSocial model test', () => {
 
     expect(isDocument(output?.player)).toBe(true);
     if (isDocument(output?.player)) {
-      expect(output?.player.id).toBe(players[0].id);
+      expect(output?.player.id).toBe(players[2].id);
     }
   });
 

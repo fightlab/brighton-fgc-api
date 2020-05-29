@@ -5,6 +5,11 @@ import { ObjectId } from 'mongodb';
 import { Character } from '@models/character';
 import { Player } from '@models/player';
 import { GameElo } from '@models/game_elo';
+import { PlayerSocial } from '@models/player_social';
+
+// get optional value if random
+const getOptional = (val: any): any | undefined =>
+  faker.random.boolean() ? val : undefined;
 
 // generate a fake tournament bracket platform for testing
 export const generateBracketPlatform = (min = true): BracketPlatform => {
@@ -93,3 +98,64 @@ export const generateGameElo = (player: ObjectId, game: ObjectId): GameElo => ({
     max: 1400,
   }),
 });
+
+// generate player social for testing
+export const generatePlayerSocial = (
+  player: ObjectId,
+  type: 'full' | 'random' | 'min' = 'min',
+): PlayerSocial => {
+  const obj: PlayerSocial = {
+    player,
+  };
+  if (type === 'min') {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    facebook:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    web:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    twitter:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    discord:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    instagram:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    twitch:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    youtube:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    github:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    playstation:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    switch:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+    xbox:
+      type === 'random'
+        ? getOptional(faker.internet.userName())
+        : faker.internet.userName(),
+  };
+};
