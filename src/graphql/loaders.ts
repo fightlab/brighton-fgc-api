@@ -17,6 +17,7 @@ import { PlayerModel } from '@models/player';
 import { GameEloModel } from '@models/game_elo';
 import { PlayerPlatformModel } from '@models/player_platform';
 import { PlayerSocialModel } from '@models/player_social';
+import { VenueModel } from '@models/venue';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -95,6 +96,8 @@ const PlayerPlatformsLoader = makeGeneralLoader(PlayerPlatformModel);
 const PlayerPlatformLoader = makeSingleGeneralLoader(PlayerPlatformModel);
 const PlayerSocialsLoader = makeGeneralLoader(PlayerSocialModel);
 const PlayerSocialLoader = makeSingleGeneralLoader(PlayerSocialModel);
+const VenuesLoader = makeGeneralLoader(VenueModel);
+const VenueLoader = makeSingleGeneralLoader(VenueModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -111,6 +114,8 @@ export interface Loaders {
   PlayerPlatformLoader: DataLoader<unknown, any, unknown>;
   PlayerSocialsLoader: DataLoader<unknown, any[], unknown>;
   PlayerSocialLoader: DataLoader<unknown, any, unknown>;
+  VenuesLoader: DataLoader<unknown, any[], unknown>;
+  VenueLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -128,4 +133,6 @@ export const loaders: Loaders = {
   PlayerPlatformLoader,
   PlayerSocialsLoader,
   PlayerSocialLoader,
+  VenuesLoader,
+  VenueLoader,
 };

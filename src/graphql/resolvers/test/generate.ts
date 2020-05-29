@@ -6,6 +6,7 @@ import { Character } from '@models/character';
 import { Player } from '@models/player';
 import { GameElo } from '@models/game_elo';
 import { PlayerSocial } from '@models/player_social';
+import { Venue } from '@models/venue';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -107,6 +108,7 @@ export const generatePlayerSocial = (
   const obj: PlayerSocial = {
     player,
   };
+
   if (type === 'min') {
     return obj;
   }
@@ -157,5 +159,24 @@ export const generatePlayerSocial = (
       type === 'random'
         ? getOptional(faker.internet.userName())
         : faker.internet.userName(),
+  };
+};
+
+// generate venue for testing
+export const generateVenue = (min = true): Venue => {
+  const obj: Venue = {
+    name: faker.company.companyName(),
+    short: faker.company.catchPhraseNoun(),
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    address: faker.address.streetAddress(true),
+    google_maps: `$https://goo.gl/maps/${faker.random.uuid()}`,
+    website: faker.internet.url(),
   };
 };
