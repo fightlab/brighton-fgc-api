@@ -59,60 +59,28 @@ const mapSort = (sort: EVENT_SORT): MapSort => {
   }
 };
 
-@Resolver(() => Event)
-export class EventResolver {
-  // get single event
-  @Query(() => Event, {
-    nullable: true,
-    description: EVENT_DESCRIPTIONS.FIND_ONE,
-  })
-  event(
-    @Arg('id', () => ObjectIdScalar, {
-      description: EVENT_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return ctx.loaders.EventLoader.load(id);
-  }
-
-  // get multiple events
-  @Query(() => [Event], {
-    description: EVENT_DESCRIPTIONS.FIND,
-  })
-  async events(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: EVENT_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => EVENT_SORT, {
-      nullable: true,
-      defaultValue: EVENT_SORT.DATE_START_DESC,
-    })
-    sort: EVENT_SORT,
-    @Arg('date_start_gte', {
-      nullable: true,
-    })
-    date_start_gte: Date,
-    @Arg('date_start_lte', {
-      nullable: true,
-    })
-    date_start_lte: Date,
-    @Arg('date_end_gte', {
-      nullable: true,
-    })
-    date_end_gte: Date,
-    @Arg('date_end_lte', {
-      nullable: true,
-    })
-    date_end_lte: Date,
-    @Ctx() ctx: Context,
-  ) {
+export class EventResolverMethodsClass {
+  static async events({
+    ids,
+    search,
+    date_start_gte,
+    date_start_lte,
+    date_end_gte,
+    date_end_lte,
+    venue,
+    sort = EVENT_SORT.DATE_START_DESC,
+    ctx,
+  }: {
+    ids?: Array<ObjectId>;
+    search?: string;
+    date_start_gte?: Date;
+    date_start_lte?: Date;
+    date_end_gte?: Date;
+    date_end_lte?: Date;
+    venue?: ObjectId;
+    sort: EVENT_SORT;
+    ctx: Context;
+  }) {
     const q = generateMongooseQueryObject();
     if (search) {
       q.name = {
@@ -147,9 +115,80 @@ export class EventResolver {
       }
     }
 
+    if (venue) {
+      q.venue = venue;
+    }
+
     const events = await ctx.loaders.EventsLoader.load(q);
     const [iteratee, orders] = mapSort(sort);
     return orderBy(events, iteratee, orders);
+  }
+}
+
+@Resolver(() => Event)
+export class EventResolver {
+  // get single event
+  @Query(() => Event, {
+    nullable: true,
+    description: EVENT_DESCRIPTIONS.FIND_ONE,
+  })
+  event(
+    @Arg('id', () => ObjectIdScalar, {
+      description: EVENT_DESCRIPTIONS.ID,
+    })
+    id: ObjectId,
+    @Ctx() ctx: Context,
+  ) {
+    return ctx.loaders.EventLoader.load(id);
+  }
+
+  // get multiple events
+  @Query(() => [Event], {
+    description: EVENT_DESCRIPTIONS.FIND,
+  })
+  events(
+    @Arg('ids', () => [ObjectIdScalar], {
+      nullable: true,
+      description: EVENT_DESCRIPTIONS.IDS,
+    })
+    ids: Array<ObjectId>,
+    @Arg('search', {
+      nullable: true,
+    })
+    search: string,
+    @Arg('date_start_gte', {
+      nullable: true,
+    })
+    date_start_gte: Date,
+    @Arg('date_start_lte', {
+      nullable: true,
+    })
+    date_start_lte: Date,
+    @Arg('date_end_gte', {
+      nullable: true,
+    })
+    date_end_gte: Date,
+    @Arg('date_end_lte', {
+      nullable: true,
+    })
+    date_end_lte: Date,
+    @Arg('sort', () => EVENT_SORT, {
+      nullable: true,
+      defaultValue: EVENT_SORT.DATE_START_DESC,
+    })
+    sort: EVENT_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return EventResolverMethodsClass.events({
+      ids,
+      ctx,
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      search,
+    });
   }
 
   // add field onto character to return the game id

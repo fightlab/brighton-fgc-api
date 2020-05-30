@@ -50,6 +50,45 @@ const mapSort = (sort: CHARACTER_SORT): MapSort => {
   }
 };
 
+export class CharacterMethodResolver {
+  static async characters({
+    search,
+    ids,
+    game,
+    sort = CHARACTER_SORT.GAME_ID,
+    ctx,
+  }: {
+    search?: string;
+    ids?: Array<ObjectId>;
+    game?: ObjectId;
+    sort: CHARACTER_SORT;
+    ctx: Context;
+  }) {
+    const q = generateMongooseQueryObject();
+
+    if (search) {
+      q.name = {
+        $regex: `${search}`,
+        $options: 'i',
+      } as MongooseQuery;
+    }
+
+    if (ids) {
+      q._id = {
+        $in: ids,
+      } as MongooseQuery;
+    }
+
+    if (game) {
+      q.game = game;
+    }
+
+    const characters = await ctx.loaders.CharactersLoader.load(q);
+    const [iteratee, orders] = mapSort(sort);
+    return orderBy(characters, iteratee, orders);
+  }
+}
+
 @Resolver(() => Character)
 export class CharacterResolver {
   // get single character
@@ -71,7 +110,7 @@ export class CharacterResolver {
   @Query(() => [Character], {
     description: CHARACTER_DESCRIPTIONS.FIND,
   })
-  async characters(
+  characters(
     @Arg('ids', () => [ObjectIdScalar], {
       nullable: true,
       description: CHARACTER_DESCRIPTIONS.IDS,
@@ -88,24 +127,12 @@ export class CharacterResolver {
     sort: CHARACTER_SORT,
     @Ctx() ctx: Context,
   ) {
-    const q = generateMongooseQueryObject();
-
-    if (search) {
-      q.name = {
-        $regex: `${search}`,
-        $options: 'i',
-      } as MongooseQuery;
-    }
-
-    if (ids) {
-      q._id = {
-        $in: ids,
-      } as MongooseQuery;
-    }
-
-    const characters = await ctx.loaders.CharactersLoader.load(q);
-    const [iteratee, orders] = mapSort(sort);
-    return orderBy(characters, iteratee, orders);
+    return CharacterMethodResolver.characters({
+      ctx,
+      sort,
+      ids,
+      search,
+    });
   }
 
   // add field onto character to return the game id

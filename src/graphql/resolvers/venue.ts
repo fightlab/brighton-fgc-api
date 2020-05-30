@@ -1,14 +1,28 @@
-import { registerEnumType, Resolver, Query, Ctx, Arg } from 'type-graphql';
+import {
+  registerEnumType,
+  Resolver,
+  Query,
+  Ctx,
+  Arg,
+  FieldResolver,
+  Root,
+} from 'type-graphql';
 import {
   MapSort,
   generateMongooseQueryObject,
   MongooseQuery,
 } from '@graphql/resolvers';
+import { Event } from '@models/event';
 import { Venue, VENUE_DESCRIPTIONS } from '@models/venue';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
 import { Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
+import {
+  EventResolverMethodsClass,
+  EVENT_SORT,
+} from '@graphql/resolvers/event';
+import { DocumentType } from '@typegoose/typegoose';
 
 enum VENUE_SORT {
   NAME_ASC,
@@ -90,5 +104,48 @@ export class VenueResolver {
     return orderBy(venues, iteratee, orders);
   }
 
-  // TODO: get events that have taken place at this venue
+  // get events that have taken place at this venue
+  @FieldResolver(() => [Event], {
+    description: VENUE_DESCRIPTIONS.EVENTS,
+  })
+  events(
+    @Root() venue: DocumentType<Venue>,
+    @Arg('search', {
+      nullable: true,
+    })
+    search: string,
+    @Arg('date_start_gte', {
+      nullable: true,
+    })
+    date_start_gte: Date,
+    @Arg('date_start_lte', {
+      nullable: true,
+    })
+    date_start_lte: Date,
+    @Arg('date_end_gte', {
+      nullable: true,
+    })
+    date_end_gte: Date,
+    @Arg('date_end_lte', {
+      nullable: true,
+    })
+    date_end_lte: Date,
+    @Arg('sort', () => EVENT_SORT, {
+      nullable: true,
+      defaultValue: EVENT_SORT.DATE_START_DESC,
+    })
+    sort: EVENT_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return EventResolverMethodsClass.events({
+      venue: venue._id,
+      ctx,
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      search,
+    });
+  }
 }

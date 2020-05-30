@@ -1,9 +1,10 @@
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
 import { DocumentType } from '@typegoose/typegoose';
 import { Venue, VenueModel } from '@models/venue';
-import { generateVenue } from '@graphql/resolvers/test/generate';
+import { generateVenue, generateEvent } from '@graphql/resolvers/test/generate';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
+import { EventModel, Event } from '@models/event';
 
 describe('Venue GraphQL Resolver Test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -261,5 +262,70 @@ describe('Venue GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.venues).toBeDefined();
     expect(output.data?.venues).toHaveLength(venues.length);
+  });
+
+  it('should populate events for a given venue', async () => {
+    // generate some events for a given venue
+    const events = await EventModel.create([
+      generateEvent(venues[0]._id),
+      generateEvent(venues[0]._id),
+    ] as Array<Event>);
+
+    const source = gql`
+      query SelectVenues($id: ObjectId!) {
+        venue(id: $id) {
+          _id
+          events {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: venues[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.venue).toBeDefined();
+    expect(output.data?.venue._id).toBe(venues[0].id);
+    expect(output.data?.venue.events).toHaveLength(events.length);
+    expect(
+      every(output.data?.venue.events, (e) =>
+        some(events, (s) => s.id === e._id),
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array if events not found for a venue', async () => {
+    const source = gql`
+      query SelectVenues($id: ObjectId!) {
+        venue(id: $id) {
+          _id
+          events {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: venues[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.venue).toBeDefined();
+    expect(output.data?.venue._id).toBe(venues[0].id);
+    expect(output.data?.venue.events).toHaveLength(0);
   });
 });

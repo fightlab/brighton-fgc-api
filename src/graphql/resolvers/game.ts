@@ -26,6 +26,10 @@ import {
   GAME_ELO_SORT,
   GameEloResolverMethods,
 } from '@graphql/resolvers/game_elo';
+import {
+  CHARACTER_SORT,
+  CharacterMethodResolver,
+} from '@graphql/resolvers/character';
 
 // sorting stuff for game
 enum GAME_SORT {
@@ -115,8 +119,25 @@ export class GameResolver {
     description: GAME_DESCRIPTIONS.CHARACTERS,
     nullable: true,
   })
-  characters(@Root() game: DocumentType<Game>, @Ctx() ctx: Context) {
-    return ctx.loaders.CharactersLoader.load({ game: game.id });
+  characters(
+    @Root() game: DocumentType<Game>,
+    @Arg('search', {
+      nullable: true,
+    })
+    search: string,
+    @Arg('sort', () => CHARACTER_SORT, {
+      nullable: true,
+      defaultValue: CHARACTER_SORT.GAME_ID,
+    })
+    sort: CHARACTER_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return CharacterMethodResolver.characters({
+      ctx,
+      sort,
+      search,
+      game: game._id,
+    });
   }
 
   // TODO: Add tournaments that feature this game
