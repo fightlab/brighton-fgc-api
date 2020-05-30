@@ -7,10 +7,21 @@ import { Player } from '@models/player';
 import { GameElo } from '@models/game_elo';
 import { PlayerSocial } from '@models/player_social';
 import { Venue } from '@models/venue';
+import { Event } from '@models/event';
+import moment, { Moment } from 'moment';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
   faker.random.boolean() ? val : undefined;
+
+// helper method to generate dates
+const generateDates = (num: number, length: number): [Moment, Moment] => {
+  const now = moment.utc();
+  const start = moment.utc(now).subtract(length, 'weeks').add(num, 'weeks');
+  const end = moment.utc(start).add(4, 'hours');
+
+  return [start, end];
+};
 
 // generate a fake tournament bracket platform for testing
 export const generateBracketPlatform = (min = true): BracketPlatform => {
@@ -178,5 +189,27 @@ export const generateVenue = (min = true): Venue => {
     address: faker.address.streetAddress(true),
     google_maps: `$https://goo.gl/maps/${faker.random.uuid()}`,
     website: faker.internet.url(),
+  };
+};
+
+// generate event for testing
+export const generateEvent = (venue: ObjectId, min = true): Event => {
+  const [start, end] = generateDates(1, 1);
+
+  const obj: Event = {
+    name: faker.company.companyName(),
+    date_end: end.toDate(),
+    date_start: start.toDate(),
+    venue,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    short: faker.hacker.abbreviation(),
+    info: faker.hacker.phrase(),
   };
 };

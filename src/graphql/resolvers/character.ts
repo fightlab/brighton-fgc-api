@@ -1,4 +1,4 @@
-// GraphQL Resolver for Bracket Platforms
+// GraphQL Resolver for Characters
 
 import {
   Resolver,
@@ -23,7 +23,7 @@ import { orderBy } from 'lodash';
 import { Game } from '@models/game';
 
 // sorting stuff for character
-enum CHARACTER_SORT {
+export enum CHARACTER_SORT {
   NAME_ASC,
   NAME_DESC,
   GAME_ID,
@@ -103,9 +103,9 @@ export class CharacterResolver {
       } as MongooseQuery;
     }
 
-    const games = await ctx.loaders.CharactersLoader.load(q);
+    const characters = await ctx.loaders.CharactersLoader.load(q);
     const [iteratee, orders] = mapSort(sort);
-    return orderBy(games, iteratee, orders);
+    return orderBy(characters, iteratee, orders);
   }
 
   // add field onto character to return the game id
