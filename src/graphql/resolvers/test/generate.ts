@@ -9,6 +9,7 @@ import { PlayerSocial } from '@models/player_social';
 import { Venue } from '@models/venue';
 import { Event } from '@models/event';
 import moment, { Moment } from 'moment';
+import { EventSeries } from '@models/event_series';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -210,6 +211,26 @@ export const generateEvent = (venue: ObjectId, min = true): Event => {
   return {
     ...obj,
     short: faker.hacker.abbreviation(),
+    info: faker.hacker.phrase(),
+  };
+};
+
+// generate event series for testing
+export const generateEventSeries = (
+  events: Array<ObjectId>,
+  min = true,
+): EventSeries => {
+  const obj: EventSeries = {
+    name: faker.company.companyName(),
+    events,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
     info: faker.hacker.phrase(),
   };
 };

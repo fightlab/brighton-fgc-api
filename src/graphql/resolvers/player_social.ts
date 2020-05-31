@@ -23,15 +23,10 @@ export class PlayerSocialResolverMethods {
     const q = generateMongooseQueryObject();
     q.player = player;
 
-    const results = await ctx.loaders.PlayerSocialsLoader.load(q);
-
     // found a result, so return the first one
-    if (results.length) {
-      return results[0];
-    }
-
     // nothing found, return null
-    return null;
+    const [results = null] = await ctx.loaders.PlayerSocialsLoader.load(q);
+    return results;
   }
 }
 

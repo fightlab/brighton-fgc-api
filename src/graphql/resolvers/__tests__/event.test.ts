@@ -1,11 +1,16 @@
 import { DocumentType } from '@typegoose/typegoose';
 import { Venue, VenueModel } from '@models/venue';
 import { Event, EventModel } from '@models/event';
-import { generateVenue, generateEvent } from '@graphql/resolvers/test/generate';
+import {
+  generateVenue,
+  generateEvent,
+  generateEventSeries,
+} from '@graphql/resolvers/test/generate';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
 import moment from 'moment';
+import { EventSeriesModel, EventSeries } from '@models/event_series';
 
 describe('Event GraphQL Resolver Test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -880,5 +885,65 @@ describe('Event GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     // should find some events
     expect(output.data?.events).toHaveLength(0);
+  });
+
+  it('should populate event series for a given event', async () => {
+    // generate an event series for events
+    const [eventSeries] = await EventSeriesModel.create([
+      generateEventSeries(events.map((e) => e._id)),
+    ] as Array<EventSeries>);
+
+    const source = gql`
+      query SelectEvents($id: ObjectId!) {
+        event(id: $id) {
+          _id
+          event_series {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: events[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event._id).toBe(events[0].id);
+    expect(output.data?.event.event_series).toBeDefined();
+    expect(output.data?.event.event_series._id).toBe(eventSeries.id);
+    expect(output.data?.event.event_series.name).toBe(eventSeries.name);
+  });
+
+  it('should return null if event series not found for an event', async () => {
+    const source = gql`
+      query SelectEvents($id: ObjectId!) {
+        event(id: $id) {
+          _id
+          event_series {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: events[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event._id).toBe(events[0].id);
+    expect(output.data?.event.event_series).toBeNull();
   });
 });

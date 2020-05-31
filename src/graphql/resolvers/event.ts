@@ -21,6 +21,11 @@ import { Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import { DocumentType } from '@typegoose/typegoose';
 import { Venue } from '@models/venue';
+import {
+  EventSeriesResolverMethods,
+  EVENT_SERIES_SORT,
+} from '@graphql/resolvers/event_series';
+import { EventSeries } from '@models/event_series';
 
 export enum EVENT_SORT {
   NAME_ASC,
@@ -78,7 +83,7 @@ export class EventResolverMethodsClass {
     date_end_gte?: Date;
     date_end_lte?: Date;
     venue?: ObjectId;
-    sort: EVENT_SORT;
+    sort?: EVENT_SORT;
     ctx: Context;
   }) {
     const q = generateMongooseQueryObject();
@@ -206,6 +211,31 @@ export class EventResolver {
   venue(@Root() event: DocumentType<Event>, @Ctx() ctx: Context) {
     return ctx.loaders.VenueLoader.load(event.venue);
   }
+
+  // populate event series
+  @FieldResolver(() => EventSeries, {
+    description: EVENT_DESCRIPTIONS.EVENT_SERIES,
+    nullable: true,
+  })
+  async event_series(
+    @Root() event: DocumentType<Event>,
+    @Arg('sort', () => EVENT_SERIES_SORT, {
+      nullable: true,
+      defaultValue: EVENT_SERIES_SORT.NAME_ASC,
+    })
+    sort: EVENT_SERIES_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    const [eventSeries = null] = await EventSeriesResolverMethods.event_series({
+      events: [event._id],
+      sort,
+      ctx,
+    });
+
+    return eventSeries;
+  }
+
+  // TODO: populate event social
 
   // TODO: populate tournaments
 }

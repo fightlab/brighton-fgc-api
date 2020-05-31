@@ -19,6 +19,7 @@ import { PlayerPlatformModel } from '@models/player_platform';
 import { PlayerSocialModel } from '@models/player_social';
 import { VenueModel } from '@models/venue';
 import { EventModel } from '@models/event';
+import { EventSeriesModel } from '@models/event_series';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -68,9 +69,11 @@ const makeSingleGeneralLoader = (
       try {
         const docs = await model.find({ _id: { $in: queries as Array<any> } });
         return queries.map((query) => {
-          const sifted = docs.filter(sift({ _id: query as any } as any));
-          if (sifted.length) return sifted[0];
-          return {};
+          // search through documents for the query we got
+          // if matching query, return the first one
+          // else return empty array
+          const [sifted = {}] = docs.filter(sift({ _id: query as any } as any));
+          return sifted;
         });
       } catch (error) {
         console.error(error);
@@ -101,6 +104,8 @@ const VenuesLoader = makeGeneralLoader(VenueModel);
 const VenueLoader = makeSingleGeneralLoader(VenueModel);
 const EventsLoader = makeGeneralLoader(EventModel);
 const EventLoader = makeSingleGeneralLoader(EventModel);
+const EventSeriesMultiLoader = makeGeneralLoader(EventSeriesModel); // use multi as series is both singular and plural
+const EventSeriesLoader = makeSingleGeneralLoader(EventSeriesModel); // singular form by default
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -121,6 +126,8 @@ export interface Loaders {
   VenueLoader: DataLoader<unknown, any, unknown>;
   EventsLoader: DataLoader<unknown, any[], unknown>;
   EventLoader: DataLoader<unknown, any, unknown>;
+  EventSeriesMultiLoader: DataLoader<unknown, any[], unknown>;
+  EventSeriesLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -142,4 +149,6 @@ export const loaders: Loaders = {
   VenueLoader,
   EventsLoader,
   EventLoader,
+  EventSeriesMultiLoader,
+  EventSeriesLoader,
 };

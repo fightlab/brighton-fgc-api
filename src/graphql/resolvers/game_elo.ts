@@ -63,13 +63,10 @@ export class GameEloResolverMethods {
     q.game = game;
     q.player = player;
 
-    const results = await ctx.loaders.GameElosLoader.load(q);
-    // found a result, so return the first one
-    if (results.length) {
-      return results[0];
-    }
+    // find a result, so return the first one
     // nothing found, return null
-    return null;
+    const [results = null] = await ctx.loaders.GameElosLoader.load(q);
+    return results;
   }
 
   // get multiple game elos based on a list of games or players
