@@ -26,6 +26,8 @@ import {
   EVENT_SERIES_SORT,
 } from '@graphql/resolvers/event_series';
 import { EventSeries } from '@models/event_series';
+import { EventSocialResolverMethods } from '@graphql/resolvers/event_social';
+import { EventSocial } from '@models/event_social';
 
 export enum EVENT_SORT {
   NAME_ASC,
@@ -196,7 +198,7 @@ export class EventResolver {
     });
   }
 
-  // add field onto character to return the game id
+  // add field onto event to return the venue id
   @FieldResolver(() => ObjectIdScalar, {
     description: EVENT_DESCRIPTIONS.VENUE_ID,
   })
@@ -235,7 +237,17 @@ export class EventResolver {
     return eventSeries;
   }
 
-  // TODO: populate event social
+  // populate event social
+  @FieldResolver(() => EventSocial, {
+    description: EVENT_DESCRIPTIONS.EVENT_SOCIAL,
+    nullable: true,
+  })
+  event_social(@Root() event: DocumentType<Event>, @Ctx() ctx: Context) {
+    return EventSocialResolverMethods.event_social({
+      ctx,
+      event: event._id,
+    });
+  }
 
   // TODO: populate tournaments
 }

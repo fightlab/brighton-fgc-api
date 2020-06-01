@@ -5,12 +5,14 @@ import {
   generateVenue,
   generateEvent,
   generateEventSeries,
+  generateEventSocial,
 } from '@graphql/resolvers/test/generate';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
 import moment from 'moment';
 import { EventSeriesModel, EventSeries } from '@models/event_series';
+import { EventSocialModel } from '@models/event_social';
 
 describe('Event GraphQL Resolver Test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -945,5 +947,70 @@ describe('Event GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.event._id).toBe(events[0].id);
     expect(output.data?.event.event_series).toBeNull();
+  });
+
+  it('should populate event social for given event', async () => {
+    const eventSocial = await new EventSocialModel(
+      generateEventSocial(events[0]._id, 'full'),
+    ).save();
+
+    const source = gql`
+      query SelectEvent($id: ObjectId!) {
+        event(id: $id) {
+          _id
+          event_social {
+            _id
+            facebook
+            event_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: events[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event).toBeDefined();
+    expect(output.data?.event.event_social).toBeDefined();
+    expect(output.data?.event.event_social._id).toBe(eventSocial.id);
+    expect(output.data?.event.event_social.facebook).toBe(eventSocial.facebook);
+    expect(output.data?.event.event_social.event_id).toBe(
+      output.data?.event._id,
+    );
+  });
+
+  it('should return null if event social not found for given event', async () => {
+    const source = gql`
+      query SelectEvent($id: ObjectId!) {
+        event(id: $id) {
+          _id
+          event_social {
+            _id
+            facebook
+            event_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: events[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event).toBeDefined();
+    expect(output.data?.event.event_social).toBeNull();
   });
 });

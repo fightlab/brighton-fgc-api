@@ -20,6 +20,7 @@ import { PlayerSocialModel } from '@models/player_social';
 import { VenueModel } from '@models/venue';
 import { EventModel } from '@models/event';
 import { EventSeriesModel } from '@models/event_series';
+import { EventSocialModel } from '@models/event_social';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -106,6 +107,8 @@ const EventsLoader = makeGeneralLoader(EventModel);
 const EventLoader = makeSingleGeneralLoader(EventModel);
 const EventSeriesMultiLoader = makeGeneralLoader(EventSeriesModel); // use multi as series is both singular and plural
 const EventSeriesLoader = makeSingleGeneralLoader(EventSeriesModel); // singular form by default
+const EventSocialsLoader = makeGeneralLoader(EventSocialModel);
+const EventSocialLoader = makeSingleGeneralLoader(EventSocialModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -128,6 +131,8 @@ export interface Loaders {
   EventLoader: DataLoader<unknown, any, unknown>;
   EventSeriesMultiLoader: DataLoader<unknown, any[], unknown>;
   EventSeriesLoader: DataLoader<unknown, any, unknown>;
+  EventSocialsLoader: DataLoader<unknown, any[], unknown>;
+  EventSocialLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -151,4 +156,6 @@ export const loaders: Loaders = {
   EventLoader,
   EventSeriesMultiLoader,
   EventSeriesLoader,
+  EventSocialsLoader,
+  EventSocialLoader,
 };

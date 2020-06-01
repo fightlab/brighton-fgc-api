@@ -10,6 +10,7 @@ import { Venue } from '@models/venue';
 import { Event } from '@models/event';
 import moment, { Moment } from 'moment';
 import { EventSeries } from '@models/event_series';
+import { EventSocial } from '@models/event_social';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -232,5 +233,55 @@ export const generateEventSeries = (
   return {
     ...obj,
     info: faker.hacker.phrase(),
+  };
+};
+
+// generate event social for testing
+export const generateEventSocial = (
+  event: ObjectId,
+  type: 'full' | 'random' | 'min' = 'min',
+): EventSocial => {
+  const obj: EventSocial = {
+    event,
+  };
+
+  if (type === 'min') {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    facebook:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    web:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    twitter:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    discord:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    instagram:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    twitch:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    youtube:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
+    meta:
+      type === 'random'
+        ? getOptional(faker.internet.url())
+        : faker.internet.url(),
   };
 };

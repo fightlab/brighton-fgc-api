@@ -27,6 +27,7 @@ export enum EVENT_DESCRIPTIONS {
   FIND_ONE = 'Find and get a singe event by id',
   FIND = 'Find and get some or all events',
   EVENT_SERIES = 'The series that this event belongs to',
+  EVENT_SOCIAL = 'Social media information for this event',
 }
 
 @ObjectType({

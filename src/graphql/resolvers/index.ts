@@ -10,6 +10,7 @@ import { PlayerSocialResolver } from '@graphql/resolvers/player_social';
 import { VenueResolver } from '@graphql/resolvers/venue';
 import { EventResolver } from '@graphql/resolvers/event';
 import { EventSeriesResolver } from '@graphql/resolvers/event_series';
+import { EventSocialResolver } from '@graphql/resolvers/event_social';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -33,4 +34,5 @@ export const resolvers: [Function, ...Function[]] = [
   VenueResolver,
   EventResolver,
   EventSeriesResolver,
+  EventSocialResolver,
 ];
