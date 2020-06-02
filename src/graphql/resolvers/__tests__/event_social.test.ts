@@ -98,6 +98,38 @@ describe('Event Social GraphQL Resolver Test', () => {
     expect(output.data?.event_social.event_id).toBe(events[1].id);
   });
 
+  it('should populate event', async () => {
+    const source = gql`
+      query SelectEventSocial($id: ObjectId!) {
+        event_social(id: $id) {
+          _id
+          event {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: eventSocials[1].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event_social).toBeDefined();
+    expect(output.data?.event_social._id).toBe(eventSocials[1].id);
+    expect(output.data?.event_social.event._id).toBe(
+      eventSocials[1].event?.toString(),
+    );
+    expect(output.data?.event_social.event._id).toBe(events[1].id);
+    expect(output.data?.event_social.event.name).toBe(events[1].name);
+  });
+
   it('should return null if not found by id', async () => {
     const source = gql`
       query SelectEventSocial($id: ObjectId!) {
