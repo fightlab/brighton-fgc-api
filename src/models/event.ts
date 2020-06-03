@@ -14,7 +14,7 @@ import { ObjectType, Field } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 
 export enum EVENT_DESCRIPTIONS {
-  DESCRIPTION = 'Events that have taken place',
+  DESCRIPTION = 'Information about events',
   ID = 'Unique identifier of the event',
   IDS = 'List of unique identifiers (_id) of multiple events',
   NAME = 'Name of the event',
@@ -28,6 +28,7 @@ export enum EVENT_DESCRIPTIONS {
   FIND = 'Find and get some or all events',
   EVENT_SERIES = 'The series that this event belongs to',
   EVENT_SOCIAL = 'Social media information for this event',
+  TOURNAMENTS = 'Tournaments that took place at this event',
 }
 
 @ObjectType({

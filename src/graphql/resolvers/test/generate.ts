@@ -11,6 +11,7 @@ import { Event } from '@models/event';
 import moment, { Moment } from 'moment';
 import { EventSeries } from '@models/event_series';
 import { EventSocial } from '@models/event_social';
+import { Tournament, TOURNAMENT_TYPE } from '@models/tournament';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -283,5 +284,34 @@ export const generateEventSocial = (
       type === 'random'
         ? getOptional(faker.internet.url())
         : faker.internet.url(),
+  };
+};
+
+// generate tournament for testing
+export const generateTournament = (
+  event: ObjectId,
+  games: Array<ObjectId>,
+  players: Array<ObjectId>,
+  min = true,
+): Tournament => {
+  const [start, end] = generateDates(1, 1);
+
+  const obj: Tournament = {
+    name: faker.company.companyName(),
+    date_start: start.toDate(),
+    event,
+    games,
+    type: TOURNAMENT_TYPE.DOUBLE_ELIMINATION,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    date_end: end.toDate(),
+    is_team_based: false,
+    players,
   };
 };

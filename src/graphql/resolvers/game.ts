@@ -32,7 +32,7 @@ import {
 } from '@graphql/resolvers/character';
 
 // sorting stuff for game
-enum GAME_SORT {
+export enum GAME_SORT {
   NAME_ASC,
   NAME_DESC,
   ID,
@@ -55,6 +55,39 @@ const mapSort = (sort: GAME_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+export class GameResolverMethods {
+  static async games({
+    search,
+    ids,
+    sort = GAME_SORT.NAME_ASC,
+    ctx,
+  }: {
+    search?: string;
+    ids?: Array<ObjectId>;
+    sort?: GAME_SORT;
+    ctx: Context;
+  }) {
+    const q = generateMongooseQueryObject();
+
+    if (search) {
+      q.name = {
+        $regex: `${search}`,
+        $options: 'i',
+      } as MongooseQuery;
+    }
+
+    if (ids) {
+      q._id = {
+        $in: ids,
+      } as MongooseQuery;
+    }
+
+    const games = await ctx.loaders.GamesLoader.load(q);
+    const [iteratee, orders] = mapSort(sort);
+    return orderBy(games, iteratee, orders);
+  }
+}
 
 @Resolver(() => Game)
 export class GameResolver {
@@ -94,24 +127,12 @@ export class GameResolver {
     sort: GAME_SORT,
     @Ctx() ctx: Context,
   ) {
-    const q = generateMongooseQueryObject();
-
-    if (search) {
-      q.name = {
-        $regex: `${search}`,
-        $options: 'i',
-      } as MongooseQuery;
-    }
-
-    if (ids) {
-      q._id = {
-        $in: ids,
-      } as MongooseQuery;
-    }
-
-    const games = await ctx.loaders.GamesLoader.load(q);
-    const [iteratee, orders] = mapSort(sort);
-    return orderBy(games, iteratee, orders);
+    return GameResolverMethods.games({
+      ctx,
+      ids,
+      search,
+      sort,
+    });
   }
 
   // add characters field to game

@@ -1,4 +1,9 @@
-import { prop as Property, getModelForClass, Ref } from '@typegoose/typegoose';
+import {
+  prop as Property,
+  getModelForClass,
+  Ref,
+  Index,
+} from '@typegoose/typegoose';
 import { isDate } from 'moment';
 import { Event } from '@models/event';
 import { Game } from '@models/game';
@@ -7,6 +12,8 @@ import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
+import { ObjectType, Field } from 'type-graphql';
+import { ObjectId } from 'mongodb';
 
 export enum TOURNAMENT_TYPE {
   DOUBLE_ELIMINATION,
@@ -14,10 +21,51 @@ export enum TOURNAMENT_TYPE {
   ROUND_ROBIN,
 }
 
+export enum TOURNAMENT_DESCRIPTIONS {
+  DESCRIPTION = 'Information about tournaments',
+  ID = 'Unique identifier of the tournament',
+  IDS = 'List of unique identifiers (_id) of one or more tournaments',
+  NAME = 'Name of the tournament',
+  DATE_START = 'Date and time that the tournament started',
+  DATE_END = 'Date and time that the tournament finished',
+  GAMES = 'List of games that were a part of this tournament',
+  EVENT = 'Event that this tournament took place',
+  PLAYERS = 'List of players that took part in this tournament',
+  IS_TEAM_BASED = 'Determines if this is a team based tournament',
+  TYPE = 'Tournament type, e.g. single elimination, double elimination etc.',
+  FIND_ONE = 'Find and get a single tournament by id',
+  FIND = 'Find and get some or all tournaments',
+}
+
+@ObjectType({
+  description: TOURNAMENT_DESCRIPTIONS.DESCRIPTION,
+})
+@Index({ name: 1 })
+@Index({ date_start: -1 })
+@Index({ date_end: -1 })
+@Index({ date_start: -1, date_end: -1 })
+@Index({ date_start: 1, date_end: 1 })
+@Index({ event: 1 })
+@Index({ games: 1 })
+@Index({ players: 1 })
+@Index({ is_team_based: 1 })
+@Index({ is_team_based: 1 })
 export class Tournament {
+  //only in graphql
+  @Field({
+    description: TOURNAMENT_DESCRIPTIONS.ID,
+  })
+  readonly _id?: ObjectId;
+
+  @Field({
+    description: TOURNAMENT_DESCRIPTIONS.NAME,
+  })
   @Property({ required: true })
   name!: string;
 
+  @Field({
+    description: TOURNAMENT_DESCRIPTIONS.DATE_START,
+  })
   @Property({
     required: true,
     validate: {
@@ -39,6 +87,10 @@ export class Tournament {
   })
   date_start!: Date;
 
+  @Field({
+    description: TOURNAMENT_DESCRIPTIONS.DATE_END,
+    nullable: true,
+  })
   @Property({
     validate: {
       validator: function (this: Tournament) {
@@ -67,6 +119,9 @@ export class Tournament {
   })
   date_end?: Date;
 
+  @Field({
+    description: TOURNAMENT_DESCRIPTIONS.TYPE,
+  })
   @Property({
     required: true,
     enum: TOURNAMENT_TYPE,
@@ -74,12 +129,18 @@ export class Tournament {
   })
   type!: TOURNAMENT_TYPE;
 
+  @Field(() => Event, {
+    description: TOURNAMENT_DESCRIPTIONS.EVENT,
+  })
   @Property({
     required: true,
     ref: () => Event,
   })
   event!: Ref<Event>;
 
+  @Field(() => [Game], {
+    description: TOURNAMENT_DESCRIPTIONS.GAMES,
+  })
   @Property({
     required: true,
     ref: () => Game,
@@ -87,6 +148,9 @@ export class Tournament {
   })
   games!: Array<Ref<Game>>;
 
+  @Field(() => [Player], {
+    description: TOURNAMENT_DESCRIPTIONS.PLAYERS,
+  })
   @Property({
     required: true,
     ref: () => Player,
@@ -94,6 +158,9 @@ export class Tournament {
   })
   players?: Array<Ref<Player>>;
 
+  @Field({
+    description: TOURNAMENT_DESCRIPTIONS.IS_TEAM_BASED,
+  })
   @Property()
   is_team_based?: boolean;
 }

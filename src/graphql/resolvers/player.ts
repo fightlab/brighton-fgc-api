@@ -30,7 +30,7 @@ import {
 } from '@models/player_social';
 import { PlayerSocialResolverMethods } from './player_social';
 
-enum PLAYER_SORT {
+export enum PLAYER_SORT {
   HANDLE_ASC,
   HANDLE_DESC,
   IS_STAFF,
@@ -55,6 +55,39 @@ const mapSort = (sort: PLAYER_SORT): MapSort => {
   }
 };
 
+export class PlayerResolverMethods {
+  static async players({
+    ctx,
+    ids,
+    search,
+    sort = PLAYER_SORT.HANDLE_ASC,
+  }: {
+    search?: string;
+    ids?: Array<ObjectId>;
+    sort?: PLAYER_SORT;
+    ctx: Context;
+  }) {
+    const q = generateMongooseQueryObject();
+
+    if (search) {
+      q.handle = {
+        $regex: `${search}`,
+        $options: 'i',
+      } as MongooseQuery;
+    }
+
+    if (ids) {
+      q._id = {
+        $in: ids,
+      } as MongooseQuery;
+    }
+
+    const players = await ctx.loaders.PlayersLoader.load(q);
+    const [iteratee, orders] = mapSort(sort);
+    return orderBy(players, iteratee, orders);
+  }
+}
+
 @Resolver(() => Player)
 export class PlayerResolver {
   // get a single player
@@ -76,7 +109,7 @@ export class PlayerResolver {
   @Query(() => [Player], {
     description: PLAYER_DESCRIPTIONS.FIND,
   })
-  async players(
+  players(
     @Arg('ids', () => [ObjectIdScalar], {
       nullable: true,
       description: PLAYER_DESCRIPTIONS.IDS,
@@ -93,24 +126,12 @@ export class PlayerResolver {
     sort: PLAYER_SORT,
     @Ctx() ctx: Context,
   ) {
-    const q = generateMongooseQueryObject();
-
-    if (search) {
-      q.handle = {
-        $regex: `${search}`,
-        $options: 'i',
-      } as MongooseQuery;
-    }
-
-    if (ids) {
-      q._id = {
-        $in: ids,
-      } as MongooseQuery;
-    }
-
-    const players = await ctx.loaders.PlayersLoader.load(q);
-    const [iteratee, orders] = mapSort(sort);
-    return orderBy(players, iteratee, orders);
+    return PlayerResolverMethods.players({
+      ctx,
+      ids,
+      search,
+      sort,
+    });
   }
 
   // TODO: Add tournaments this player has featured in
