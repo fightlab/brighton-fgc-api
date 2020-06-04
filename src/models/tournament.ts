@@ -156,10 +156,11 @@ export class Tournament {
     ref: () => Player,
     default: [],
   })
-  players?: Array<Ref<Player>>;
+  players!: Array<Ref<Player>>;
 
   @Field({
     description: TOURNAMENT_DESCRIPTIONS.IS_TEAM_BASED,
+    nullable: true,
   })
   @Property()
   is_team_based?: boolean;

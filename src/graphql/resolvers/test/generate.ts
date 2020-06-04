@@ -302,6 +302,7 @@ export const generateTournament = (
     event,
     games,
     type: TOURNAMENT_TYPE.DOUBLE_ELIMINATION,
+    players,
   };
 
   if (min) {
@@ -312,6 +313,5 @@ export const generateTournament = (
     ...obj,
     date_end: end.toDate(),
     is_team_based: false,
-    players,
   };
 };

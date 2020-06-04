@@ -43,7 +43,7 @@ describe('Tournament GraphQL Resolver Test', () => {
         events[1]._id,
         [games[1]._id],
         players.map((p) => p._id),
-        false,
+        true,
       ),
     ] as Array<Tournament>);
   });
@@ -71,6 +71,7 @@ describe('Tournament GraphQL Resolver Test', () => {
     });
 
     expect(output.data).toBeDefined();
+
     expect(output.data?.tournaments).toHaveLength(tournaments.length);
 
     expect(
@@ -93,8 +94,8 @@ describe('Tournament GraphQL Resolver Test', () => {
             tournaments,
             (s) => (s.is_team_based ?? null) === e.is_team_based,
           ) &&
-          e.game_ids.length > 0 &&
-          e.player_ids.length >= 0,
+          e.game_ids.length === 1 &&
+          e.player_ids.length === 8,
       ),
     ).toBe(true);
   });
