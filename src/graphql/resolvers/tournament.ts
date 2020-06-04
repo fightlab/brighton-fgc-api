@@ -64,7 +64,7 @@ const mapSort = (sort: TOURNAMENT_SORT): MapSort => {
     case TOURNAMENT_SORT.DATE_END_DESC:
       return ['date_end', 'desc'];
     case TOURNAMENT_SORT.EVENT_ID:
-      return ['tournament', 'asc'];
+      return ['event', 'asc'];
     default:
       return ['_id', 'asc'];
   }
