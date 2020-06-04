@@ -84,6 +84,7 @@ describe('Tournament model test', () => {
       type: TOURNAMENT_TYPE.ROUND_ROBIN,
       event: events[1]._id,
       games: [games[0]._id],
+      players: players.map((p) => p._id),
     };
 
     [tournament] = await TournamentModel.create([tournamentFull] as Array<
@@ -125,7 +126,7 @@ describe('Tournament model test', () => {
     expect(output.event?.toString()).toBe(output.event?.toString());
     expect(output.event?.toString()).toBe(events[1].id);
     expect(output.games).toHaveLength(1);
-    expect(output.players).toHaveLength(0);
+    expect(output.players).toHaveLength(players.length);
     expect(output.is_team_based).toBeFalsy();
   });
 
