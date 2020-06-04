@@ -284,7 +284,6 @@ export class TournamentResolver {
     search: string,
     @Arg('sort', () => GAME_SORT, {
       nullable: true,
-      defaultValue: GAME_SORT.NAME_ASC,
     })
     sort: GAME_SORT,
     @Ctx() ctx: Context,
@@ -313,7 +312,6 @@ export class TournamentResolver {
     search: string,
     @Arg('sort', () => PLAYER_SORT, {
       nullable: true,
-      defaultValue: PLAYER_SORT.HANDLE_ASC,
     })
     sort: PLAYER_SORT,
     @Ctx() ctx: Context,

@@ -29,6 +29,11 @@ import {
   PLAYER_SOCIAL_DESCRIPTIONS,
 } from '@models/player_social';
 import { PlayerSocialResolverMethods } from './player_social';
+import { Tournament } from '@models/tournament';
+import {
+  TournamentResolverMethodsClass,
+  TOURNAMENT_SORT,
+} from '@graphql/resolvers/tournament';
 
 export enum PLAYER_SORT {
   HANDLE_ASC,
@@ -134,7 +139,22 @@ export class PlayerResolver {
     });
   }
 
-  // TODO: Add tournaments this player has featured in
+  // Add tournaments this player has featured in
+  @FieldResolver(() => [Tournament])
+  tournaments(
+    @Root() player: DocumentType<Player>,
+    @Arg('sort', () => TOURNAMENT_SORT, {
+      nullable: true,
+    })
+    sort: TOURNAMENT_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return TournamentResolverMethodsClass.tournaments({
+      players: [player._id],
+      sort,
+      ctx,
+    });
+  }
 
   // TODO: Add matches that this player has featured in
 

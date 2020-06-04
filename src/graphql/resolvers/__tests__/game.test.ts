@@ -3,6 +3,7 @@ import {
   generateGame,
   generateCharacter,
   generateGameElo,
+  generateTournament,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -10,6 +11,7 @@ import { Game, GameModel } from '@models/game';
 import { Character, CharacterModel } from '@models/character';
 import { ObjectId } from 'mongodb';
 import { GameEloModel } from '@models/game_elo';
+import { TournamentModel } from '@models/tournament';
 
 describe('Game GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -466,5 +468,55 @@ describe('Game GraphQL Resolver Test', () => {
     expect(output.data?.game.game_elos[0].player_id).toBe(
       fakePlayer.toHexString(),
     );
+  });
+
+  it('should return tournaments that feature a particular game', async () => {
+    const tournaments = await TournamentModel.create([
+      generateTournament(
+        new ObjectId(),
+        [games[0]._id],
+        [new ObjectId()],
+        true,
+      ),
+      generateTournament(
+        new ObjectId(),
+        games.map((g) => g._id),
+        [new ObjectId()],
+        true,
+      ),
+    ]);
+
+    const source = gql`
+      query QueryGames($id: ObjectId!) {
+        game(id: $id) {
+          _id
+          tournaments {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: games[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game).toBeDefined();
+    expect(output.data?.game._id).toBe(games[0].id);
+    expect(output.data?.game.tournaments).toBeDefined();
+    expect(output.data?.game.tournaments).toHaveLength(2);
+    expect(
+      every(
+        output.data?.game.tournaments,
+        (e) => !!tournaments.find((t) => t.id === e._id),
+      ),
+    ).toBe(true);
   });
 });

@@ -30,6 +30,11 @@ import {
   CHARACTER_SORT,
   CharacterMethodResolver,
 } from '@graphql/resolvers/character';
+import { Tournament } from '@models/tournament';
+import {
+  TOURNAMENT_SORT,
+  TournamentResolverMethodsClass,
+} from '@graphql/resolvers/tournament';
 
 // sorting stuff for game
 export enum GAME_SORT {
@@ -161,7 +166,22 @@ export class GameResolver {
     });
   }
 
-  // TODO: Add tournaments that feature this game
+  // Add tournaments that feature this game
+  @FieldResolver(() => [Tournament])
+  tournaments(
+    @Root() game: DocumentType<Game>,
+    @Arg('sort', () => TOURNAMENT_SORT, {
+      nullable: true,
+    })
+    sort: TOURNAMENT_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return TournamentResolverMethodsClass.tournaments({
+      games: [game._id],
+      sort,
+      ctx,
+    });
+  }
 
   // TODO: Add tournament series that feature this game
 

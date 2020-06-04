@@ -3,6 +3,7 @@ import {
   generatePlayer,
   generateGameElo,
   generatePlayerSocial,
+  generateTournament,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -10,6 +11,7 @@ import { Player, PlayerModel } from '@models/player';
 import { ObjectId } from 'mongodb';
 import { GameEloModel } from '@models/game_elo';
 import { PlayerSocialModel } from '@models/player_social';
+import { TournamentModel } from '@models/tournament';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -423,5 +425,55 @@ describe('Player GraphQL Resolver Test', () => {
 
     expect(output.data?.player).toBeDefined();
     expect(output.data?.player.player_social).toBeNull();
+  });
+
+  it('should return tournaments that a player has featured in', async () => {
+    const tournaments = await TournamentModel.create([
+      generateTournament(
+        new ObjectId(),
+        [new ObjectId()],
+        players.map((p) => p._id),
+        true,
+      ),
+      generateTournament(
+        new ObjectId(),
+        [new ObjectId()],
+        players.map((p) => p._id),
+        true,
+      ),
+    ]);
+
+    const source = gql`
+      query QueryEvents($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          tournaments {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.tournaments).toBeDefined();
+    expect(output.data?.player.tournaments).toHaveLength(2);
+    expect(
+      every(
+        output.data?.player.tournaments,
+        (e) => !!tournaments.find((t) => t.id === e._id),
+      ),
+    ).toBe(true);
   });
 });

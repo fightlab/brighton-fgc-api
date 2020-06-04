@@ -6,6 +6,7 @@ import {
   generateEvent,
   generateEventSeries,
   generateEventSocial,
+  generateTournament,
 } from '@graphql/resolvers/test/generate';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -13,6 +14,7 @@ import { ObjectId } from 'mongodb';
 import moment from 'moment';
 import { EventSeriesModel, EventSeries } from '@models/event_series';
 import { EventSocialModel } from '@models/event_social';
+import { TournamentModel } from '@models/tournament';
 
 describe('Event GraphQL Resolver Test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -1012,5 +1014,55 @@ describe('Event GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.event).toBeDefined();
     expect(output.data?.event.event_social).toBeNull();
+  });
+
+  it('should populate tournaments for a given event', async () => {
+    const tournaments = await TournamentModel.create([
+      generateTournament(
+        events[0]._id,
+        [new ObjectId()],
+        [new ObjectId()],
+        true,
+      ),
+      generateTournament(
+        events[0]._id,
+        [new ObjectId()],
+        [new ObjectId()],
+        true,
+      ),
+    ]);
+
+    const source = gql`
+      query QueryEvents($id: ObjectId!) {
+        event(id: $id) {
+          _id
+          tournaments {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: events[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event).toBeDefined();
+    expect(output.data?.event._id).toBe(events[0].id);
+    expect(output.data?.event.tournaments).toBeDefined();
+    expect(output.data?.event.tournaments).toHaveLength(2);
+    expect(
+      every(
+        output.data?.event.tournaments,
+        (e) => !!tournaments.find((t) => t.id === e._id),
+      ),
+    ).toBe(true);
   });
 });

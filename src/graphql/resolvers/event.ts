@@ -28,6 +28,11 @@ import {
 import { EventSeries } from '@models/event_series';
 import { EventSocialResolverMethods } from '@graphql/resolvers/event_social';
 import { EventSocial } from '@models/event_social';
+import {
+  TournamentResolverMethodsClass,
+  TOURNAMENT_SORT,
+} from '@graphql/resolvers/tournament';
+import { Tournament } from '@models/tournament';
 
 export enum EVENT_SORT {
   NAME_ASC,
@@ -249,5 +254,21 @@ export class EventResolver {
     });
   }
 
-  // TODO: populate tournaments
+  // populate tournaments
+  @FieldResolver(() => [Tournament])
+  tournaments(
+    @Root() event: DocumentType<Event>,
+    @Arg('sort', () => TOURNAMENT_SORT, {
+      nullable: true,
+      defaultValue: TOURNAMENT_SORT.DATE_START_DESC,
+    })
+    sort: TOURNAMENT_SORT,
+    @Ctx() ctx: Context,
+  ) {
+    return TournamentResolverMethodsClass.tournaments({
+      event: event._id,
+      sort,
+      ctx,
+    });
+  }
 }
