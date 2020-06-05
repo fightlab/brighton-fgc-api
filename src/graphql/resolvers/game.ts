@@ -8,6 +8,9 @@ import {
   registerEnumType,
   FieldResolver,
   Root,
+  Args,
+  ArgsType,
+  Field,
 } from 'type-graphql';
 import { DocumentType } from '@typegoose/typegoose';
 import { Game, GAME_DESCRIPTIONS } from '@models/game';
@@ -21,19 +24,19 @@ import {
   MongooseQuery,
 } from '@graphql/resolvers';
 import { Character } from '@models/character';
-import { GameElo, GAME_ELO_DESCRIPTIONS } from '@models/game_elo';
+import { GameElo } from '@models/game_elo';
 import {
-  GAME_ELO_SORT,
   GameEloResolverMethods,
+  GameElosArgs,
 } from '@graphql/resolvers/game_elo';
 import {
-  CHARACTER_SORT,
   CharacterMethodResolver,
+  CharactersArgs,
 } from '@graphql/resolvers/character';
 import { Tournament } from '@models/tournament';
 import {
-  TOURNAMENT_SORT,
   TournamentResolverMethodsClass,
+  TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 
 // sorting stuff for game
@@ -60,6 +63,26 @@ const mapSort = (sort: GAME_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class GamesArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: GAME_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field(() => GAME_SORT, {
+    nullable: true,
+    defaultValue: GAME_SORT.NAME_ASC,
+  })
+  sort!: GAME_SORT;
+}
 
 export class GameResolverMethods {
   static async games({
@@ -115,23 +138,7 @@ export class GameResolver {
   @Query(() => [Game], {
     description: GAME_DESCRIPTIONS.FIND,
   })
-  async games(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: GAME_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => GAME_SORT, {
-      nullable: true,
-      defaultValue: GAME_SORT.NAME_ASC,
-    })
-    sort: GAME_SORT,
-    @Ctx() ctx: Context,
-  ) {
+  async games(@Args() { sort, ids, search }: GamesArgs, @Ctx() ctx: Context) {
     return GameResolverMethods.games({
       ctx,
       ids,
@@ -147,21 +154,14 @@ export class GameResolver {
   })
   characters(
     @Root() game: DocumentType<Game>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => CHARACTER_SORT, {
-      nullable: true,
-      defaultValue: CHARACTER_SORT.GAME_ID,
-    })
-    sort: CHARACTER_SORT,
+    @Args() { sort, ids, search }: CharactersArgs,
     @Ctx() ctx: Context,
   ) {
     return CharacterMethodResolver.characters({
       ctx,
       sort,
       search,
+      ids,
       game: game._id,
     });
   }
@@ -170,14 +170,32 @@ export class GameResolver {
   @FieldResolver(() => [Tournament])
   tournaments(
     @Root() game: DocumentType<Game>,
-    @Arg('sort', () => TOURNAMENT_SORT, {
-      nullable: true,
-    })
-    sort: TOURNAMENT_SORT,
+    @Args(() => TournamentsArgs)
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      ids,
+      players,
+      event,
+      search,
+      type,
+    }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
       games: [game._id],
+      ids,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      event,
+      players,
+      search,
+      type,
       sort,
       ctx,
     });
@@ -192,16 +210,7 @@ export class GameResolver {
   })
   game_elos(
     @Root() game: DocumentType<Game>,
-    @Arg('players', () => [ObjectIdScalar], {
-      nullable: true,
-      description: GAME_ELO_DESCRIPTIONS.PLAYER_IDS,
-    })
-    players: Array<ObjectId>,
-    @Arg('sort', () => GAME_ELO_SORT, {
-      nullable: true,
-      defaultValue: GAME_ELO_SORT.SCORE_DESC,
-    })
-    sort: GAME_ELO_SORT,
+    @Args(() => GameElosArgs) { sort, players }: GameElosArgs,
     @Ctx() ctx: Context,
   ) {
     return GameEloResolverMethods.game_elos({

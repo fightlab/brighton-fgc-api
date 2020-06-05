@@ -6,6 +6,9 @@ import {
   Arg,
   FieldResolver,
   Root,
+  Args,
+  ArgsType,
+  Field,
 } from 'type-graphql';
 import {
   MapSort,
@@ -20,7 +23,7 @@ import { Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import {
   EventResolverMethodsClass,
-  EVENT_SORT,
+  EventsArgs,
 } from '@graphql/resolvers/event';
 import { DocumentType } from '@typegoose/typegoose';
 
@@ -46,6 +49,59 @@ const mapSort = (sort: VENUE_SORT): MapSort => {
   }
 };
 
+@ArgsType()
+export class VenuesArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: VENUE_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field(() => VENUE_SORT, {
+    nullable: true,
+    defaultValue: VENUE_SORT.NAME_ASC,
+  })
+  sort!: VENUE_SORT;
+}
+
+export class VenueResolverMethods {
+  static async venues({
+    search,
+    sort,
+    ids,
+    ctx,
+  }: {
+    search?: string;
+    ids?: Array<ObjectId>;
+    sort: VENUE_SORT;
+    ctx: Context;
+  }) {
+    const q = generateMongooseQueryObject();
+
+    if (search) {
+      q.name = {
+        $regex: `${search}`,
+        $options: 'i',
+      } as MongooseQuery;
+    }
+
+    if (ids) {
+      q._id = {
+        $in: ids,
+      } as MongooseQuery;
+    }
+
+    const venues = await ctx.loaders.VenuesLoader.load(q);
+    const [iteratee, orders] = mapSort(sort);
+    return orderBy(venues, iteratee, orders);
+  }
+}
+
 @Resolver(() => Venue)
 export class VenueResolver {
   // get a single venue
@@ -67,41 +123,8 @@ export class VenueResolver {
   @Query(() => [Venue], {
     description: VENUE_DESCRIPTIONS.FIND,
   })
-  async venues(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: VENUE_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => VENUE_SORT, {
-      nullable: true,
-      defaultValue: VENUE_SORT.NAME_ASC,
-    })
-    sort: VENUE_SORT,
-    @Ctx() ctx: Context,
-  ) {
-    const q = generateMongooseQueryObject();
-
-    if (search) {
-      q.name = {
-        $regex: `${search}`,
-        $options: 'i',
-      } as MongooseQuery;
-    }
-
-    if (ids) {
-      q._id = {
-        $in: ids,
-      } as MongooseQuery;
-    }
-
-    const venues = await ctx.loaders.VenuesLoader.load(q);
-    const [iteratee, orders] = mapSort(sort);
-    return orderBy(venues, iteratee, orders);
+  async venues(@Args() { sort, ids, search }: VenuesArgs, @Ctx() ctx: Context) {
+    return VenueResolverMethods.venues({ ctx, sort, ids, search });
   }
 
   // get events that have taken place at this venue
@@ -110,31 +133,16 @@ export class VenueResolver {
   })
   events(
     @Root() venue: DocumentType<Venue>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('date_start_gte', {
-      nullable: true,
-    })
-    date_start_gte: Date,
-    @Arg('date_start_lte', {
-      nullable: true,
-    })
-    date_start_lte: Date,
-    @Arg('date_end_gte', {
-      nullable: true,
-    })
-    date_end_gte: Date,
-    @Arg('date_end_lte', {
-      nullable: true,
-    })
-    date_end_lte: Date,
-    @Arg('sort', () => EVENT_SORT, {
-      nullable: true,
-      defaultValue: EVENT_SORT.DATE_START_DESC,
-    })
-    sort: EVENT_SORT,
+    @Args(() => EventsArgs)
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      ids,
+      search,
+    }: EventsArgs,
     @Ctx() ctx: Context,
   ) {
     return EventResolverMethodsClass.events({
@@ -146,6 +154,7 @@ export class VenueResolver {
       date_start_gte,
       date_start_lte,
       search,
+      ids,
     });
   }
 }

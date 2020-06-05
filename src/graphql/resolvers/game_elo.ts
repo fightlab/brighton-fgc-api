@@ -6,6 +6,9 @@ import {
   registerEnumType,
   FieldResolver,
   Root,
+  Args,
+  ArgsType,
+  Field,
 } from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import { orderBy } from 'lodash';
@@ -46,6 +49,27 @@ export const mapSort = (sort: GAME_ELO_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class GameElosArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
+  })
+  games?: Array<ObjectId>;
+
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
+  })
+  players?: Array<ObjectId>;
+
+  @Field(() => GAME_ELO_SORT, {
+    nullable: true,
+    defaultValue: GAME_ELO_SORT.SCORE_DESC,
+  })
+  sort!: GAME_ELO_SORT;
+}
 
 // class used to share methods to other resolvers, use static methods
 export class GameEloResolverMethods {
@@ -127,21 +151,7 @@ export class GameEloResolver {
     description: GAME_ELO_DESCRIPTIONS.FIND,
   })
   game_elos(
-    @Arg('games', () => [ObjectIdScalar], {
-      nullable: true,
-      description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
-    })
-    games: Array<ObjectId>,
-    @Arg('players', () => [ObjectIdScalar], {
-      nullable: true,
-      description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
-    })
-    players: Array<ObjectId>,
-    @Arg('sort', () => GAME_ELO_SORT, {
-      nullable: true,
-      defaultValue: GAME_ELO_SORT.SCORE_DESC,
-    })
-    sort: GAME_ELO_SORT,
+    @Args() { sort, games, players }: GameElosArgs,
     @Ctx() ctx: Context,
   ) {
     return GameEloResolverMethods.game_elos({ games, players, sort, ctx });

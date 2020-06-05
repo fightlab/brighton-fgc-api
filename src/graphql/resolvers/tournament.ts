@@ -6,6 +6,9 @@ import {
   Query,
   FieldResolver,
   Root,
+  Args,
+  ArgsType,
+  Field,
 } from 'type-graphql';
 import {
   TOURNAMENT_TYPE,
@@ -24,8 +27,8 @@ import { orderBy } from 'lodash';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { Game } from '@models/game';
-import { GameResolverMethods, GAME_SORT } from '@graphql/resolvers/game';
-import { PlayerResolverMethods, PLAYER_SORT } from './player';
+import { GameResolverMethods, GamesArgs } from '@graphql/resolvers/game';
+import { PlayerResolverMethods, PlayersArgs } from './player';
 import { Player } from '@models/player';
 
 export enum TOURNAMENT_SORT {
@@ -69,6 +72,69 @@ const mapSort = (sort: TOURNAMENT_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class TournamentsArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: TOURNAMENT_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field({
+    nullable: true,
+  })
+  date_start_gte?: Date;
+
+  @Field({
+    nullable: true,
+  })
+  date_start_lte?: Date;
+
+  @Field({
+    nullable: true,
+  })
+  date_end_gte?: Date;
+
+  @Field({
+    nullable: true,
+  })
+  date_end_lte?: Date;
+
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: TOURNAMENT_DESCRIPTIONS.GAMES,
+  })
+  games?: Array<ObjectId>;
+
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: TOURNAMENT_DESCRIPTIONS.PLAYERS,
+  })
+  players?: Array<ObjectId>;
+
+  @Field(() => ObjectIdScalar, {
+    nullable: true,
+    description: TOURNAMENT_DESCRIPTIONS.EVENT,
+  })
+  event?: ObjectId;
+
+  @Field(() => TOURNAMENT_TYPE, {
+    nullable: true,
+  })
+  type?: TOURNAMENT_TYPE;
+
+  @Field(() => TOURNAMENT_SORT, {
+    nullable: true,
+    defaultValue: TOURNAMENT_SORT.DATE_START_DESC,
+  })
+  sort!: TOURNAMENT_SORT;
+}
 
 export class TournamentResolverMethodsClass {
   static tournament({
@@ -189,55 +255,20 @@ export class TournamentResolver {
     description: TOURNAMENT_DESCRIPTIONS.FIND,
   })
   tournaments(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: TOURNAMENT_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('date_start_gte', {
-      nullable: true,
-    })
-    date_start_gte: Date,
-    @Arg('date_start_lte', {
-      nullable: true,
-    })
-    date_start_lte: Date,
-    @Arg('date_end_gte', {
-      nullable: true,
-    })
-    date_end_gte: Date,
-    @Arg('date_end_lte', {
-      nullable: true,
-    })
-    date_end_lte: Date,
-    @Arg('games', () => [ObjectIdScalar], {
-      nullable: true,
-      description: TOURNAMENT_DESCRIPTIONS.GAMES,
-    })
-    games: Array<ObjectId>,
-    @Arg('players', () => [ObjectIdScalar], {
-      nullable: true,
-      description: TOURNAMENT_DESCRIPTIONS.PLAYERS,
-    })
-    players: Array<ObjectId>,
-    @Arg('event', () => ObjectIdScalar, {
-      nullable: true,
-      description: TOURNAMENT_DESCRIPTIONS.EVENT,
-    })
-    event: ObjectId,
-    @Arg('type', () => TOURNAMENT_TYPE, {
-      nullable: true,
-    })
-    type: TOURNAMENT_TYPE,
-    @Arg('sort', () => TOURNAMENT_SORT, {
-      nullable: true,
-      defaultValue: TOURNAMENT_SORT.DATE_START_DESC,
-    })
-    sort: TOURNAMENT_SORT,
+    @Args()
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      event,
+      games,
+      ids,
+      players,
+      search,
+      type,
+    }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
@@ -278,14 +309,7 @@ export class TournamentResolver {
   @FieldResolver(() => [Game])
   games(
     @Root() tournament: DocumentType<Tournament>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => GAME_SORT, {
-      nullable: true,
-    })
-    sort: GAME_SORT,
+    @Args(() => GamesArgs) { sort, search }: GamesArgs,
     @Ctx() ctx: Context,
   ) {
     return GameResolverMethods.games({
@@ -306,14 +330,7 @@ export class TournamentResolver {
   @FieldResolver(() => [Player])
   players(
     @Root() tournament: DocumentType<Tournament>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => PLAYER_SORT, {
-      nullable: true,
-    })
-    sort: PLAYER_SORT,
+    @Args(() => PlayersArgs) { sort, search }: PlayersArgs,
     @Ctx() ctx: Context,
   ) {
     return PlayerResolverMethods.players({

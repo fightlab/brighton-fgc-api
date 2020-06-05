@@ -6,6 +6,9 @@ import {
   registerEnumType,
   FieldResolver,
   Root,
+  Args,
+  ArgsType,
+  Field,
 } from 'type-graphql';
 import { Player, PLAYER_DESCRIPTIONS } from '@models/player';
 import { Context } from '@lib/graphql';
@@ -17,11 +20,11 @@ import {
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
 import { orderBy } from 'lodash';
-import { GameElo, GAME_ELO_DESCRIPTIONS } from '@models/game_elo';
+import { GameElo } from '@models/game_elo';
 import { GAME_DESCRIPTIONS } from '@models/game';
 import {
-  GAME_ELO_SORT,
   GameEloResolverMethods,
+  GameElosArgs,
 } from '@graphql/resolvers/game_elo';
 import { DocumentType } from '@typegoose/typegoose';
 import {
@@ -32,7 +35,7 @@ import { PlayerSocialResolverMethods } from './player_social';
 import { Tournament } from '@models/tournament';
 import {
   TournamentResolverMethodsClass,
-  TOURNAMENT_SORT,
+  TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 
 export enum PLAYER_SORT {
@@ -59,6 +62,26 @@ const mapSort = (sort: PLAYER_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class PlayersArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: PLAYER_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field(() => PLAYER_SORT, {
+    nullable: true,
+    defaultValue: PLAYER_SORT.HANDLE_ASC,
+  })
+  sort!: PLAYER_SORT;
+}
 
 export class PlayerResolverMethods {
   static async players({
@@ -114,23 +137,7 @@ export class PlayerResolver {
   @Query(() => [Player], {
     description: PLAYER_DESCRIPTIONS.FIND,
   })
-  players(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: PLAYER_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => PLAYER_SORT, {
-      nullable: true,
-      defaultValue: PLAYER_SORT.HANDLE_ASC,
-    })
-    sort: PLAYER_SORT,
-    @Ctx() ctx: Context,
-  ) {
+  players(@Args() { sort, ids, search }: PlayersArgs, @Ctx() ctx: Context) {
     return PlayerResolverMethods.players({
       ctx,
       ids,
@@ -143,14 +150,32 @@ export class PlayerResolver {
   @FieldResolver(() => [Tournament])
   tournaments(
     @Root() player: DocumentType<Player>,
-    @Arg('sort', () => TOURNAMENT_SORT, {
-      nullable: true,
-    })
-    sort: TOURNAMENT_SORT,
+    @Args(() => TournamentsArgs)
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      games,
+      ids,
+      event,
+      search,
+      type,
+    }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
       players: [player._id],
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      event,
+      games,
+      ids,
+      search,
+      type,
       sort,
       ctx,
     });
@@ -178,17 +203,8 @@ export class PlayerResolver {
     nullable: true,
   })
   game_elos(
-    @Arg('games', () => [ObjectIdScalar], {
-      nullable: true,
-      description: GAME_ELO_DESCRIPTIONS.GAME_IDS,
-    })
-    games: Array<ObjectId>,
     @Root() player: DocumentType<Player>,
-    @Arg('sort', () => GAME_ELO_SORT, {
-      nullable: true,
-      defaultValue: GAME_ELO_SORT.SCORE_DESC,
-    })
-    sort: GAME_ELO_SORT,
+    @Args(() => GameElosArgs) { sort, games }: GameElosArgs,
     @Ctx() ctx: Context,
   ) {
     return GameEloResolverMethods.game_elos({

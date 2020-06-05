@@ -1,6 +1,15 @@
 // GraphQL Resolver for Bracket Platforms
 
-import { Resolver, Query, Arg, Ctx, registerEnumType } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Arg,
+  Ctx,
+  registerEnumType,
+  ArgsType,
+  Field,
+  Args,
+} from 'type-graphql';
 import { orderBy } from 'lodash';
 import { ObjectId } from 'mongodb';
 import {
@@ -40,6 +49,27 @@ const mapSort = (sort: BRACKET_PLATFORM_SORT): MapSort => {
   }
 };
 
+// arguments for bracket platforms
+@ArgsType()
+export class BracketPlatformsArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: BRACKET_PLATFORM_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field(() => BRACKET_PLATFORM_SORT, {
+    nullable: true,
+    defaultValue: BRACKET_PLATFORM_SORT.NAME_ASC,
+  })
+  sort!: BRACKET_PLATFORM_SORT;
+}
+
 @Resolver(() => BracketPlatform)
 export class BracketPlatformResolver {
   // get single platform
@@ -62,20 +92,7 @@ export class BracketPlatformResolver {
     description: BRACKET_PLATFORM_DESCRIPTIONS.FIND,
   })
   async bracket_platforms(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: BRACKET_PLATFORM_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => BRACKET_PLATFORM_SORT, {
-      nullable: true,
-      defaultValue: BRACKET_PLATFORM_SORT.NAME_ASC,
-    })
-    sort: BRACKET_PLATFORM_SORT,
+    @Args() { ids, search, sort }: BracketPlatformsArgs,
     @Ctx() ctx: Context,
   ) {
     const q = generateMongooseQueryObject();

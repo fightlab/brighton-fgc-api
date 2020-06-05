@@ -8,6 +8,9 @@ import {
   Query,
   FieldResolver,
   Root,
+  Args,
+  ArgsType,
+  Field,
 } from 'type-graphql';
 import {
   MapSort,
@@ -23,14 +26,14 @@ import { DocumentType } from '@typegoose/typegoose';
 import { Venue } from '@models/venue';
 import {
   EventSeriesResolverMethods,
-  EVENT_SERIES_SORT,
+  EventSeriesArgs,
 } from '@graphql/resolvers/event_series';
 import { EventSeries } from '@models/event_series';
 import { EventSocialResolverMethods } from '@graphql/resolvers/event_social';
 import { EventSocial } from '@models/event_social';
 import {
   TournamentResolverMethodsClass,
-  TOURNAMENT_SORT,
+  TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 import { Tournament } from '@models/tournament';
 
@@ -70,6 +73,52 @@ const mapSort = (sort: EVENT_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class EventsArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: EVENT_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field({
+    nullable: true,
+  })
+  date_start_gte?: Date;
+
+  @Field({
+    nullable: true,
+  })
+  date_start_lte?: Date;
+
+  @Field({
+    nullable: true,
+  })
+  date_end_gte?: Date;
+
+  @Field({
+    nullable: true,
+  })
+  date_end_lte?: Date;
+
+  @Field(() => ObjectIdScalar, {
+    nullable: true,
+    description: EVENT_DESCRIPTIONS.VENUE_ID,
+  })
+  venue?: ObjectId;
+
+  @Field(() => EVENT_SORT, {
+    nullable: true,
+    defaultValue: EVENT_SORT.DATE_START_DESC,
+  })
+  sort!: EVENT_SORT;
+}
 
 export class EventResolverMethodsClass {
   static async events({
@@ -159,36 +208,17 @@ export class EventResolver {
     description: EVENT_DESCRIPTIONS.FIND,
   })
   events(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: EVENT_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('date_start_gte', {
-      nullable: true,
-    })
-    date_start_gte: Date,
-    @Arg('date_start_lte', {
-      nullable: true,
-    })
-    date_start_lte: Date,
-    @Arg('date_end_gte', {
-      nullable: true,
-    })
-    date_end_gte: Date,
-    @Arg('date_end_lte', {
-      nullable: true,
-    })
-    date_end_lte: Date,
-    @Arg('sort', () => EVENT_SORT, {
-      nullable: true,
-      defaultValue: EVENT_SORT.DATE_START_DESC,
-    })
-    sort: EVENT_SORT,
+    @Args()
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      ids,
+      search,
+      venue,
+    }: EventsArgs,
     @Ctx() ctx: Context,
   ) {
     return EventResolverMethodsClass.events({
@@ -200,6 +230,7 @@ export class EventResolver {
       date_start_gte,
       date_start_lte,
       search,
+      venue,
     });
   }
 
@@ -226,16 +257,14 @@ export class EventResolver {
   })
   async event_series(
     @Root() event: DocumentType<Event>,
-    @Arg('sort', () => EVENT_SERIES_SORT, {
-      nullable: true,
-      defaultValue: EVENT_SERIES_SORT.NAME_ASC,
-    })
-    sort: EVENT_SERIES_SORT,
+    @Args() { sort, search, ids }: EventSeriesArgs,
     @Ctx() ctx: Context,
   ) {
     const [eventSeries = null] = await EventSeriesResolverMethods.event_series({
       events: [event._id],
       sort,
+      search,
+      ids,
       ctx,
     });
 
@@ -258,16 +287,33 @@ export class EventResolver {
   @FieldResolver(() => [Tournament])
   tournaments(
     @Root() event: DocumentType<Event>,
-    @Arg('sort', () => TOURNAMENT_SORT, {
-      nullable: true,
-      defaultValue: TOURNAMENT_SORT.DATE_START_DESC,
-    })
-    sort: TOURNAMENT_SORT,
+    @Args(() => TournamentsArgs)
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      games,
+      ids,
+      players,
+      search,
+      type,
+    }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
       event: event._id,
       sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      games,
+      ids,
+      players,
+      search,
+      type,
       ctx,
     });
   }

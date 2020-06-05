@@ -8,6 +8,9 @@ import {
   FieldResolver,
   Root,
   registerEnumType,
+  ArgsType,
+  Field,
+  Args,
 } from 'type-graphql';
 import { DocumentType } from '@typegoose/typegoose';
 import { Character, CHARACTER_DESCRIPTIONS } from '@models/character';
@@ -49,6 +52,32 @@ const mapSort = (sort: CHARACTER_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class CharactersArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: CHARACTER_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field(() => ObjectIdScalar, {
+    nullable: true,
+    description: CHARACTER_DESCRIPTIONS.GAME_ID,
+  })
+  game?: ObjectId;
+
+  @Field(() => CHARACTER_SORT, {
+    nullable: true,
+    defaultValue: CHARACTER_SORT.GAME_ID,
+  })
+  sort!: CHARACTER_SORT;
+}
 
 export class CharacterMethodResolver {
   static async characters({
@@ -111,26 +140,14 @@ export class CharacterResolver {
     description: CHARACTER_DESCRIPTIONS.FIND,
   })
   characters(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: CHARACTER_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => CHARACTER_SORT, {
-      nullable: true,
-      defaultValue: CHARACTER_SORT.GAME_ID,
-    })
-    sort: CHARACTER_SORT,
+    @Args() { sort, ids, search, game }: CharactersArgs,
     @Ctx() ctx: Context,
   ) {
     return CharacterMethodResolver.characters({
       ctx,
       sort,
       ids,
+      game,
       search,
     });
   }

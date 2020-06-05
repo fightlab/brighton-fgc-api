@@ -4,10 +4,12 @@ import {
   registerEnumType,
   Resolver,
   Query,
-  Arg,
   Ctx,
   Root,
   FieldResolver,
+  ArgsType,
+  Field,
+  Args,
 } from 'type-graphql';
 import {
   MapSort,
@@ -20,7 +22,7 @@ import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import {
   EventResolverMethodsClass,
-  EVENT_SORT,
+  EventsArgs,
 } from '@graphql/resolvers/event';
 
 export enum EVENT_SERIES_SORT {
@@ -44,6 +46,32 @@ export const mapSort = (sort: EVENT_SERIES_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class EventSeriesArgs {
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: EVENT_SERIES_DESCRIPTIONS.IDS,
+  })
+  ids?: Array<ObjectId>;
+
+  @Field(() => [ObjectIdScalar], {
+    nullable: true,
+    description: EVENT_SERIES_DESCRIPTIONS.IDS,
+  })
+  events?: Array<ObjectId>;
+
+  @Field({
+    nullable: true,
+  })
+  search?: string;
+
+  @Field(() => EVENT_SERIES_SORT, {
+    nullable: true,
+    defaultValue: EVENT_SERIES_SORT.NAME_ASC,
+  })
+  sort!: EVENT_SERIES_SORT;
+}
 
 export class EventSeriesResolverMethods {
   static async event_series({
@@ -92,25 +120,7 @@ export class EventSeriesResolver {
     description: EVENT_SERIES_DESCRIPTIONS.FIND,
   })
   event_series(
-    @Arg('ids', () => [ObjectIdScalar], {
-      nullable: true,
-      description: EVENT_SERIES_DESCRIPTIONS.IDS,
-    })
-    ids: Array<ObjectId>,
-    @Arg('events', () => [ObjectIdScalar], {
-      nullable: true,
-      description: EVENT_SERIES_DESCRIPTIONS.IDS,
-    })
-    events: Array<ObjectId>,
-    @Arg('search', {
-      nullable: true,
-    })
-    search: string,
-    @Arg('sort', () => EVENT_SERIES_SORT, {
-      nullable: true,
-      defaultValue: EVENT_SERIES_SORT.NAME_ASC,
-    })
-    sort: EVENT_SERIES_SORT,
+    @Args() { sort, events, ids, search }: EventSeriesArgs,
     @Ctx() ctx: Context,
   ) {
     return EventSeriesResolverMethods.event_series({
@@ -136,36 +146,28 @@ export class EventSeriesResolver {
   })
   events(
     @Root() event_series: DocumentType<EventSeries>,
-    @Arg('date_start_gte', {
-      nullable: true,
-    })
-    date_start_gte: Date,
-    @Arg('date_start_lte', {
-      nullable: true,
-    })
-    date_start_lte: Date,
-    @Arg('date_end_gte', {
-      nullable: true,
-    })
-    date_end_gte: Date,
-    @Arg('date_end_lte', {
-      nullable: true,
-    })
-    date_end_lte: Date,
-    @Arg('sort', () => EVENT_SORT, {
-      nullable: true,
-    })
-    sort: EVENT_SORT,
+    @Args(() => EventsArgs)
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      search,
+      venue,
+    }: EventsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Event>> {
     return EventResolverMethodsClass.events({
       ids: event_series.events as Array<ObjectId>,
       date_end_gte,
       date_end_lte,
       date_start_gte,
       date_start_lte,
+      search,
       sort,
       ctx,
+      venue,
     });
   }
 }
