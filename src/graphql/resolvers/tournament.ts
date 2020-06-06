@@ -1,7 +1,6 @@
 import {
   registerEnumType,
   Resolver,
-  Arg,
   Ctx,
   Query,
   FieldResolver,
@@ -22,7 +21,7 @@ import {
   MongooseQuery,
 } from '@graphql/resolvers';
 import { ObjectId } from 'mongodb';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
@@ -30,6 +29,7 @@ import { Game } from '@models/game';
 import { GameResolverMethods, GamesArgs } from '@graphql/resolvers/game';
 import { PlayerResolverMethods, PlayersArgs } from './player';
 import { Player } from '@models/player';
+import { EventResolverMethods } from './event';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,
@@ -72,6 +72,14 @@ const mapSort = (sort: TOURNAMENT_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class TournamentArgs {
+  @Field(() => ObjectIdScalar, {
+    description: TOURNAMENT_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
 
 @ArgsType()
 export class TournamentsArgs {
@@ -138,42 +146,28 @@ export class TournamentsArgs {
 
 export class TournamentResolverMethodsClass {
   static tournament({
-    id,
+    args: { id },
     ctx,
-  }: {
-    id: ObjectId;
-    ctx: Context;
-  }): Promise<Tournament> {
+  }: CtxWithArgs<TournamentArgs>): Promise<Tournament> {
     return ctx.loaders.TournamentLoader.load(id);
   }
 
   static async tournaments({
-    ids,
-    search,
-    date_start_gte,
-    date_start_lte,
-    date_end_gte,
-    date_end_lte,
-    event,
-    games,
-    players,
-    type,
-    sort = TOURNAMENT_SORT.DATE_START_DESC,
+    args: {
+      ids,
+      search,
+      date_start_gte,
+      date_start_lte,
+      date_end_gte,
+      date_end_lte,
+      event,
+      games,
+      players,
+      type,
+      sort = TOURNAMENT_SORT.DATE_START_DESC,
+    },
     ctx,
-  }: {
-    ids?: Array<ObjectId>;
-    search?: string;
-    date_start_gte?: Date;
-    date_start_lte?: Date;
-    date_end_gte?: Date;
-    date_end_lte?: Date;
-    event?: ObjectId;
-    games?: Array<ObjectId>;
-    players?: Array<ObjectId>;
-    type?: TOURNAMENT_TYPE;
-    sort?: TOURNAMENT_SORT;
-    ctx: Context;
-  }): Promise<Array<Tournament>> {
+  }: CtxWithArgs<TournamentsArgs>): Promise<Array<Tournament>> {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -241,14 +235,8 @@ export class TournamentResolver {
     nullable: true,
     description: TOURNAMENT_DESCRIPTIONS.FIND_ONE,
   })
-  tournament(
-    @Arg('id', () => ObjectIdScalar, {
-      description: TOURNAMENT_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return TournamentResolverMethodsClass.tournament({ id, ctx });
+  tournament(@Args() { id }: TournamentArgs, @Ctx() ctx: Context) {
+    return TournamentResolverMethodsClass.tournament({ args: { id }, ctx });
   }
 
   @Query(() => [Tournament], {
@@ -273,17 +261,19 @@ export class TournamentResolver {
   ) {
     return TournamentResolverMethodsClass.tournaments({
       ctx,
-      ids,
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      event,
-      games,
-      players,
-      type,
-      search,
-      sort,
+      args: {
+        ids,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        event,
+        games,
+        players,
+        type,
+        search,
+        sort,
+      },
     });
   }
 
@@ -296,7 +286,10 @@ export class TournamentResolver {
   // populate event field
   @FieldResolver(() => Event)
   event(@Root() tournament: DocumentType<Tournament>, @Ctx() ctx: Context) {
-    return ctx.loaders.EventLoader.load(tournament.event);
+    return EventResolverMethods.event({
+      args: { id: tournament.event as ObjectId },
+      ctx,
+    });
   }
 
   // game ids
@@ -313,9 +306,7 @@ export class TournamentResolver {
     @Ctx() ctx: Context,
   ) {
     return GameResolverMethods.games({
-      ids: tournament.games as Array<ObjectId>,
-      search,
-      sort,
+      args: { ids: tournament.games as Array<ObjectId>, search, sort },
       ctx,
     });
   }
@@ -334,9 +325,7 @@ export class TournamentResolver {
     @Ctx() ctx: Context,
   ) {
     return PlayerResolverMethods.players({
-      ids: tournament.players as Array<ObjectId>,
-      search,
-      sort,
+      args: { ids: tournament.players as Array<ObjectId>, search, sort },
       ctx,
     });
   }

@@ -1,26 +1,46 @@
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import { ObjectId } from 'mongodb';
-import { Resolver, Query, Arg, Ctx, FieldResolver, Root } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Ctx,
+  FieldResolver,
+  Root,
+  ArgsType,
+  Field,
+  Args,
+} from 'type-graphql';
 import { EventSocial, EVENT_SOCIAL_DESCRIPTIONS } from '@models/event_social';
 import { generateMongooseQueryObject } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { Event } from '@models/event';
+import { EventResolverMethods } from './event';
+
+@ArgsType()
+export class EventSocialArgs {
+  @Field(() => ObjectIdScalar, {
+    description: EVENT_SOCIAL_DESCRIPTIONS.ID,
+    nullable: true,
+  })
+  id?: ObjectId;
+
+  @Field(() => ObjectIdScalar, {
+    description: EVENT_SOCIAL_DESCRIPTIONS.EVENT_ID,
+    nullable: true,
+  })
+  event?: ObjectId;
+}
 
 export class EventSocialResolverMethods {
   static async event_social({
     ctx,
-    event,
-    _id,
-  }: {
-    ctx: Context;
-    event?: ObjectId;
-    _id?: ObjectId;
-  }) {
+    args: { id, event },
+  }: CtxWithArgs<EventSocialArgs>) {
     const q = generateMongooseQueryObject();
 
-    if (_id) {
-      q._id = _id;
+    if (id) {
+      q._id = id;
     }
 
     if (event) {
@@ -38,20 +58,11 @@ export class EventSocialResolver {
     description: EVENT_SOCIAL_DESCRIPTIONS.FIND,
     nullable: true,
   })
-  event_social(
-    @Arg('id', () => ObjectIdScalar, {
-      description: EVENT_SOCIAL_DESCRIPTIONS.ID,
-      nullable: true,
-    })
-    _id: ObjectId,
-    @Arg('event', () => ObjectIdScalar, {
-      description: EVENT_SOCIAL_DESCRIPTIONS.EVENT_ID,
-      nullable: true,
-    })
-    event: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return EventSocialResolverMethods.event_social({ ctx, _id, event });
+  event_social(@Args() { id, event }: EventSocialArgs, @Ctx() ctx: Context) {
+    return EventSocialResolverMethods.event_social({
+      ctx,
+      args: { id, event },
+    });
   }
 
   // event ids
@@ -67,6 +78,11 @@ export class EventSocialResolver {
     description: EVENT_SOCIAL_DESCRIPTIONS.EVENT,
   })
   event(@Root() event_social: DocumentType<EventSocial>, @Ctx() ctx: Context) {
-    return ctx.loaders.EventLoader.load(event_social.event);
+    return EventResolverMethods.event({
+      args: {
+        id: event_social.event as ObjectId,
+      },
+      ctx,
+    });
   }
 }

@@ -3,7 +3,6 @@
 import {
   Resolver,
   Query,
-  Arg,
   Ctx,
   registerEnumType,
   ArgsType,
@@ -17,7 +16,7 @@ import {
   BRACKET_PLATFORM_DESCRIPTIONS,
 } from '@models/bracket_platform';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import {
   MapSort,
   generateMongooseQueryObject,
@@ -49,6 +48,15 @@ const mapSort = (sort: BRACKET_PLATFORM_SORT): MapSort => {
   }
 };
 
+// arguments for bracket platform
+@ArgsType()
+export class BracketPlatformArgs {
+  @Field(() => ObjectIdScalar, {
+    description: BRACKET_PLATFORM_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
+
 // arguments for bracket platforms
 @ArgsType()
 export class BracketPlatformsArgs {
@@ -70,31 +78,18 @@ export class BracketPlatformsArgs {
   sort!: BRACKET_PLATFORM_SORT;
 }
 
-@Resolver(() => BracketPlatform)
-export class BracketPlatformResolver {
-  // get single platform
-  @Query(() => BracketPlatform, {
-    nullable: true,
-    description: BRACKET_PLATFORM_DESCRIPTIONS.FIND_ONE,
-  })
-  bracket_platform(
-    @Arg('id', () => ObjectIdScalar, {
-      description: BRACKET_PLATFORM_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
+export class BracketPlatformResolverMethods {
+  static bracket_platform({
+    args: { id },
+    ctx,
+  }: CtxWithArgs<BracketPlatformArgs>) {
     return ctx.loaders.BracketPlatformLoader.load(id);
   }
 
-  // get multiple platforms
-  @Query(() => [BracketPlatform], {
-    description: BRACKET_PLATFORM_DESCRIPTIONS.FIND,
-  })
-  async bracket_platforms(
-    @Args() { ids, search, sort }: BracketPlatformsArgs,
-    @Ctx() ctx: Context,
-  ) {
+  static async bracket_platforms({
+    args: { sort, ids, search },
+    ctx,
+  }: CtxWithArgs<BracketPlatformsArgs>) {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -113,6 +108,35 @@ export class BracketPlatformResolver {
     const platforms = await ctx.loaders.BracketPlatformsLoader.load(q);
     const [iteratee, orders] = mapSort(sort);
     return orderBy(platforms, iteratee, orders);
+  }
+}
+
+@Resolver(() => BracketPlatform)
+export class BracketPlatformResolver {
+  // get single platform
+  @Query(() => BracketPlatform, {
+    nullable: true,
+    description: BRACKET_PLATFORM_DESCRIPTIONS.FIND_ONE,
+  })
+  bracket_platform(@Args() { id }: BracketPlatformArgs, @Ctx() ctx: Context) {
+    return BracketPlatformResolverMethods.bracket_platform({
+      args: { id },
+      ctx,
+    });
+  }
+
+  // get multiple platforms
+  @Query(() => [BracketPlatform], {
+    description: BRACKET_PLATFORM_DESCRIPTIONS.FIND,
+  })
+  bracket_platforms(
+    @Args() { ids, search, sort }: BracketPlatformsArgs,
+    @Ctx() ctx: Context,
+  ) {
+    return BracketPlatformResolverMethods.bracket_platforms({
+      ctx,
+      args: { sort, ids, search },
+    });
   }
 
   // TODO: Add brackets that belong to each platform

@@ -3,7 +3,6 @@
 import {
   Resolver,
   Query,
-  Arg,
   Ctx,
   FieldResolver,
   Root,
@@ -16,7 +15,7 @@ import { DocumentType } from '@typegoose/typegoose';
 import { Character, CHARACTER_DESCRIPTIONS } from '@models/character';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import {
   MapSort,
   generateMongooseQueryObject,
@@ -24,6 +23,7 @@ import {
 } from '@graphql/resolvers';
 import { orderBy } from 'lodash';
 import { Game } from '@models/game';
+import { GameResolverMethods } from './game';
 
 // sorting stuff for character
 export enum CHARACTER_SORT {
@@ -53,6 +53,16 @@ const mapSort = (sort: CHARACTER_SORT): MapSort => {
   }
 };
 
+// argument for character
+@ArgsType()
+export class CharacterArgs {
+  @Field(() => ObjectIdScalar, {
+    description: CHARACTER_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
+
+// arguments for characters
 @ArgsType()
 export class CharactersArgs {
   @Field(() => [ObjectIdScalar], {
@@ -79,20 +89,15 @@ export class CharactersArgs {
   sort!: CHARACTER_SORT;
 }
 
-export class CharacterMethodResolver {
+export class CharacterResolverMethods {
+  static character({ args: { id }, ctx }: CtxWithArgs<CharacterArgs>) {
+    return ctx.loaders.CharacterLoader.load(id);
+  }
+
   static async characters({
-    search,
-    ids,
-    game,
-    sort = CHARACTER_SORT.GAME_ID,
+    args: { search, ids, game, sort = CHARACTER_SORT.GAME_ID },
     ctx,
-  }: {
-    search?: string;
-    ids?: Array<ObjectId>;
-    game?: ObjectId;
-    sort: CHARACTER_SORT;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<CharactersArgs>) {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -125,14 +130,8 @@ export class CharacterResolver {
     nullable: true,
     description: CHARACTER_DESCRIPTIONS.FIND_ONE,
   })
-  character(
-    @Arg('id', () => ObjectIdScalar, {
-      description: CHARACTER_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return ctx.loaders.CharacterLoader.load(id);
+  character(@Args() { id }: CharacterArgs, @Ctx() ctx: Context) {
+    return CharacterResolverMethods.character({ args: { id }, ctx });
   }
 
   // get multiple characters
@@ -143,12 +142,9 @@ export class CharacterResolver {
     @Args() { sort, ids, search, game }: CharactersArgs,
     @Ctx() ctx: Context,
   ) {
-    return CharacterMethodResolver.characters({
+    return CharacterResolverMethods.characters({
+      args: { sort, ids, game, search },
       ctx,
-      sort,
-      ids,
-      game,
-      search,
     });
   }
 
@@ -165,7 +161,10 @@ export class CharacterResolver {
     description: CHARACTER_DESCRIPTIONS.GAME,
   })
   game(@Root() character: DocumentType<Character>, @Ctx() ctx: Context) {
-    return ctx.loaders.GameLoader.load(character.game);
+    return GameResolverMethods.game({
+      args: { id: character.game as ObjectId },
+      ctx,
+    });
   }
 
   // TODO: Add matches that character has appeared in

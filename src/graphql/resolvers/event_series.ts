@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import {
   registerEnumType,
   Resolver,
@@ -20,10 +20,7 @@ import { orderBy } from 'lodash';
 import { EventSeries, EVENT_SERIES_DESCRIPTIONS } from '@models/event_series';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
-import {
-  EventResolverMethodsClass,
-  EventsArgs,
-} from '@graphql/resolvers/event';
+import { EventResolverMethods, EventsArgs } from '@graphql/resolvers/event';
 
 export enum EVENT_SERIES_SORT {
   NAME_ASC,
@@ -76,17 +73,8 @@ export class EventSeriesArgs {
 export class EventSeriesResolverMethods {
   static async event_series({
     ctx,
-    events,
-    ids,
-    search,
-    sort = EVENT_SERIES_SORT.NAME_ASC,
-  }: {
-    ids?: Array<ObjectId>;
-    events?: Array<ObjectId>;
-    search?: string;
-    sort?: EVENT_SERIES_SORT;
-    ctx: Context;
-  }) {
+    args: { events, ids, search, sort = EVENT_SERIES_SORT.NAME_ASC },
+  }: CtxWithArgs<EventSeriesArgs>) {
     const q = generateMongooseQueryObject();
 
     if (ids) {
@@ -124,10 +112,7 @@ export class EventSeriesResolver {
     @Ctx() ctx: Context,
   ) {
     return EventSeriesResolverMethods.event_series({
-      ids,
-      search,
-      events,
-      sort,
+      args: { ids, search, events, sort },
       ctx,
     });
   }
@@ -158,16 +143,18 @@ export class EventSeriesResolver {
     }: EventsArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<Event>> {
-    return EventResolverMethodsClass.events({
-      ids: event_series.events as Array<ObjectId>,
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      search,
-      sort,
+    return EventResolverMethods.events({
+      args: {
+        ids: event_series.events as Array<ObjectId>,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        search,
+        sort,
+        venue,
+      },
       ctx,
-      venue,
     });
   }
 }

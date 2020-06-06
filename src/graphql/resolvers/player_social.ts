@@ -1,25 +1,40 @@
-import { Resolver, Query, Ctx, Arg, FieldResolver, Root } from 'type-graphql';
+import {
+  Resolver,
+  Query,
+  Ctx,
+  FieldResolver,
+  Root,
+  ArgsType,
+  Field,
+  Args,
+} from 'type-graphql';
 import { ObjectId } from 'mongodb';
 import {
   PlayerSocial,
   PLAYER_SOCIAL_DESCRIPTIONS,
 } from '@models/player_social';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import { generateMongooseQueryObject } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { Player } from '@models/player';
+import { PlayerResolverMethods } from './player';
+
+@ArgsType()
+export class PlayerSocialArgs {
+  @Field(() => ObjectIdScalar, {
+    description: PLAYER_SOCIAL_DESCRIPTIONS.PLAYER,
+  })
+  player!: ObjectId;
+}
 
 // class used to share methods to other resolvers, use static methods
 export class PlayerSocialResolverMethods {
   // get a single player social by player
   static async player_social({
-    player,
+    args: { player },
     ctx,
-  }: {
-    player: ObjectId;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<PlayerSocialArgs>) {
     const q = generateMongooseQueryObject();
     q.player = player;
 
@@ -36,14 +51,8 @@ export class PlayerSocialResolver {
     nullable: true,
     description: PLAYER_SOCIAL_DESCRIPTIONS.FIND_ONE,
   })
-  player_social(
-    @Arg('player', () => ObjectIdScalar, {
-      description: PLAYER_SOCIAL_DESCRIPTIONS.PLAYER,
-    })
-    player: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return PlayerSocialResolverMethods.player_social({ player, ctx });
+  player_social(@Args() { player }: PlayerSocialArgs, @Ctx() ctx: Context) {
+    return PlayerSocialResolverMethods.player_social({ args: { player }, ctx });
   }
 
   // add field onto player social to return the player_id
@@ -62,6 +71,9 @@ export class PlayerSocialResolver {
     @Root() player_social: DocumentType<PlayerSocial>,
     @Ctx() ctx: Context,
   ) {
-    return ctx.loaders.PlayerLoader.load(player_social.player);
+    return PlayerResolverMethods.player({
+      args: { id: player_social.player as ObjectId },
+      ctx,
+    });
   }
 }

@@ -3,7 +3,6 @@ import {
   Resolver,
   Query,
   Ctx,
-  Arg,
   FieldResolver,
   Root,
   Args,
@@ -19,12 +18,9 @@ import { Event } from '@models/event';
 import { Venue, VENUE_DESCRIPTIONS } from '@models/venue';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import { orderBy } from 'lodash';
-import {
-  EventResolverMethodsClass,
-  EventsArgs,
-} from '@graphql/resolvers/event';
+import { EventResolverMethods, EventsArgs } from '@graphql/resolvers/event';
 import { DocumentType } from '@typegoose/typegoose';
 
 enum VENUE_SORT {
@@ -50,6 +46,14 @@ const mapSort = (sort: VENUE_SORT): MapSort => {
 };
 
 @ArgsType()
+export class VenueArgs {
+  @Field(() => ObjectIdScalar, {
+    description: VENUE_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
+
+@ArgsType()
 export class VenuesArgs {
   @Field(() => [ObjectIdScalar], {
     nullable: true,
@@ -70,17 +74,14 @@ export class VenuesArgs {
 }
 
 export class VenueResolverMethods {
+  static venue({ args: { id }, ctx }: CtxWithArgs<VenueArgs>) {
+    return ctx.loaders.VenueLoader.load(id);
+  }
+
   static async venues({
-    search,
-    sort,
-    ids,
+    args: { search, sort, ids },
     ctx,
-  }: {
-    search?: string;
-    ids?: Array<ObjectId>;
-    sort: VENUE_SORT;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<VenuesArgs>) {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -109,14 +110,8 @@ export class VenueResolver {
     nullable: true,
     description: VENUE_DESCRIPTIONS.FIND_ONE,
   })
-  venue(
-    @Arg('id', () => ObjectIdScalar, {
-      description: VENUE_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return ctx.loaders.VenueLoader.load(id);
+  venue(@Args() { id }: VenueArgs, @Ctx() ctx: Context) {
+    return VenueResolverMethods.venue({ args: { id }, ctx });
   }
 
   // get multiple venues
@@ -124,7 +119,7 @@ export class VenueResolver {
     description: VENUE_DESCRIPTIONS.FIND,
   })
   async venues(@Args() { sort, ids, search }: VenuesArgs, @Ctx() ctx: Context) {
-    return VenueResolverMethods.venues({ ctx, sort, ids, search });
+    return VenueResolverMethods.venues({ ctx, args: { sort, ids, search } });
   }
 
   // get events that have taken place at this venue
@@ -145,16 +140,18 @@ export class VenueResolver {
     }: EventsArgs,
     @Ctx() ctx: Context,
   ) {
-    return EventResolverMethodsClass.events({
-      venue: venue._id,
+    return EventResolverMethods.events({
       ctx,
-      sort,
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      search,
-      ids,
+      args: {
+        venue: venue._id,
+        sort,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        search,
+        ids,
+      },
     });
   }
 }

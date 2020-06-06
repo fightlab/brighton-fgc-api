@@ -3,7 +3,6 @@
 import {
   Resolver,
   Query,
-  Arg,
   Ctx,
   registerEnumType,
   FieldResolver,
@@ -16,7 +15,7 @@ import { DocumentType } from '@typegoose/typegoose';
 import { Game, GAME_DESCRIPTIONS } from '@models/game';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import {
   generateMongooseQueryObject,
@@ -30,7 +29,7 @@ import {
   GameElosArgs,
 } from '@graphql/resolvers/game_elo';
 import {
-  CharacterMethodResolver,
+  CharacterResolverMethods,
   CharactersArgs,
 } from '@graphql/resolvers/character';
 import { Tournament } from '@models/tournament';
@@ -65,6 +64,14 @@ const mapSort = (sort: GAME_SORT): MapSort => {
 };
 
 @ArgsType()
+export class GameArgs {
+  @Field(() => ObjectIdScalar, {
+    description: GAME_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
+
+@ArgsType()
 export class GamesArgs {
   @Field(() => [ObjectIdScalar], {
     nullable: true,
@@ -85,17 +92,14 @@ export class GamesArgs {
 }
 
 export class GameResolverMethods {
+  static game({ args: { id }, ctx }: CtxWithArgs<GameArgs>) {
+    return ctx.loaders.GameLoader.load(id);
+  }
+
   static async games({
-    search,
-    ids,
-    sort = GAME_SORT.NAME_ASC,
+    args: { search, ids, sort = GAME_SORT.NAME_ASC },
     ctx,
-  }: {
-    search?: string;
-    ids?: Array<ObjectId>;
-    sort?: GAME_SORT;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<GamesArgs>) {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -124,14 +128,8 @@ export class GameResolver {
     nullable: true,
     description: GAME_DESCRIPTIONS.FIND_ONE,
   })
-  game(
-    @Arg('id', () => ObjectIdScalar, {
-      description: GAME_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return ctx.loaders.GameLoader.load(id);
+  game(@Args() { id }: GameArgs, @Ctx() ctx: Context) {
+    return GameResolverMethods.game({ args: { id }, ctx });
   }
 
   // get multiple games
@@ -141,13 +139,11 @@ export class GameResolver {
   async games(@Args() { sort, ids, search }: GamesArgs, @Ctx() ctx: Context) {
     return GameResolverMethods.games({
       ctx,
-      ids,
-      search,
-      sort,
+      args: { ids, search, sort },
     });
   }
 
-  // add characters field to game
+  // characters field to game
   @FieldResolver(() => [Character], {
     description: GAME_DESCRIPTIONS.CHARACTERS,
     nullable: true,
@@ -157,16 +153,18 @@ export class GameResolver {
     @Args() { sort, ids, search }: CharactersArgs,
     @Ctx() ctx: Context,
   ) {
-    return CharacterMethodResolver.characters({
+    return CharacterResolverMethods.characters({
       ctx,
-      sort,
-      search,
-      ids,
-      game: game._id,
+      args: {
+        sort,
+        search,
+        ids,
+        game: game._id,
+      },
     });
   }
 
-  // Add tournaments that feature this game
+  // tournaments that feature this game
   @FieldResolver(() => [Tournament])
   tournaments(
     @Root() game: DocumentType<Game>,
@@ -186,17 +184,19 @@ export class GameResolver {
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
-      games: [game._id],
-      ids,
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      event,
-      players,
-      search,
-      type,
-      sort,
+      args: {
+        games: [game._id],
+        ids,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        event,
+        players,
+        search,
+        type,
+        sort,
+      },
       ctx,
     });
   }
@@ -214,9 +214,7 @@ export class GameResolver {
     @Ctx() ctx: Context,
   ) {
     return GameEloResolverMethods.game_elos({
-      games: [game._id],
-      players,
-      sort,
+      args: { games: [game._id], players, sort },
       ctx,
     });
   }

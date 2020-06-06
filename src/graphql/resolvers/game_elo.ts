@@ -2,7 +2,6 @@ import {
   Resolver,
   Query,
   Ctx,
-  Arg,
   registerEnumType,
   FieldResolver,
   Root,
@@ -14,13 +13,15 @@ import { ObjectId } from 'mongodb';
 import { orderBy } from 'lodash';
 import { DocumentType } from '@typegoose/typegoose';
 import { GameElo, GAME_ELO_DESCRIPTIONS } from '@models/game_elo';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import {
   generateMongooseQueryObject,
   MapSort,
   MongooseQuery,
 } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
+import { GameResolverMethods } from './game';
+import { PlayerResolverMethods } from './player';
 
 export enum GAME_ELO_SORT {
   GAME_ID,
@@ -51,6 +52,18 @@ export const mapSort = (sort: GAME_ELO_SORT): MapSort => {
 };
 
 @ArgsType()
+export class GameEloArgs {
+  @Field(() => ObjectIdScalar, {
+    description: GAME_ELO_DESCRIPTIONS.GAME,
+  })
+  game!: ObjectId;
+  @Field(() => ObjectIdScalar, {
+    description: GAME_ELO_DESCRIPTIONS.PLAYER,
+  })
+  player!: ObjectId;
+}
+
+@ArgsType()
 export class GameElosArgs {
   @Field(() => [ObjectIdScalar], {
     nullable: true,
@@ -75,14 +88,9 @@ export class GameElosArgs {
 export class GameEloResolverMethods {
   // get a single game elo by game and player
   static async game_elo({
-    game,
-    player,
+    args: { game, player },
     ctx,
-  }: {
-    game: ObjectId;
-    player: ObjectId;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<GameEloArgs>) {
     const q = generateMongooseQueryObject();
     q.game = game;
     q.player = player;
@@ -95,16 +103,9 @@ export class GameEloResolverMethods {
 
   // get multiple game elos based on a list of games or players
   static async game_elos({
-    games,
-    players,
-    sort = GAME_ELO_SORT.SCORE_DESC,
+    args: { games, players, sort = GAME_ELO_SORT.SCORE_DESC },
     ctx,
-  }: {
-    games?: Array<ObjectId>;
-    players?: Array<ObjectId>;
-    sort?: GAME_ELO_SORT;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<GameElosArgs>) {
     const q = generateMongooseQueryObject();
 
     if (games) {
@@ -132,18 +133,8 @@ export class GameEloResolver {
     nullable: true,
     description: GAME_ELO_DESCRIPTIONS.FIND_ONE,
   })
-  game_elo(
-    @Arg('game', () => ObjectIdScalar, {
-      description: GAME_ELO_DESCRIPTIONS.GAME,
-    })
-    game: ObjectId,
-    @Arg('player', () => ObjectIdScalar, {
-      description: GAME_ELO_DESCRIPTIONS.PLAYER,
-    })
-    player: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return GameEloResolverMethods.game_elo({ game, player, ctx });
+  game_elo(@Args() { game, player }: GameEloArgs, @Ctx() ctx: Context) {
+    return GameEloResolverMethods.game_elo({ args: { game, player }, ctx });
   }
 
   // get multiple game elos based on a list of games or players
@@ -154,7 +145,10 @@ export class GameEloResolver {
     @Args() { sort, games, players }: GameElosArgs,
     @Ctx() ctx: Context,
   ) {
-    return GameEloResolverMethods.game_elos({ games, players, sort, ctx });
+    return GameEloResolverMethods.game_elos({
+      args: { games, players, sort },
+      ctx,
+    });
   }
 
   // populate player
@@ -167,7 +161,10 @@ export class GameEloResolver {
 
   @FieldResolver()
   player(@Root() game_elo: DocumentType<GameElo>, @Ctx() ctx: Context) {
-    return ctx.loaders.PlayerLoader.load(game_elo.player);
+    return PlayerResolverMethods.player({
+      args: { id: game_elo.player as ObjectId },
+      ctx,
+    });
   }
 
   // populate game
@@ -180,6 +177,9 @@ export class GameEloResolver {
 
   @FieldResolver()
   game(@Root() game_elo: DocumentType<GameElo>, @Ctx() ctx: Context) {
-    return ctx.loaders.GameLoader.load(game_elo.game);
+    return GameResolverMethods.game({
+      args: { id: game_elo.game as ObjectId },
+      ctx,
+    });
   }
 }

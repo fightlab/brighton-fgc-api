@@ -2,7 +2,6 @@ import {
   Resolver,
   Query,
   Ctx,
-  Arg,
   registerEnumType,
   FieldResolver,
   Root,
@@ -11,7 +10,7 @@ import {
   Field,
 } from 'type-graphql';
 import { Player, PLAYER_DESCRIPTIONS } from '@models/player';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import {
   generateMongooseQueryObject,
   MapSort,
@@ -64,6 +63,14 @@ const mapSort = (sort: PLAYER_SORT): MapSort => {
 };
 
 @ArgsType()
+export class PlayerArgs {
+  @Field(() => ObjectIdScalar, {
+    description: PLAYER_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
+
+@ArgsType()
 export class PlayersArgs {
   @Field(() => [ObjectIdScalar], {
     nullable: true,
@@ -84,17 +91,14 @@ export class PlayersArgs {
 }
 
 export class PlayerResolverMethods {
+  static player({ args: { id }, ctx }: CtxWithArgs<PlayerArgs>) {
+    return ctx.loaders.PlayerLoader.load(id);
+  }
+
   static async players({
     ctx,
-    ids,
-    search,
-    sort = PLAYER_SORT.HANDLE_ASC,
-  }: {
-    search?: string;
-    ids?: Array<ObjectId>;
-    sort?: PLAYER_SORT;
-    ctx: Context;
-  }) {
+    args: { ids, search, sort = PLAYER_SORT.HANDLE_ASC },
+  }: CtxWithArgs<PlayersArgs>) {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -123,14 +127,8 @@ export class PlayerResolver {
     nullable: true,
     description: PLAYER_DESCRIPTIONS.FIND_ONE,
   })
-  player(
-    @Arg('id', () => ObjectIdScalar, {
-      description: PLAYER_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return ctx.loaders.PlayerLoader.load(id);
+  player(@Args() { id }: PlayerArgs, @Ctx() ctx: Context) {
+    return PlayerResolverMethods.player({ args: { id }, ctx });
   }
 
   // get multiple players
@@ -140,9 +138,7 @@ export class PlayerResolver {
   players(@Args() { sort, ids, search }: PlayersArgs, @Ctx() ctx: Context) {
     return PlayerResolverMethods.players({
       ctx,
-      ids,
-      search,
-      sort,
+      args: { ids, search, sort },
     });
   }
 
@@ -166,17 +162,19 @@ export class PlayerResolver {
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
-      players: [player._id],
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      event,
-      games,
-      ids,
-      search,
-      type,
-      sort,
+      args: {
+        players: [player._id],
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        event,
+        games,
+        ids,
+        search,
+        type,
+        sort,
+      },
       ctx,
     });
   }
@@ -190,7 +188,7 @@ export class PlayerResolver {
   })
   player_social(@Root() player: DocumentType<Player>, @Ctx() ctx: Context) {
     return PlayerSocialResolverMethods.player_social({
-      player: player._id,
+      args: { player: player._id },
       ctx,
     });
   }
@@ -208,9 +206,7 @@ export class PlayerResolver {
     @Ctx() ctx: Context,
   ) {
     return GameEloResolverMethods.game_elos({
-      games,
-      players: [player._id],
-      sort,
+      args: { games, players: [player._id], sort },
       ctx,
     });
   }

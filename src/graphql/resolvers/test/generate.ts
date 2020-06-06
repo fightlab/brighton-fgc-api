@@ -50,7 +50,7 @@ export const generateBracketPlatform = (min = true): BracketPlatform => {
 // generate a fake game for testing
 export const generateGame = (min = true): Game => {
   const obj: Game = {
-    name: faker.hacker.noun(),
+    name: faker.company.companyName(),
     short: faker.hacker.abbreviation(),
   };
 

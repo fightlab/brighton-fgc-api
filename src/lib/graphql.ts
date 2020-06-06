@@ -15,6 +15,11 @@ export interface Context {
   loaders: Loaders;
 }
 
+export interface CtxWithArgs<T> {
+  args: T;
+  ctx: Context;
+}
+
 // disable emitSchemaFile in test, since this will break tests
 const { isTest } = getConfig();
 const emitSchemaFile = !isTest();

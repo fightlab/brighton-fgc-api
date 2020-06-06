@@ -3,7 +3,6 @@
 import {
   registerEnumType,
   Resolver,
-  Arg,
   Ctx,
   Query,
   FieldResolver,
@@ -20,7 +19,7 @@ import {
 import { Event, EVENT_DESCRIPTIONS } from '@models/event';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
-import { Context } from '@lib/graphql';
+import { Context, CtxWithArgs } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import { DocumentType } from '@typegoose/typegoose';
 import { Venue } from '@models/venue';
@@ -36,6 +35,7 @@ import {
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 import { Tournament } from '@models/tournament';
+import { VenueResolverMethods } from './venue';
 
 export enum EVENT_SORT {
   NAME_ASC,
@@ -73,6 +73,14 @@ const mapSort = (sort: EVENT_SORT): MapSort => {
       return ['_id', 'asc'];
   }
 };
+
+@ArgsType()
+export class EventArgs {
+  @Field(() => ObjectIdScalar, {
+    description: EVENT_DESCRIPTIONS.ID,
+  })
+  id?: ObjectId;
+}
 
 @ArgsType()
 export class EventsArgs {
@@ -120,28 +128,24 @@ export class EventsArgs {
   sort!: EVENT_SORT;
 }
 
-export class EventResolverMethodsClass {
+export class EventResolverMethods {
+  static event({ args: { id }, ctx }: CtxWithArgs<EventArgs>) {
+    return ctx.loaders.EventLoader.load(id);
+  }
+
   static async events({
-    ids,
-    search,
-    date_start_gte,
-    date_start_lte,
-    date_end_gte,
-    date_end_lte,
-    venue,
-    sort = EVENT_SORT.DATE_START_DESC,
+    args: {
+      ids,
+      search,
+      date_start_gte,
+      date_start_lte,
+      date_end_gte,
+      date_end_lte,
+      venue,
+      sort = EVENT_SORT.DATE_START_DESC,
+    },
     ctx,
-  }: {
-    ids?: Array<ObjectId>;
-    search?: string;
-    date_start_gte?: Date;
-    date_start_lte?: Date;
-    date_end_gte?: Date;
-    date_end_lte?: Date;
-    venue?: ObjectId;
-    sort?: EVENT_SORT;
-    ctx: Context;
-  }) {
+  }: CtxWithArgs<EventsArgs>) {
     const q = generateMongooseQueryObject();
     if (search) {
       q.name = {
@@ -193,14 +197,8 @@ export class EventResolver {
     nullable: true,
     description: EVENT_DESCRIPTIONS.FIND_ONE,
   })
-  event(
-    @Arg('id', () => ObjectIdScalar, {
-      description: EVENT_DESCRIPTIONS.ID,
-    })
-    id: ObjectId,
-    @Ctx() ctx: Context,
-  ) {
-    return ctx.loaders.EventLoader.load(id);
+  event(@Args() { id }: EventArgs, @Ctx() ctx: Context) {
+    return EventResolverMethods.event({ args: { id }, ctx });
   }
 
   // get multiple events
@@ -221,16 +219,18 @@ export class EventResolver {
     }: EventsArgs,
     @Ctx() ctx: Context,
   ) {
-    return EventResolverMethodsClass.events({
-      ids,
+    return EventResolverMethods.events({
       ctx,
-      sort,
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      search,
-      venue,
+      args: {
+        ids,
+        sort,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        search,
+        venue,
+      },
     });
   }
 
@@ -247,7 +247,10 @@ export class EventResolver {
     description: EVENT_DESCRIPTIONS.VENUE,
   })
   venue(@Root() event: DocumentType<Event>, @Ctx() ctx: Context) {
-    return ctx.loaders.VenueLoader.load(event.venue);
+    return VenueResolverMethods.venue({
+      args: { id: event.venue as ObjectId },
+      ctx,
+    });
   }
 
   // populate event series
@@ -261,10 +264,7 @@ export class EventResolver {
     @Ctx() ctx: Context,
   ) {
     const [eventSeries = null] = await EventSeriesResolverMethods.event_series({
-      events: [event._id],
-      sort,
-      search,
-      ids,
+      args: { events: [event._id], sort, search, ids },
       ctx,
     });
 
@@ -279,7 +279,9 @@ export class EventResolver {
   event_social(@Root() event: DocumentType<Event>, @Ctx() ctx: Context) {
     return EventSocialResolverMethods.event_social({
       ctx,
-      event: event._id,
+      args: {
+        event: event._id,
+      },
     });
   }
 
@@ -303,17 +305,19 @@ export class EventResolver {
     @Ctx() ctx: Context,
   ) {
     return TournamentResolverMethodsClass.tournaments({
-      event: event._id,
-      sort,
-      date_end_gte,
-      date_end_lte,
-      date_start_gte,
-      date_start_lte,
-      games,
-      ids,
-      players,
-      search,
-      type,
+      args: {
+        event: event._id,
+        sort,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        games,
+        ids,
+        players,
+        search,
+        type,
+      },
       ctx,
     });
   }
