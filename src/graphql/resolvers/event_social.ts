@@ -15,7 +15,7 @@ import { generateMongooseQueryObject } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { Event } from '@models/event';
-import { EventResolverMethods } from './event';
+import { EventResolverMethods } from '@graphql/resolvers/event';
 
 @ArgsType()
 export class EventSocialArgs {

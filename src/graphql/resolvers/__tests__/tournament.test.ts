@@ -10,7 +10,7 @@ import {
   generateTournament,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
-import { gql, gqlCall } from '../test/helper';
+import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import moment from 'moment';
 

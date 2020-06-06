@@ -8,7 +8,11 @@ import { Types } from 'mongoose';
 import { EventModel, Event } from '@models/event';
 import { GameModel, Game } from '@models/game';
 import { PlayerModel, Player } from '@models/player';
-import { TournamentModel, Tournament, TOURNAMENT_TYPE } from '../tournament';
+import {
+  TournamentModel,
+  Tournament,
+  TOURNAMENT_TYPE,
+} from '@models/tournament';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,

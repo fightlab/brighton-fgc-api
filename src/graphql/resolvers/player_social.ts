@@ -18,7 +18,7 @@ import { generateMongooseQueryObject } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { Player } from '@models/player';
-import { PlayerResolverMethods } from './player';
+import { PlayerResolverMethods } from '@graphql/resolvers/player';
 
 @ArgsType()
 export class PlayerSocialArgs {

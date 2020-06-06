@@ -30,7 +30,7 @@ import {
   PlayerSocial,
   PLAYER_SOCIAL_DESCRIPTIONS,
 } from '@models/player_social';
-import { PlayerSocialResolverMethods } from './player_social';
+import { PlayerSocialResolverMethods } from '@graphql/resolvers/player_social';
 import { Tournament } from '@models/tournament';
 import {
   TournamentResolverMethodsClass,

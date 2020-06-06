@@ -27,9 +27,9 @@ import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { Game } from '@models/game';
 import { GameResolverMethods, GamesArgs } from '@graphql/resolvers/game';
-import { PlayerResolverMethods, PlayersArgs } from './player';
+import { PlayerResolverMethods, PlayersArgs } from '@graphql/resolvers/player';
 import { Player } from '@models/player';
-import { EventResolverMethods } from './event';
+import { EventResolverMethods } from '@graphql/resolvers/event';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,

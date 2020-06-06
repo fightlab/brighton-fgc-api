@@ -23,7 +23,7 @@ import {
 } from '@graphql/resolvers';
 import { orderBy } from 'lodash';
 import { Game } from '@models/game';
-import { GameResolverMethods } from './game';
+import { GameResolverMethods } from '@graphql/resolvers/game';
 
 // sorting stuff for character
 export enum CHARACTER_SORT {

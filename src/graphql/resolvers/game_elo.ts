@@ -20,8 +20,8 @@ import {
   MongooseQuery,
 } from '@graphql/resolvers';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
-import { GameResolverMethods } from './game';
-import { PlayerResolverMethods } from './player';
+import { GameResolverMethods } from '@graphql/resolvers/game';
+import { PlayerResolverMethods } from '@graphql/resolvers/player';
 
 export enum GAME_ELO_SORT {
   GAME_ID,

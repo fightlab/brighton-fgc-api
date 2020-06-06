@@ -35,7 +35,7 @@ import {
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 import { Tournament } from '@models/tournament';
-import { VenueResolverMethods } from './venue';
+import { VenueResolverMethods } from '@graphql/resolvers/venue';
 
 export enum EVENT_SORT {
   NAME_ASC,
