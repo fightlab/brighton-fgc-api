@@ -12,6 +12,7 @@ import { EventResolver } from '@graphql/resolvers/event';
 import { EventSeriesResolver } from '@graphql/resolvers/event_series';
 import { EventSocialResolver } from '@graphql/resolvers/event_social';
 import { TournamentResolver } from '@graphql/resolvers/tournament';
+import { BracketResolver } from '@graphql/resolvers/bracket';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -37,4 +38,5 @@ export const resolvers: [Function, ...Function[]] = [
   EventSeriesResolver,
   EventSocialResolver,
   TournamentResolver,
+  BracketResolver,
 ];

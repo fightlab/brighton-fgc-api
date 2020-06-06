@@ -12,6 +12,7 @@ import moment, { Moment } from 'moment';
 import { EventSeries } from '@models/event_series';
 import { EventSocial } from '@models/event_social';
 import { Tournament, TOURNAMENT_TYPE } from '@models/tournament';
+import { Bracket } from '@models/bracket';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -313,5 +314,29 @@ export const generateTournament = (
     ...obj,
     date_end: end.toDate(),
     is_team_based: false,
+  };
+};
+
+// generate bracket for testing
+export const generateBracket = (
+  tournament: ObjectId,
+  platform: ObjectId,
+  min = true,
+): Bracket => {
+  const obj: Bracket = {
+    platform,
+    platform_id: faker.random.uuid(),
+    tournament,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    image: faker.image.imageUrl(),
+    slug: faker.lorem.slug(),
+    url: faker.internet.url(),
   };
 };

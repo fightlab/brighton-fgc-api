@@ -8,11 +8,13 @@ import {
   generateGame,
   generatePlayer,
   generateTournament,
+  generateBracket,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import moment from 'moment';
+import { BracketModel } from '@models/bracket';
 
 describe('Tournament GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -1311,5 +1313,69 @@ describe('Tournament GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.tournaments).toBeDefined();
     expect(output.data?.tournaments).toHaveLength(0);
+  });
+
+  it('should populate bracket for a given tournament', async () => {
+    const [bracket] = await BracketModel.create([
+      generateBracket(tournaments[0]._id, new ObjectId(), true),
+    ]);
+
+    const source = gql`
+      query QueryBrackets($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          bracket {
+            _id
+            tournament_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.bracket).toBeDefined();
+    expect(output.data?.tournament.bracket._id).toBe(bracket.id);
+    expect(output.data?.tournament.bracket.tournament_id).toBe(
+      tournaments[0].id,
+    );
+  });
+
+  it('should return null if tournament does not have a bracket (yet!)', async () => {
+    const source = gql`
+      query QueryBrackets($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          bracket {
+            _id
+            tournament_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.bracket).toBeNull();
   });
 });

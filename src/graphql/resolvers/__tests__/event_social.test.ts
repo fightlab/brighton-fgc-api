@@ -53,7 +53,7 @@ describe('Event Social GraphQL Resolver Test', () => {
       source,
       variableValues,
     });
-    console.log(output);
+
     expect(output.data).toBeDefined();
     expect(output.data?.event_social).toBeDefined();
     expect(output.data?.event_social._id).toBe(eventSocials[0].id);

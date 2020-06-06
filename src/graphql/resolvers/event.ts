@@ -31,7 +31,7 @@ import { EventSeries } from '@models/event_series';
 import { EventSocialResolverMethods } from '@graphql/resolvers/event_social';
 import { EventSocial } from '@models/event_social';
 import {
-  TournamentResolverMethodsClass,
+  TournamentResolverMethods,
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 import { Tournament } from '@models/tournament';
@@ -304,7 +304,7 @@ export class EventResolver {
     }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
-    return TournamentResolverMethodsClass.tournaments({
+    return TournamentResolverMethods.tournaments({
       args: {
         event: event._id,
         sort,

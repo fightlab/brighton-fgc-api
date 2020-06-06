@@ -33,7 +33,7 @@ import {
 import { PlayerSocialResolverMethods } from '@graphql/resolvers/player_social';
 import { Tournament } from '@models/tournament';
 import {
-  TournamentResolverMethodsClass,
+  TournamentResolverMethods,
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 
@@ -161,7 +161,7 @@ export class PlayerResolver {
     }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
-    return TournamentResolverMethodsClass.tournaments({
+    return TournamentResolverMethods.tournaments({
       args: {
         players: [player._id],
         date_end_gte,

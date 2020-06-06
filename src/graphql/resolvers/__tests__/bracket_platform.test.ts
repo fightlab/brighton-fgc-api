@@ -1,5 +1,8 @@
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
-import { generateBracketPlatform } from '@graphql/resolvers/test/generate';
+import {
+  generateBracketPlatform,
+  generateBracket,
+} from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import {
@@ -7,6 +10,7 @@ import {
   BracketPlatformModel,
 } from '@models/bracket_platform';
 import { ObjectId } from 'mongodb';
+import { BracketModel } from '@models/bracket';
 
 describe('Bracket Platform GraphQL Resolver Test', () => {
   let bracketPlatforms: Array<DocumentType<BracketPlatform>>;
@@ -301,5 +305,80 @@ describe('Bracket Platform GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.bracket_platforms).toBeDefined();
     expect(output.data?.bracket_platforms).toHaveLength(0);
+  });
+
+  it('should return list of brackets for a given bracket platform', async () => {
+    const brackets = await BracketModel.create([
+      generateBracket(new ObjectId(), bracketPlatforms[0].id, true),
+      generateBracket(new ObjectId(), bracketPlatforms[0].id, true),
+    ]);
+
+    const source = gql`
+      query QueryBrackets($id: ObjectId!) {
+        bracket_platform(id: $id) {
+          _id
+          name
+          brackets {
+            _id
+            bracket_platform_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: bracketPlatforms[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.bracket_platform).toBeDefined();
+    expect(output.data?.bracket_platform._id).toBe(bracketPlatforms[0].id);
+    expect(output.data?.bracket_platform.brackets).toBeDefined();
+    expect(output.data?.bracket_platform.brackets).toHaveLength(
+      brackets.length,
+    );
+    expect(
+      every(
+        output.data?.bracket_platform.brackets,
+        (e) =>
+          some(brackets, (s) => s.id === e._id) &&
+          e.bracket_platform_id === bracketPlatforms[0].id,
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array of brackets for a given bracket platform if not found', async () => {
+    const source = gql`
+      query QueryBrackets($id: ObjectId!) {
+        bracket_platform(id: $id) {
+          _id
+          name
+          brackets {
+            _id
+            bracket_platform_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: bracketPlatforms[1].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.bracket_platform).toBeDefined();
+    expect(output.data?.bracket_platform._id).toBe(bracketPlatforms[1].id);
+    expect(output.data?.bracket_platform.brackets).toBeDefined();
+    expect(output.data?.bracket_platform.brackets).toHaveLength(0);
   });
 });

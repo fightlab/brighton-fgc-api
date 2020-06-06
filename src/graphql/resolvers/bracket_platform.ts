@@ -8,6 +8,8 @@ import {
   ArgsType,
   Field,
   Args,
+  FieldResolver,
+  Root,
 } from 'type-graphql';
 import { orderBy } from 'lodash';
 import { ObjectId } from 'mongodb';
@@ -22,6 +24,12 @@ import {
   generateMongooseQueryObject,
   MongooseQuery,
 } from '@graphql/resolvers';
+import { Bracket, BRACKET_DESCRIPTIONS } from '@models/bracket';
+import { DocumentType } from '@typegoose/typegoose';
+import {
+  BracketResolverMethods,
+  BracketsArgs,
+} from '@graphql/resolvers/bracket';
 
 // sorting stuff for character
 enum BRACKET_PLATFORM_SORT {
@@ -139,5 +147,25 @@ export class BracketPlatformResolver {
     });
   }
 
-  // TODO: Add brackets that belong to each platform
+  // brackets that belong to each platform
+  @FieldResolver(() => [Bracket], {
+    description: BRACKET_DESCRIPTIONS.DESCRIPTION,
+  })
+  brackets(
+    @Root() bracket_platform: DocumentType<BracketPlatform>,
+    @Args() { sort, ids, platform_id, slug, tournaments }: BracketsArgs,
+    @Ctx() ctx: Context,
+  ) {
+    return BracketResolverMethods.brackets({
+      ctx,
+      args: {
+        bracket_platform: bracket_platform._id,
+        sort,
+        ids,
+        platform_id,
+        slug,
+        tournaments,
+      },
+    });
+  }
 }

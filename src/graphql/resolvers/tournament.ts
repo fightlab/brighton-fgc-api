@@ -30,6 +30,8 @@ import { GameResolverMethods, GamesArgs } from '@graphql/resolvers/game';
 import { PlayerResolverMethods, PlayersArgs } from '@graphql/resolvers/player';
 import { Player } from '@models/player';
 import { EventResolverMethods } from '@graphql/resolvers/event';
+import { Bracket, BRACKET_DESCRIPTIONS } from '@models/bracket';
+import { BracketResolverMethods } from '@graphql/resolvers/bracket';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,
@@ -144,7 +146,7 @@ export class TournamentsArgs {
   sort!: TOURNAMENT_SORT;
 }
 
-export class TournamentResolverMethodsClass {
+export class TournamentResolverMethods {
   static tournament({
     args: { id },
     ctx,
@@ -236,7 +238,7 @@ export class TournamentResolver {
     description: TOURNAMENT_DESCRIPTIONS.FIND_ONE,
   })
   tournament(@Args() { id }: TournamentArgs, @Ctx() ctx: Context) {
-    return TournamentResolverMethodsClass.tournament({ args: { id }, ctx });
+    return TournamentResolverMethods.tournament({ args: { id }, ctx });
   }
 
   @Query(() => [Tournament], {
@@ -259,7 +261,7 @@ export class TournamentResolver {
     }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
-    return TournamentResolverMethodsClass.tournaments({
+    return TournamentResolverMethods.tournaments({
       ctx,
       args: {
         ids,
@@ -327,6 +329,18 @@ export class TournamentResolver {
     return PlayerResolverMethods.players({
       args: { ids: tournament.players as Array<ObjectId>, search, sort },
       ctx,
+    });
+  }
+
+  // populate bracket
+  @FieldResolver(() => Bracket, {
+    description: BRACKET_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  bracket(@Root() tournament: DocumentType<Tournament>, @Ctx() ctx: Context) {
+    return BracketResolverMethods.bracket({
+      ctx,
+      args: { tournament: tournament._id },
     });
   }
 }

@@ -34,7 +34,7 @@ import {
 } from '@graphql/resolvers/character';
 import { Tournament } from '@models/tournament';
 import {
-  TournamentResolverMethodsClass,
+  TournamentResolverMethods,
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
 
@@ -183,7 +183,7 @@ export class GameResolver {
     }: TournamentsArgs,
     @Ctx() ctx: Context,
   ) {
-    return TournamentResolverMethodsClass.tournaments({
+    return TournamentResolverMethods.tournaments({
       args: {
         games: [game._id],
         ids,
