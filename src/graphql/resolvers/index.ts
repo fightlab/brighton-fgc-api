@@ -13,6 +13,7 @@ import { EventSeriesResolver } from '@graphql/resolvers/event_series';
 import { EventSocialResolver } from '@graphql/resolvers/event_social';
 import { TournamentResolver } from '@graphql/resolvers/tournament';
 import { BracketResolver } from '@graphql/resolvers/bracket';
+import { MatchResolver } from '@graphql/resolvers/match';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -20,12 +21,17 @@ export type MongooseQuery = MongooseFilterQuery<
 >;
 
 // map sort helper return type
-export type MapSort = [string, Many<boolean | 'asc' | 'desc'>];
+export type MapSort = [
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  string | Function | Array<string | Function>,
+  Many<boolean | 'asc' | 'desc'> | Array<boolean | 'asc' | 'desc'>,
+];
 
 // resolver query helper object generation
 export const generateMongooseQueryObject = (): MongooseQuery => ({});
 
 // add all resolvers here
+// eslint-disable-next-line @typescript-eslint/ban-types
 export const resolvers: [Function, ...Function[]] = [
   BracketPlatformResolver,
   GameResolver,
@@ -39,4 +45,5 @@ export const resolvers: [Function, ...Function[]] = [
   EventSocialResolver,
   TournamentResolver,
   BracketResolver,
+  MatchResolver,
 ];

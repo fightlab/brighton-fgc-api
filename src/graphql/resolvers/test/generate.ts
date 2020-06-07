@@ -393,5 +393,7 @@ export const generateMatch = (
     round_name: `Round ${round}`,
     score1,
     score2,
+    date_end: moment.utc().add(5, 'm').toDate(),
+    date_start: moment.utc().toDate(),
   };
 };

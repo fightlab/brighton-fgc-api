@@ -71,6 +71,8 @@ describe('Match model test', () => {
       round_name: 'Winners Round 1',
       score1: 0,
       score2: 1,
+      date_end: moment.utc().add(5, 'minute').toDate(),
+      date_start: moment.utc().toDate(),
     };
 
     // not sure you'd do this, but an active tournament might have blank matches
@@ -133,6 +135,12 @@ describe('Match model test', () => {
     expect(output.round_name).toBe(matchFull.round_name);
     expect(output.score1).toBe(matchFull.score1);
     expect(output.score2).toBe(matchFull.score2);
+    expect(output.date_end?.toISOString()).toBe(
+      matchFull.date_end?.toISOString(),
+    );
+    expect(output.date_start?.toISOString()).toBe(
+      matchFull.date_start?.toISOString(),
+    );
   });
 
   it('should create & save min match successfully', async () => {
@@ -150,6 +158,8 @@ describe('Match model test', () => {
     expect(output.round_name).toBeUndefined();
     expect(output.score1).toBeUndefined();
     expect(output.score2).toBeUndefined();
+    expect(output.date_end).toBeUndefined();
+    expect(output.date_start).toBeUndefined();
   });
 
   it('should create & save a team match successfully', async () => {
