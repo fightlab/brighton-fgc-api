@@ -17,7 +17,7 @@ import {
 } from '@graphql/resolvers';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
-import { TOURNAMENT_DESCRIPTIONS } from '@models/tournament';
+import { TOURNAMENT_DESCRIPTIONS, Tournament } from '@models/tournament';
 import {
   BRACKET_PLATFORM_DESCRIPTIONS,
   BracketPlatform,
@@ -126,7 +126,7 @@ export class BracketResolverMethods {
   static async bracket({
     args: { id, tournament },
     ctx,
-  }: CtxWithArgs<BracketArgs>) {
+  }: CtxWithArgs<BracketArgs>): Promise<Bracket | null> {
     if (!id && !tournament) {
       return null;
     }
@@ -160,7 +160,7 @@ export class BracketResolverMethods {
       slug,
       tournaments,
     },
-  }: CtxWithArgs<BracketsArgs>) {
+  }: CtxWithArgs<BracketsArgs>): Promise<Array<Bracket>> {
     const q = generateMongooseQueryObject();
 
     if (ids) {
@@ -207,7 +207,10 @@ export class BracketResolver {
     nullable: true,
     description: BRACKET_DESCRIPTIONS.FIND_ONE,
   })
-  bracket(@Args() { id, tournament }: BracketArgs, @Ctx() ctx: Context) {
+  bracket(
+    @Args() { id, tournament }: BracketArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Bracket | null> {
     return BracketResolverMethods.bracket({ args: { id, tournament }, ctx });
   }
 
@@ -226,7 +229,7 @@ export class BracketResolver {
       tournaments,
     }: BracketsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Bracket>> {
     return BracketResolverMethods.brackets({
       ctx,
       args: {
@@ -244,8 +247,8 @@ export class BracketResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: BRACKET_DESCRIPTIONS.BRACKET_PLATFORM_ID,
   })
-  bracket_platform_id(@Root() bracket: DocumentType<Bracket>) {
-    return bracket.platform;
+  bracket_platform_id(@Root() bracket: DocumentType<Bracket>): ObjectId {
+    return bracket.platform as ObjectId;
   }
 
   // field resolver to return bracket platform
@@ -255,7 +258,7 @@ export class BracketResolver {
   bracket_platform(
     @Root() bracket: DocumentType<Bracket>,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<BracketPlatform | null> {
     return BracketPlatformResolverMethods.bracket_platform({
       ctx,
       args: { id: bracket.platform as ObjectId },
@@ -266,15 +269,18 @@ export class BracketResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: BRACKET_DESCRIPTIONS.TOURNAMENT_ID,
   })
-  tournament_id(@Root() bracket: DocumentType<Bracket>) {
-    return bracket.tournament;
+  tournament_id(@Root() bracket: DocumentType<Bracket>): ObjectId {
+    return bracket.tournament as ObjectId;
   }
 
   // field resolver to return tournament
   @FieldResolver(() => ObjectIdScalar, {
     description: BRACKET_DESCRIPTIONS.TOURNAMENT,
   })
-  tournament(@Root() bracket: DocumentType<Bracket>, @Ctx() ctx: Context) {
+  tournament(
+    @Root() bracket: DocumentType<Bracket>,
+    @Ctx() ctx: Context,
+  ): Promise<Tournament | null> {
     return TournamentResolverMethods.tournament({
       ctx,
       args: { id: bracket.tournament as ObjectId },

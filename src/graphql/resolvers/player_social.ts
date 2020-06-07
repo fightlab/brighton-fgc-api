@@ -34,7 +34,7 @@ export class PlayerSocialResolverMethods {
   static async player_social({
     args: { player },
     ctx,
-  }: CtxWithArgs<PlayerSocialArgs>) {
+  }: CtxWithArgs<PlayerSocialArgs>): Promise<PlayerSocial | null> {
     const q = generateMongooseQueryObject();
     q.player = player;
 
@@ -51,7 +51,10 @@ export class PlayerSocialResolver {
     nullable: true,
     description: PLAYER_SOCIAL_DESCRIPTIONS.FIND_ONE,
   })
-  player_social(@Args() { player }: PlayerSocialArgs, @Ctx() ctx: Context) {
+  player_social(
+    @Args() { player }: PlayerSocialArgs,
+    @Ctx() ctx: Context,
+  ): Promise<PlayerSocial | null> {
     return PlayerSocialResolverMethods.player_social({ args: { player }, ctx });
   }
 
@@ -59,8 +62,8 @@ export class PlayerSocialResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: PLAYER_SOCIAL_DESCRIPTIONS.PLAYER_ID,
   })
-  player_id(@Root() player_social: DocumentType<PlayerSocial>) {
-    return player_social.player;
+  player_id(@Root() player_social: DocumentType<PlayerSocial>): ObjectId {
+    return player_social.player as ObjectId;
   }
 
   // field resolver for the player
@@ -70,7 +73,7 @@ export class PlayerSocialResolver {
   player(
     @Root() player_social: DocumentType<PlayerSocial>,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Player | null> {
     return PlayerResolverMethods.player({
       args: { id: player_social.player as ObjectId },
       ctx,

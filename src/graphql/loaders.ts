@@ -23,6 +23,7 @@ import { EventSeriesModel } from '@models/event_series';
 import { EventSocialModel } from '@models/event_social';
 import { TournamentModel } from '@models/tournament';
 import { BracketModel } from '@models/bracket';
+import { MatchModel } from '@models/match';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -45,7 +46,7 @@ const cacheKeyFn = (key: any) => objectHash(key, { replacer });
 
 // use general loader to return multiple values (e.g. an array of events)
 const makeGeneralLoader = (
-  model: ReturnModelType<AnyParamConstructor<any>, {}>,
+  model: ReturnModelType<AnyParamConstructor<any>, unknown>,
 ) =>
   new DataLoader(
     async (queries) => {
@@ -65,7 +66,7 @@ const makeGeneralLoader = (
 
 // use single loader to return individual documents by id (e.g. one event)
 const makeSingleGeneralLoader = (
-  model: ReturnModelType<AnyParamConstructor<any>, {}>,
+  model: ReturnModelType<AnyParamConstructor<any>, unknown>,
 ) =>
   new DataLoader(
     async (queries) => {
@@ -115,6 +116,8 @@ const TournamentsLoader = makeGeneralLoader(TournamentModel);
 const TournamentLoader = makeSingleGeneralLoader(TournamentModel);
 const BracketsLoader = makeGeneralLoader(BracketModel);
 const BracketLoader = makeSingleGeneralLoader(BracketModel);
+const MatchesLoader = makeGeneralLoader(MatchModel);
+const MatchLoader = makeSingleGeneralLoader(MatchModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -143,6 +146,8 @@ export interface Loaders {
   TournamentLoader: DataLoader<unknown, any, unknown>;
   BracketsLoader: DataLoader<unknown, any[], unknown>;
   BracketLoader: DataLoader<unknown, any, unknown>;
+  MatchesLoader: DataLoader<unknown, any[], unknown>;
+  MatchLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -172,4 +177,6 @@ export const loaders: Loaders = {
   TournamentLoader,
   BracketsLoader,
   BracketLoader,
+  MatchesLoader,
+  MatchLoader,
 };

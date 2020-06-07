@@ -1,4 +1,4 @@
-import { graphql, Source, GraphQLSchema } from 'graphql';
+import { graphql, Source, GraphQLSchema, ExecutionResult } from 'graphql';
 import { createSchema } from '@lib/graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { loaders } from '@graphql/loaders';
@@ -15,7 +15,10 @@ interface GqlCallOptions {
 let schema: GraphQLSchema;
 
 // helper method to call graphql without needing an server
-export const gqlCall = async ({ source, variableValues }: GqlCallOptions) => {
+export const gqlCall = async ({
+  source,
+  variableValues,
+}: GqlCallOptions): Promise<ExecutionResult> => {
   if (!schema) {
     schema = await createSchema();
   }
@@ -31,7 +34,7 @@ export const gqlCall = async ({ source, variableValues }: GqlCallOptions) => {
 };
 
 // function which just returns the template literal, used for syntax highlighting
-const highlight = (s: TemplateStringsArray, ...args: any[]) =>
+const highlight = (s: TemplateStringsArray, ...args: any[]): string =>
   s.map((ss, i) => `${ss}${args[i] || ''}`).join('');
 
 // gql tag for gql syntax highlighting

@@ -90,14 +90,17 @@ export class CharactersArgs {
 }
 
 export class CharacterResolverMethods {
-  static character({ args: { id }, ctx }: CtxWithArgs<CharacterArgs>) {
+  static character({
+    args: { id },
+    ctx,
+  }: CtxWithArgs<CharacterArgs>): Promise<Character | null> {
     return ctx.loaders.CharacterLoader.load(id);
   }
 
   static async characters({
     args: { search, ids, game, sort = CHARACTER_SORT.GAME_ID },
     ctx,
-  }: CtxWithArgs<CharactersArgs>) {
+  }: CtxWithArgs<CharactersArgs>): Promise<Array<Character>> {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -130,7 +133,10 @@ export class CharacterResolver {
     nullable: true,
     description: CHARACTER_DESCRIPTIONS.FIND_ONE,
   })
-  character(@Args() { id }: CharacterArgs, @Ctx() ctx: Context) {
+  character(
+    @Args() { id }: CharacterArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Character | null> {
     return CharacterResolverMethods.character({ args: { id }, ctx });
   }
 
@@ -141,7 +147,7 @@ export class CharacterResolver {
   characters(
     @Args() { sort, ids, search, game }: CharactersArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Character>> {
     return CharacterResolverMethods.characters({
       args: { sort, ids, game, search },
       ctx,
@@ -152,20 +158,23 @@ export class CharacterResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: CHARACTER_DESCRIPTIONS.GAME_ID,
   })
-  game_id(@Root() character: DocumentType<Character>) {
-    return character.game;
+  game_id(@Root() character: DocumentType<Character>): ObjectId {
+    return character.game as ObjectId;
   }
 
   // field resolver for the game
   @FieldResolver(() => Game, {
     description: CHARACTER_DESCRIPTIONS.GAME,
   })
-  game(@Root() character: DocumentType<Character>, @Ctx() ctx: Context) {
+  game(
+    @Root() character: DocumentType<Character>,
+    @Ctx() ctx: Context,
+  ): Promise<Game | null> {
     return GameResolverMethods.game({
       args: { id: character.game as ObjectId },
       ctx,
     });
   }
 
-  // TODO: Add matches that character has appeared in
+  // TODO: Add match vods that character has appeared in
 }

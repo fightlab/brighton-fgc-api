@@ -22,6 +22,8 @@ import {
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { GameResolverMethods } from '@graphql/resolvers/game';
 import { PlayerResolverMethods } from '@graphql/resolvers/player';
+import { Player } from '@models/player';
+import { Game } from '@models/game';
 
 export enum GAME_ELO_SORT {
   GAME_ID,
@@ -90,7 +92,7 @@ export class GameEloResolverMethods {
   static async game_elo({
     args: { game, player },
     ctx,
-  }: CtxWithArgs<GameEloArgs>) {
+  }: CtxWithArgs<GameEloArgs>): Promise<GameElo | null> {
     const q = generateMongooseQueryObject();
     q.game = game;
     q.player = player;
@@ -105,7 +107,7 @@ export class GameEloResolverMethods {
   static async game_elos({
     args: { games, players, sort = GAME_ELO_SORT.SCORE_DESC },
     ctx,
-  }: CtxWithArgs<GameElosArgs>) {
+  }: CtxWithArgs<GameElosArgs>): Promise<Array<GameElo>> {
     const q = generateMongooseQueryObject();
 
     if (games) {
@@ -133,7 +135,10 @@ export class GameEloResolver {
     nullable: true,
     description: GAME_ELO_DESCRIPTIONS.FIND_ONE,
   })
-  game_elo(@Args() { game, player }: GameEloArgs, @Ctx() ctx: Context) {
+  game_elo(
+    @Args() { game, player }: GameEloArgs,
+    @Ctx() ctx: Context,
+  ): Promise<GameElo | null> {
     return GameEloResolverMethods.game_elo({ args: { game, player }, ctx });
   }
 
@@ -144,7 +149,7 @@ export class GameEloResolver {
   game_elos(
     @Args() { sort, games, players }: GameElosArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<GameElo>> {
     return GameEloResolverMethods.game_elos({
       args: { games, players, sort },
       ctx,
@@ -155,12 +160,15 @@ export class GameEloResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: GAME_ELO_DESCRIPTIONS.PLAYER,
   })
-  player_id(@Root() game_elo: DocumentType<GameElo>) {
-    return game_elo.player;
+  player_id(@Root() game_elo: DocumentType<GameElo>): ObjectId {
+    return game_elo.player as ObjectId;
   }
 
   @FieldResolver()
-  player(@Root() game_elo: DocumentType<GameElo>, @Ctx() ctx: Context) {
+  player(
+    @Root() game_elo: DocumentType<GameElo>,
+    @Ctx() ctx: Context,
+  ): Promise<Player | null> {
     return PlayerResolverMethods.player({
       args: { id: game_elo.player as ObjectId },
       ctx,
@@ -171,12 +179,15 @@ export class GameEloResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: GAME_ELO_DESCRIPTIONS.GAME,
   })
-  game_id(@Root() game_elo: DocumentType<GameElo>) {
-    return game_elo.game;
+  game_id(@Root() game_elo: DocumentType<GameElo>): ObjectId {
+    return game_elo.game as ObjectId;
   }
 
   @FieldResolver()
-  game(@Root() game_elo: DocumentType<GameElo>, @Ctx() ctx: Context) {
+  game(
+    @Root() game_elo: DocumentType<GameElo>,
+    @Ctx() ctx: Context,
+  ): Promise<Game | null> {
     return GameResolverMethods.game({
       args: { id: game_elo.game as ObjectId },
       ctx,

@@ -9,6 +9,7 @@ import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { loaders, Loaders } from '@graphql/loaders';
 import { resolvers } from '@graphql/resolvers';
 import { getConfig } from '@lib/config';
+import { GraphQLSchema } from 'graphql';
 
 // our user defined Context interface to be used to type the context object
 export interface Context {
@@ -25,7 +26,7 @@ const { isTest } = getConfig();
 const emitSchemaFile = !isTest();
 
 // helper method to generate the schema
-export const createSchema = () =>
+export const createSchema = (): Promise<GraphQLSchema> =>
   buildSchema({
     // add resolvers here
     resolvers,

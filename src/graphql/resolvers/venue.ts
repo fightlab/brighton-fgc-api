@@ -74,14 +74,17 @@ export class VenuesArgs {
 }
 
 export class VenueResolverMethods {
-  static venue({ args: { id }, ctx }: CtxWithArgs<VenueArgs>) {
+  static venue({
+    args: { id },
+    ctx,
+  }: CtxWithArgs<VenueArgs>): Promise<Venue | null> {
     return ctx.loaders.VenueLoader.load(id);
   }
 
   static async venues({
     args: { search, sort, ids },
     ctx,
-  }: CtxWithArgs<VenuesArgs>) {
+  }: CtxWithArgs<VenuesArgs>): Promise<Array<Venue>> {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -110,7 +113,7 @@ export class VenueResolver {
     nullable: true,
     description: VENUE_DESCRIPTIONS.FIND_ONE,
   })
-  venue(@Args() { id }: VenueArgs, @Ctx() ctx: Context) {
+  venue(@Args() { id }: VenueArgs, @Ctx() ctx: Context): Promise<Venue | null> {
     return VenueResolverMethods.venue({ args: { id }, ctx });
   }
 
@@ -118,7 +121,10 @@ export class VenueResolver {
   @Query(() => [Venue], {
     description: VENUE_DESCRIPTIONS.FIND,
   })
-  async venues(@Args() { sort, ids, search }: VenuesArgs, @Ctx() ctx: Context) {
+  async venues(
+    @Args() { sort, ids, search }: VenuesArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Venue>> {
     return VenueResolverMethods.venues({ ctx, args: { sort, ids, search } });
   }
 
@@ -139,7 +145,7 @@ export class VenueResolver {
       search,
     }: EventsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Event>> {
     return EventResolverMethods.events({
       ctx,
       args: {

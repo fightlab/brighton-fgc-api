@@ -91,14 +91,17 @@ export class PlayersArgs {
 }
 
 export class PlayerResolverMethods {
-  static player({ args: { id }, ctx }: CtxWithArgs<PlayerArgs>) {
+  static player({
+    args: { id },
+    ctx,
+  }: CtxWithArgs<PlayerArgs>): Promise<Player | null> {
     return ctx.loaders.PlayerLoader.load(id);
   }
 
   static async players({
     ctx,
     args: { ids, search, sort = PLAYER_SORT.HANDLE_ASC },
-  }: CtxWithArgs<PlayersArgs>) {
+  }: CtxWithArgs<PlayersArgs>): Promise<Array<Player>> {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -127,7 +130,10 @@ export class PlayerResolver {
     nullable: true,
     description: PLAYER_DESCRIPTIONS.FIND_ONE,
   })
-  player(@Args() { id }: PlayerArgs, @Ctx() ctx: Context) {
+  player(
+    @Args() { id }: PlayerArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Player | null> {
     return PlayerResolverMethods.player({ args: { id }, ctx });
   }
 
@@ -135,7 +141,10 @@ export class PlayerResolver {
   @Query(() => [Player], {
     description: PLAYER_DESCRIPTIONS.FIND,
   })
-  players(@Args() { sort, ids, search }: PlayersArgs, @Ctx() ctx: Context) {
+  players(
+    @Args() { sort, ids, search }: PlayersArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Player>> {
     return PlayerResolverMethods.players({
       ctx,
       args: { ids, search, sort },
@@ -160,7 +169,7 @@ export class PlayerResolver {
       type,
     }: TournamentsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Tournament>> {
     return TournamentResolverMethods.tournaments({
       args: {
         players: [player._id],
@@ -186,7 +195,10 @@ export class PlayerResolver {
     description: PLAYER_SOCIAL_DESCRIPTIONS.DESCRIPTION,
     nullable: true,
   })
-  player_social(@Root() player: DocumentType<Player>, @Ctx() ctx: Context) {
+  player_social(
+    @Root() player: DocumentType<Player>,
+    @Ctx() ctx: Context,
+  ): Promise<PlayerSocial | null> {
     return PlayerSocialResolverMethods.player_social({
       args: { player: player._id },
       ctx,
@@ -204,7 +216,7 @@ export class PlayerResolver {
     @Root() player: DocumentType<Player>,
     @Args(() => GameElosArgs) { sort, games }: GameElosArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<GameElo>> {
     return GameEloResolverMethods.game_elos({
       args: { games, players: [player._id], sort },
       ctx,

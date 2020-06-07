@@ -129,7 +129,10 @@ export class EventsArgs {
 }
 
 export class EventResolverMethods {
-  static event({ args: { id }, ctx }: CtxWithArgs<EventArgs>) {
+  static event({
+    args: { id },
+    ctx,
+  }: CtxWithArgs<EventArgs>): Promise<Event | null> {
     return ctx.loaders.EventLoader.load(id);
   }
 
@@ -145,7 +148,7 @@ export class EventResolverMethods {
       sort = EVENT_SORT.DATE_START_DESC,
     },
     ctx,
-  }: CtxWithArgs<EventsArgs>) {
+  }: CtxWithArgs<EventsArgs>): Promise<Array<Event>> {
     const q = generateMongooseQueryObject();
     if (search) {
       q.name = {
@@ -197,7 +200,7 @@ export class EventResolver {
     nullable: true,
     description: EVENT_DESCRIPTIONS.FIND_ONE,
   })
-  event(@Args() { id }: EventArgs, @Ctx() ctx: Context) {
+  event(@Args() { id }: EventArgs, @Ctx() ctx: Context): Promise<Event | null> {
     return EventResolverMethods.event({ args: { id }, ctx });
   }
 
@@ -218,7 +221,7 @@ export class EventResolver {
       venue,
     }: EventsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Event>> {
     return EventResolverMethods.events({
       ctx,
       args: {
@@ -238,15 +241,18 @@ export class EventResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: EVENT_DESCRIPTIONS.VENUE_ID,
   })
-  venue_id(@Root() event: DocumentType<Event>) {
-    return event.venue;
+  venue_id(@Root() event: DocumentType<Event>): ObjectId {
+    return event.venue as ObjectId;
   }
 
   // populate venue
   @FieldResolver(() => Venue, {
     description: EVENT_DESCRIPTIONS.VENUE,
   })
-  venue(@Root() event: DocumentType<Event>, @Ctx() ctx: Context) {
+  venue(
+    @Root() event: DocumentType<Event>,
+    @Ctx() ctx: Context,
+  ): Promise<Venue | null> {
     return VenueResolverMethods.venue({
       args: { id: event.venue as ObjectId },
       ctx,
@@ -262,7 +268,7 @@ export class EventResolver {
     @Root() event: DocumentType<Event>,
     @Args() { sort, search, ids }: EventSeriesArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<EventSeries | null> {
     const [eventSeries = null] = await EventSeriesResolverMethods.event_series({
       args: { events: [event._id], sort, search, ids },
       ctx,
@@ -276,7 +282,10 @@ export class EventResolver {
     description: EVENT_DESCRIPTIONS.EVENT_SOCIAL,
     nullable: true,
   })
-  event_social(@Root() event: DocumentType<Event>, @Ctx() ctx: Context) {
+  event_social(
+    @Root() event: DocumentType<Event>,
+    @Ctx() ctx: Context,
+  ): Promise<EventSocial | null> {
     return EventSocialResolverMethods.event_social({
       ctx,
       args: {
@@ -303,7 +312,7 @@ export class EventResolver {
       type,
     }: TournamentsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Tournament>> {
     return TournamentResolverMethods.tournaments({
       args: {
         event: event._id,

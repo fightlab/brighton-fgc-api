@@ -13,6 +13,7 @@ import { EventSeries } from '@models/event_series';
 import { EventSocial } from '@models/event_social';
 import { Tournament, TOURNAMENT_TYPE } from '@models/tournament';
 import { Bracket } from '@models/bracket';
+import { Match } from '@models/match';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -338,5 +339,59 @@ export const generateBracket = (
     image: faker.image.imageUrl(),
     slug: faker.lorem.slug(),
     url: faker.internet.url(),
+  };
+};
+
+const generateScores = (): Array<number> => {
+  const scores = [
+    faker.random.number({ min: 0, max: 2 }),
+    faker.random.number({ min: 0, max: 2 }),
+  ];
+
+  if (scores.every((v) => v === scores[0])) return generateScores();
+
+  return scores;
+};
+
+// generate match for testing
+export const generateMatch = (
+  tournament: ObjectId,
+  player1: Array<ObjectId>,
+  player2: Array<ObjectId>,
+  min = true,
+): Match => {
+  const obj: Match = {
+    tournament,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  const [score1, score2] = generateScores();
+
+  let winner;
+  let loser;
+
+  if (score1 > score2) {
+    winner = player1;
+    loser = player2;
+  } else {
+    winner = player2;
+    loser = player1;
+  }
+
+  const round = faker.random.number({ min: -5, max: 5 });
+
+  return {
+    ...obj,
+    player1,
+    player2,
+    loser,
+    winner,
+    round,
+    round_name: `Round ${round}`,
+    score1,
+    score2,
   };
 };

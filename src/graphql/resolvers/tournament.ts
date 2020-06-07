@@ -237,7 +237,10 @@ export class TournamentResolver {
     nullable: true,
     description: TOURNAMENT_DESCRIPTIONS.FIND_ONE,
   })
-  tournament(@Args() { id }: TournamentArgs, @Ctx() ctx: Context) {
+  tournament(
+    @Args() { id }: TournamentArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Tournament | null> {
     return TournamentResolverMethods.tournament({ args: { id }, ctx });
   }
 
@@ -260,7 +263,7 @@ export class TournamentResolver {
       type,
     }: TournamentsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Tournament>> {
     return TournamentResolverMethods.tournaments({
       ctx,
       args: {
@@ -281,13 +284,16 @@ export class TournamentResolver {
 
   // event ids
   @FieldResolver(() => ObjectIdScalar)
-  event_id(@Root() tournament: DocumentType<Tournament>) {
-    return tournament.event;
+  event_id(@Root() tournament: DocumentType<Tournament>): ObjectId {
+    return tournament.event as ObjectId;
   }
 
   // populate event field
   @FieldResolver(() => Event)
-  event(@Root() tournament: DocumentType<Tournament>, @Ctx() ctx: Context) {
+  event(
+    @Root() tournament: DocumentType<Tournament>,
+    @Ctx() ctx: Context,
+  ): Promise<Event | null> {
     return EventResolverMethods.event({
       args: { id: tournament.event as ObjectId },
       ctx,
@@ -296,8 +302,8 @@ export class TournamentResolver {
 
   // game ids
   @FieldResolver(() => [ObjectIdScalar])
-  game_ids(@Root() tournament: DocumentType<Tournament>) {
-    return tournament.games;
+  game_ids(@Root() tournament: DocumentType<Tournament>): Array<ObjectId> {
+    return tournament.games as Array<ObjectId>;
   }
 
   // populate games array field
@@ -306,7 +312,7 @@ export class TournamentResolver {
     @Root() tournament: DocumentType<Tournament>,
     @Args(() => GamesArgs) { sort, search }: GamesArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Game>> {
     return GameResolverMethods.games({
       args: { ids: tournament.games as Array<ObjectId>, search, sort },
       ctx,
@@ -315,8 +321,8 @@ export class TournamentResolver {
 
   // players ids
   @FieldResolver(() => [ObjectIdScalar])
-  player_ids(@Root() tournament: DocumentType<Tournament>) {
-    return tournament.players;
+  player_ids(@Root() tournament: DocumentType<Tournament>): Array<ObjectId> {
+    return tournament.players as Array<ObjectId>;
   }
 
   // populate players array
@@ -325,7 +331,7 @@ export class TournamentResolver {
     @Root() tournament: DocumentType<Tournament>,
     @Args(() => PlayersArgs) { sort, search }: PlayersArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Player>> {
     return PlayerResolverMethods.players({
       args: { ids: tournament.players as Array<ObjectId>, search, sort },
       ctx,
@@ -337,7 +343,10 @@ export class TournamentResolver {
     description: BRACKET_DESCRIPTIONS.DESCRIPTION,
     nullable: true,
   })
-  bracket(@Root() tournament: DocumentType<Tournament>, @Ctx() ctx: Context) {
+  bracket(
+    @Root() tournament: DocumentType<Tournament>,
+    @Ctx() ctx: Context,
+  ): Promise<Bracket | null> {
     return BracketResolverMethods.bracket({
       ctx,
       args: { tournament: tournament._id },

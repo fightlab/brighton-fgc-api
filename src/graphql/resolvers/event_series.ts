@@ -21,6 +21,7 @@ import { EventSeries, EVENT_SERIES_DESCRIPTIONS } from '@models/event_series';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { DocumentType } from '@typegoose/typegoose';
 import { EventResolverMethods, EventsArgs } from '@graphql/resolvers/event';
+import { Event } from '@models/event';
 
 export enum EVENT_SERIES_SORT {
   NAME_ASC,
@@ -74,7 +75,7 @@ export class EventSeriesResolverMethods {
   static async event_series({
     ctx,
     args: { events, ids, search, sort = EVENT_SERIES_SORT.NAME_ASC },
-  }: CtxWithArgs<EventSeriesArgs>) {
+  }: CtxWithArgs<EventSeriesArgs>): Promise<Array<EventSeries>> {
     const q = generateMongooseQueryObject();
 
     if (ids) {
@@ -110,7 +111,7 @@ export class EventSeriesResolver {
   event_series(
     @Args() { sort, events, ids, search }: EventSeriesArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<EventSeries>> {
     return EventSeriesResolverMethods.event_series({
       args: { ids, search, events, sort },
       ctx,
@@ -121,8 +122,8 @@ export class EventSeriesResolver {
   @FieldResolver(() => [ObjectIdScalar], {
     description: EVENT_SERIES_DESCRIPTIONS.EVENT_IDS,
   })
-  event_ids(@Root() event_series: DocumentType<EventSeries>) {
-    return event_series.events;
+  event_ids(@Root() event_series: DocumentType<EventSeries>): Array<ObjectId> {
+    return event_series.events as Array<ObjectId>;
   }
 
   // populate events

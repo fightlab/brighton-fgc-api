@@ -92,14 +92,17 @@ export class GamesArgs {
 }
 
 export class GameResolverMethods {
-  static game({ args: { id }, ctx }: CtxWithArgs<GameArgs>) {
+  static game({
+    args: { id },
+    ctx,
+  }: CtxWithArgs<GameArgs>): Promise<Game | null> {
     return ctx.loaders.GameLoader.load(id);
   }
 
   static async games({
     args: { search, ids, sort = GAME_SORT.NAME_ASC },
     ctx,
-  }: CtxWithArgs<GamesArgs>) {
+  }: CtxWithArgs<GamesArgs>): Promise<Array<Game>> {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -128,7 +131,7 @@ export class GameResolver {
     nullable: true,
     description: GAME_DESCRIPTIONS.FIND_ONE,
   })
-  game(@Args() { id }: GameArgs, @Ctx() ctx: Context) {
+  game(@Args() { id }: GameArgs, @Ctx() ctx: Context): Promise<Game | null> {
     return GameResolverMethods.game({ args: { id }, ctx });
   }
 
@@ -136,7 +139,10 @@ export class GameResolver {
   @Query(() => [Game], {
     description: GAME_DESCRIPTIONS.FIND,
   })
-  async games(@Args() { sort, ids, search }: GamesArgs, @Ctx() ctx: Context) {
+  async games(
+    @Args() { sort, ids, search }: GamesArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Game>> {
     return GameResolverMethods.games({
       ctx,
       args: { ids, search, sort },
@@ -152,7 +158,7 @@ export class GameResolver {
     @Root() game: DocumentType<Game>,
     @Args() { sort, ids, search }: CharactersArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Character>> {
     return CharacterResolverMethods.characters({
       ctx,
       args: {
@@ -182,7 +188,7 @@ export class GameResolver {
       type,
     }: TournamentsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Tournament>> {
     return TournamentResolverMethods.tournaments({
       args: {
         games: [game._id],
@@ -212,7 +218,7 @@ export class GameResolver {
     @Root() game: DocumentType<Game>,
     @Args(() => GameElosArgs) { sort, players }: GameElosArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<GameElo>> {
     return GameEloResolverMethods.game_elos({
       args: { games: [game._id], players, sort },
       ctx,

@@ -11,4 +11,4 @@ export enum VALIDATION_MESSAGES {
 export const generateValidationMessage = (
   field: string,
   msg: VALIDATION_MESSAGES,
-) => `Field: ${field} | ${msg}`;
+): string => `Field: ${field} | ${msg}`;

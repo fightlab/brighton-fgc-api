@@ -90,14 +90,14 @@ export class BracketPlatformResolverMethods {
   static bracket_platform({
     args: { id },
     ctx,
-  }: CtxWithArgs<BracketPlatformArgs>) {
+  }: CtxWithArgs<BracketPlatformArgs>): Promise<BracketPlatform | null> {
     return ctx.loaders.BracketPlatformLoader.load(id);
   }
 
   static async bracket_platforms({
     args: { sort, ids, search },
     ctx,
-  }: CtxWithArgs<BracketPlatformsArgs>) {
+  }: CtxWithArgs<BracketPlatformsArgs>): Promise<Array<BracketPlatform>> {
     const q = generateMongooseQueryObject();
 
     if (search) {
@@ -126,7 +126,10 @@ export class BracketPlatformResolver {
     nullable: true,
     description: BRACKET_PLATFORM_DESCRIPTIONS.FIND_ONE,
   })
-  bracket_platform(@Args() { id }: BracketPlatformArgs, @Ctx() ctx: Context) {
+  bracket_platform(
+    @Args() { id }: BracketPlatformArgs,
+    @Ctx() ctx: Context,
+  ): Promise<BracketPlatform | null> {
     return BracketPlatformResolverMethods.bracket_platform({
       args: { id },
       ctx,
@@ -140,7 +143,7 @@ export class BracketPlatformResolver {
   bracket_platforms(
     @Args() { ids, search, sort }: BracketPlatformsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<BracketPlatform>> {
     return BracketPlatformResolverMethods.bracket_platforms({
       ctx,
       args: { sort, ids, search },
@@ -155,7 +158,7 @@ export class BracketPlatformResolver {
     @Root() bracket_platform: DocumentType<BracketPlatform>,
     @Args() { sort, ids, platform_id, slug, tournaments }: BracketsArgs,
     @Ctx() ctx: Context,
-  ) {
+  ): Promise<Array<Bracket>> {
     return BracketResolverMethods.brackets({
       ctx,
       args: {

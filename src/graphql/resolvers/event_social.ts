@@ -36,7 +36,7 @@ export class EventSocialResolverMethods {
   static async event_social({
     ctx,
     args: { id, event },
-  }: CtxWithArgs<EventSocialArgs>) {
+  }: CtxWithArgs<EventSocialArgs>): Promise<EventSocial | null> {
     const q = generateMongooseQueryObject();
 
     if (id) {
@@ -58,7 +58,10 @@ export class EventSocialResolver {
     description: EVENT_SOCIAL_DESCRIPTIONS.FIND,
     nullable: true,
   })
-  event_social(@Args() { id, event }: EventSocialArgs, @Ctx() ctx: Context) {
+  event_social(
+    @Args() { id, event }: EventSocialArgs,
+    @Ctx() ctx: Context,
+  ): Promise<EventSocial | null> {
     return EventSocialResolverMethods.event_social({
       ctx,
       args: { id, event },
@@ -69,15 +72,18 @@ export class EventSocialResolver {
   @FieldResolver(() => ObjectIdScalar, {
     description: EVENT_SOCIAL_DESCRIPTIONS.EVENT_ID,
   })
-  event_id(@Root() event_social: DocumentType<EventSocial>) {
-    return event_social.event;
+  event_id(@Root() event_social: DocumentType<EventSocial>): ObjectId {
+    return event_social.event as ObjectId;
   }
 
   // populate event
   @FieldResolver(() => Event, {
     description: EVENT_SOCIAL_DESCRIPTIONS.EVENT,
   })
-  event(@Root() event_social: DocumentType<EventSocial>, @Ctx() ctx: Context) {
+  event(
+    @Root() event_social: DocumentType<EventSocial>,
+    @Ctx() ctx: Context,
+  ): Promise<Event | null> {
     return EventResolverMethods.event({
       args: {
         id: event_social.event as ObjectId,

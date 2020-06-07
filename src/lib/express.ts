@@ -11,7 +11,7 @@ import { getConfig } from '@lib/config';
 
 const { isDev } = getConfig();
 
-export default () => {
+export default (): Express => {
   const app: Express = express();
 
   // Express.js security with HTTP headers - https://helmetjs.github.io/
