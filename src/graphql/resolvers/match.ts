@@ -137,6 +137,11 @@ export class MatchesArgs {
   })
   round_name?: string;
 
+  @Field({
+    nullable: true,
+  })
+  round?: number;
+
   @Field(() => MATCH_SORT, {
     nullable: true,
     defaultValue: MATCH_SORT.DATE_START_ASC,
@@ -167,6 +172,7 @@ export class MatchResolverMethods {
       round_name,
       tournaments,
       winners,
+      round,
     },
   }: CtxWithArgs<MatchesArgs>): Promise<Array<Match>> {
     const q = generateMongooseQueryObject();
@@ -233,6 +239,10 @@ export class MatchResolverMethods {
       } as MongooseQuery;
     }
 
+    if (round) {
+      q.round = round;
+    }
+
     const matches = await ctx.loaders.MatchesLoader.load(q);
     const [iteratee, orders] = mapSort(sort);
     return orderBy(matches, iteratee, orders);
@@ -268,6 +278,7 @@ export class MatchResolver {
       round_name,
       tournaments,
       winners,
+      round,
     }: MatchesArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<Match>> {
@@ -285,6 +296,7 @@ export class MatchResolver {
         round_name,
         tournaments,
         winners,
+        round,
       },
     });
   }
@@ -292,6 +304,7 @@ export class MatchResolver {
   // field resolver for tournament id
   @FieldResolver(() => ObjectIdScalar, {
     description: MATCH_DESCRIPTIONS.TOURNAMENT_ID,
+    nullable: true,
   })
   tournament_id(@Root() match: DocumentType<Match>): ObjectId {
     return match.tournament as ObjectId;
@@ -315,6 +328,7 @@ export class MatchResolver {
   // field resolver for player 1 ids
   @FieldResolver(() => [ObjectIdScalar], {
     description: MATCH_DESCRIPTIONS.PLAYER_1_IDS,
+    nullable: true,
   })
   player1_ids(@Root() match: DocumentType<Match>): Array<ObjectId> {
     return match.player1 as Array<ObjectId>;
@@ -323,6 +337,7 @@ export class MatchResolver {
   // field resolver for player 1
   @FieldResolver(() => [Player], {
     description: MATCH_DESCRIPTIONS.PLAYER_1,
+    nullable: true,
   })
   player1(
     @Root() match: DocumentType<Match>,
@@ -338,6 +353,7 @@ export class MatchResolver {
   // field resolver for player 2 ids
   @FieldResolver(() => [ObjectIdScalar], {
     description: MATCH_DESCRIPTIONS.PLAYER_2_IDS,
+    nullable: true,
   })
   player2_ids(@Root() match: DocumentType<Match>): Array<ObjectId> {
     return match.player2 as Array<ObjectId>;
@@ -346,6 +362,7 @@ export class MatchResolver {
   // field resolver for player 2
   @FieldResolver(() => [Player], {
     description: MATCH_DESCRIPTIONS.PLAYER_1,
+    nullable: true,
   })
   player2(
     @Root() match: DocumentType<Match>,
@@ -361,6 +378,7 @@ export class MatchResolver {
   // field resolver for winner ids
   @FieldResolver(() => [ObjectIdScalar], {
     description: MATCH_DESCRIPTIONS.WINNER_IDS,
+    nullable: true,
   })
   winner_ids(@Root() match: DocumentType<Match>): Array<ObjectId> {
     return match.winner as Array<ObjectId>;
@@ -369,6 +387,7 @@ export class MatchResolver {
   // field resolver for winner
   @FieldResolver(() => [Player], {
     description: MATCH_DESCRIPTIONS.PLAYER_1,
+    nullable: true,
   })
   winner(
     @Root() match: DocumentType<Match>,
@@ -384,6 +403,7 @@ export class MatchResolver {
   // field resolver for loser ids
   @FieldResolver(() => [ObjectIdScalar], {
     description: MATCH_DESCRIPTIONS.LOSER_IDS,
+    nullable: true,
   })
   loser_ids(@Root() match: DocumentType<Match>): Array<ObjectId> {
     return match.loser as Array<ObjectId>;
@@ -392,6 +412,7 @@ export class MatchResolver {
   // field resolver for loser
   @FieldResolver(() => [Player], {
     description: MATCH_DESCRIPTIONS.PLAYER_1,
+    nullable: true,
   })
   loser(
     @Root() match: DocumentType<Match>,
