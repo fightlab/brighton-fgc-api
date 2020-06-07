@@ -23,7 +23,7 @@ import { DocumentType } from '@typegoose/typegoose';
 import { Tournament } from '@models/tournament';
 import { TournamentResolverMethods } from '@graphql/resolvers/tournament';
 import { Player } from '@models/player';
-import { PlayersArgs, PlayerResolverMethods } from './player';
+import { PlayersArgs, PlayerResolverMethods } from '@graphql/resolvers/player';
 
 // sorting stuff for matches
 enum MATCH_SORT {
@@ -341,7 +341,7 @@ export class MatchResolver {
   })
   player1(
     @Root() match: DocumentType<Match>,
-    @Args() { sort, search }: PlayersArgs,
+    @Args(() => PlayersArgs) { sort, search }: PlayersArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<Player>> {
     return PlayerResolverMethods.players({
@@ -361,12 +361,12 @@ export class MatchResolver {
 
   // field resolver for player 2
   @FieldResolver(() => [Player], {
-    description: MATCH_DESCRIPTIONS.PLAYER_1,
+    description: MATCH_DESCRIPTIONS.PLAYER_2,
     nullable: true,
   })
   player2(
     @Root() match: DocumentType<Match>,
-    @Args() { sort, search }: PlayersArgs,
+    @Args(() => PlayersArgs) { sort, search }: PlayersArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<Player>> {
     return PlayerResolverMethods.players({
@@ -386,12 +386,12 @@ export class MatchResolver {
 
   // field resolver for winner
   @FieldResolver(() => [Player], {
-    description: MATCH_DESCRIPTIONS.PLAYER_1,
+    description: MATCH_DESCRIPTIONS.WINNER,
     nullable: true,
   })
   winner(
     @Root() match: DocumentType<Match>,
-    @Args() { sort, search }: PlayersArgs,
+    @Args(() => PlayersArgs) { sort, search }: PlayersArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<Player>> {
     return PlayerResolverMethods.players({
@@ -411,12 +411,12 @@ export class MatchResolver {
 
   // field resolver for loser
   @FieldResolver(() => [Player], {
-    description: MATCH_DESCRIPTIONS.PLAYER_1,
+    description: MATCH_DESCRIPTIONS.LOSER,
     nullable: true,
   })
   loser(
     @Root() match: DocumentType<Match>,
-    @Args() { sort, search }: PlayersArgs,
+    @Args(() => PlayersArgs) { sort, search }: PlayersArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<Player>> {
     return PlayerResolverMethods.players({

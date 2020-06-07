@@ -4,6 +4,7 @@ import {
   generateGameElo,
   generatePlayerSocial,
   generateTournament,
+  generateMatch,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -12,6 +13,7 @@ import { ObjectId } from 'mongodb';
 import { GameEloModel } from '@models/game_elo';
 import { PlayerSocialModel } from '@models/player_social';
 import { TournamentModel } from '@models/tournament';
+import { MatchModel } from '@models/match';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -444,7 +446,7 @@ describe('Player GraphQL Resolver Test', () => {
     ]);
 
     const source = gql`
-      query QueryEvents($id: ObjectId!) {
+      query QueryPlayers($id: ObjectId!) {
         player(id: $id) {
           _id
           tournaments {
@@ -475,5 +477,101 @@ describe('Player GraphQL Resolver Test', () => {
         (e) => !!tournaments.find((t) => t.id === e._id),
       ),
     ).toBe(true);
+  });
+
+  it('should return empty array of tournaments if player has not featured in any', async () => {
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          tournaments {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.tournaments).toBeDefined();
+    expect(output.data?.player.tournaments).toHaveLength(0);
+  });
+
+  it('should return matches that a player has featured in', async () => {
+    const matches = await MatchModel.create([
+      generateMatch(new ObjectId(), [players[1]._id], [players[0]._id], false),
+      generateMatch(new ObjectId(), [players[0]._id], [players[1]._id], false),
+    ]);
+
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          matches {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.matches).toBeDefined();
+    expect(output.data?.player.matches).toHaveLength(2);
+    expect(
+      every(
+        output.data?.player.matches,
+        (e) => !!matches.find((t) => t.id === e._id),
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array of matches if a player has no matches featured in', async () => {
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          matches {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.matches).toBeDefined();
+    expect(output.data?.player.matches).toHaveLength(0);
   });
 });

@@ -6,7 +6,7 @@ import {
   generateTournament,
   generatePlayer,
   generateMatch,
-} from '../test/generate';
+} from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { sample, every, some, orderBy, isEqual } from 'lodash';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';

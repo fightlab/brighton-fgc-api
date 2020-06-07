@@ -32,6 +32,8 @@ import { Player } from '@models/player';
 import { EventResolverMethods } from '@graphql/resolvers/event';
 import { Bracket, BRACKET_DESCRIPTIONS } from '@models/bracket';
 import { BracketResolverMethods } from '@graphql/resolvers/bracket';
+import { Match, MATCH_DESCRIPTIONS } from '@models/match';
+import { MatchResolverMethods, MatchesArgs } from '@graphql/resolvers/match';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,
@@ -350,6 +352,47 @@ export class TournamentResolver {
     return BracketResolverMethods.bracket({
       ctx,
       args: { tournament: tournament._id },
+    });
+  }
+
+  // populate matches
+  @FieldResolver(() => [Match], {
+    description: MATCH_DESCRIPTIONS.DESCRIPTION,
+  })
+  matches(
+    @Root() tournament: DocumentType<Tournament>,
+    @Args()
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      ids,
+      losers,
+      players,
+      round,
+      round_name,
+      winners,
+    }: MatchesArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Match>> {
+    return MatchResolverMethods.matches({
+      ctx,
+      args: {
+        tournaments: [tournament._id as ObjectId],
+        sort,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        ids,
+        losers,
+        players,
+        round,
+        round_name,
+        winners,
+      },
     });
   }
 }

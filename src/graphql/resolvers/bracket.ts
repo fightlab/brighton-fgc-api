@@ -274,7 +274,7 @@ export class BracketResolver {
   }
 
   // field resolver to return tournament
-  @FieldResolver(() => ObjectIdScalar, {
+  @FieldResolver(() => Tournament, {
     description: BRACKET_DESCRIPTIONS.TOURNAMENT,
   })
   tournament(

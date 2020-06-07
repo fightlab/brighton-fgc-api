@@ -36,6 +36,8 @@ import {
   TournamentResolverMethods,
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
+import { MatchesArgs, MatchResolverMethods } from '@graphql/resolvers/match';
+import { Match, MATCH_DESCRIPTIONS } from '@models/match';
 
 export enum PLAYER_SORT {
   HANDLE_ASC,
@@ -188,8 +190,6 @@ export class PlayerResolver {
     });
   }
 
-  // TODO: Add matches that this player has featured in
-
   // Player social media information
   @FieldResolver(() => PlayerSocial, {
     description: PLAYER_SOCIAL_DESCRIPTIONS.DESCRIPTION,
@@ -220,6 +220,48 @@ export class PlayerResolver {
     return GameEloResolverMethods.game_elos({
       args: { games, players: [player._id], sort },
       ctx,
+    });
+  }
+
+  @FieldResolver(() => [Match], {
+    description: MATCH_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  matches(
+    @Root() player: DocumentType<Player>,
+    @Args(() => MatchesArgs)
+    {
+      sort,
+      date_end_gte,
+      date_end_lte,
+      date_start_gte,
+      date_start_lte,
+      ids,
+      losers,
+      winners,
+      round,
+      round_name,
+      tournaments,
+      players = [],
+    }: MatchesArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Match>> {
+    return MatchResolverMethods.matches({
+      ctx,
+      args: {
+        sort,
+        date_end_gte,
+        date_end_lte,
+        date_start_gte,
+        date_start_lte,
+        ids,
+        losers,
+        players: [player._id, ...players],
+        round,
+        round_name,
+        tournaments,
+        winners,
+      },
     });
   }
 }
