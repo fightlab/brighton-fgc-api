@@ -24,6 +24,8 @@ import { Tournament } from '@models/tournament';
 import { TournamentResolverMethods } from '@graphql/resolvers/tournament';
 import { Player } from '@models/player';
 import { PlayersArgs, PlayerResolverMethods } from '@graphql/resolvers/player';
+import { MATCH_ELO_DESCRIPTIONS, MatchElo } from '@models/match_elo';
+import { MatchEloResolverMethods } from './match_elo';
 
 // sorting stuff for matches
 enum MATCH_SORT {
@@ -422,6 +424,40 @@ export class MatchResolver {
     return PlayerResolverMethods.players({
       ctx,
       args: { sort, search, ids: match.loser as Array<ObjectId> },
+    });
+  }
+
+  @FieldResolver(() => MatchElo, {
+    nullable: true,
+    description: MATCH_ELO_DESCRIPTIONS.DESCRIPTION,
+  })
+  match_elo_player1(
+    @Root() match: DocumentType<Match>,
+    @Ctx() ctx: Context,
+  ): Promise<MatchElo | null> {
+    return MatchEloResolverMethods.match_elo({
+      ctx,
+      args: {
+        match: match._id as ObjectId,
+        player: (match.player1?.[0] as unknown) as ObjectId,
+      },
+    });
+  }
+
+  @FieldResolver(() => MatchElo, {
+    nullable: true,
+    description: MATCH_ELO_DESCRIPTIONS.DESCRIPTION,
+  })
+  match_elo_player2(
+    @Root() match: DocumentType<Match>,
+    @Ctx() ctx: Context,
+  ): Promise<MatchElo | null> {
+    return MatchEloResolverMethods.match_elo({
+      ctx,
+      args: {
+        match: match._id as ObjectId,
+        player: (match.player2?.[0] as unknown) as ObjectId,
+      },
     });
   }
 }

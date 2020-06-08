@@ -6,11 +6,13 @@ import {
   generateTournament,
   generatePlayer,
   generateMatch,
+  generateMatchElo,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { sample, every, some, orderBy, isEqual } from 'lodash';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import moment from 'moment';
+import { MatchEloModel } from '@models/match_elo';
 
 describe('Match GraphQl Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -1489,5 +1491,155 @@ describe('Match GraphQl Resolver Test', () => {
     expect(output.data).toBeDefined();
     // should find some matches
     expect(output.data?.matches).toHaveLength(0);
+  });
+
+  it('should populate match elo for player 1', async () => {
+    const [matchElo] = await MatchEloModel.create([
+      generateMatchElo(
+        matches[0].id,
+        (matches[0].player1?.[0] as unknown) as ObjectId,
+      ),
+    ]);
+
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          player1_ids
+          match_elo_player1 {
+            _id
+            before
+            after
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matches[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_elo_player1).toBeDefined();
+    expect(output.data?.match.match_elo_player1._id).toBe(matchElo.id);
+    expect(output.data?.match.match_elo_player1.before).toBe(matchElo.before);
+    expect(output.data?.match.match_elo_player1.after).toBe(matchElo.after);
+    expect(output.data?.match.match_elo_player1.player_id).toBe(
+      matches[0].player1?.[0]?.toString(),
+    );
+  });
+
+  it('should populate match elo for player 2', async () => {
+    const [matchElo] = await MatchEloModel.create([
+      generateMatchElo(
+        matches[0].id,
+        (matches[0].player2?.[0] as unknown) as ObjectId,
+      ),
+    ]);
+
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          player2_ids
+          match_elo_player2 {
+            _id
+            before
+            after
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matches[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_elo_player2).toBeDefined();
+    expect(output.data?.match.match_elo_player2._id).toBe(matchElo.id);
+    expect(output.data?.match.match_elo_player2.before).toBe(matchElo.before);
+    expect(output.data?.match.match_elo_player2.after).toBe(matchElo.after);
+    expect(output.data?.match.match_elo_player2.player_id).toBe(
+      matches[0].player2?.[0]?.toString(),
+    );
+  });
+
+  it('should return null for match elo player 1 if not found', async () => {
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          player1_ids
+          match_elo_player1 {
+            _id
+            before
+            after
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matches[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_elo_player1).toBeNull();
+  });
+
+  it('should return null for match elo player 2 if not found', async () => {
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          player2_ids
+          match_elo_player2 {
+            _id
+            before
+            after
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matches[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_elo_player2).toBeNull();
   });
 });

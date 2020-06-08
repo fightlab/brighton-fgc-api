@@ -24,6 +24,7 @@ import { EventSocialModel } from '@models/event_social';
 import { TournamentModel } from '@models/tournament';
 import { BracketModel } from '@models/bracket';
 import { MatchModel } from '@models/match';
+import { MatchEloModel } from '@models/match_elo';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -118,6 +119,8 @@ const BracketsLoader = makeGeneralLoader(BracketModel);
 const BracketLoader = makeSingleGeneralLoader(BracketModel);
 const MatchesLoader = makeGeneralLoader(MatchModel);
 const MatchLoader = makeSingleGeneralLoader(MatchModel);
+const MatchElosLoader = makeGeneralLoader(MatchEloModel);
+const MatchEloLoader = makeSingleGeneralLoader(MatchEloModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -148,6 +151,8 @@ export interface Loaders {
   BracketLoader: DataLoader<unknown, any, unknown>;
   MatchesLoader: DataLoader<unknown, any[], unknown>;
   MatchLoader: DataLoader<unknown, any, unknown>;
+  MatchElosLoader: DataLoader<unknown, any[], unknown>;
+  MatchEloLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -179,4 +184,6 @@ export const loaders: Loaders = {
   BracketLoader,
   MatchesLoader,
   MatchLoader,
+  MatchElosLoader,
+  MatchEloLoader,
 };

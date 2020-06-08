@@ -14,6 +14,7 @@ import { EventSocial } from '@models/event_social';
 import { Tournament, TOURNAMENT_TYPE } from '@models/tournament';
 import { Bracket } from '@models/bracket';
 import { Match } from '@models/match';
+import { MatchElo } from '@models/match_elo';
 
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
@@ -397,3 +398,20 @@ export const generateMatch = (
     date_start: moment.utc().toDate(),
   };
 };
+
+// generate match elos for testing
+export const generateMatchElo = (
+  match: ObjectId,
+  player: ObjectId,
+): MatchElo => ({
+  match,
+  player,
+  after: faker.random.number({
+    min: 700,
+    max: 1400,
+  }),
+  before: faker.random.number({
+    min: 700,
+    max: 1400,
+  }),
+});

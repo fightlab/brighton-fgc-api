@@ -574,7 +574,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       },
       {
         match: match._id,
-        player: match.player1?.[0],
+        player: match.player2?.[0],
         before: faker.random.number({
           min: 700,
           max: 1400,
