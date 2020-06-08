@@ -9,7 +9,11 @@ import {
   Root,
   FieldResolver,
 } from 'type-graphql';
-import { MapSort, generateMongooseQueryObject, MongooseQuery } from '.';
+import {
+  MapSort,
+  generateMongooseQueryObject,
+  MongooseQuery,
+} from '@graphql/resolvers';
 import { ObjectId } from 'mongodb';
 import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { MATCH_ELO_DESCRIPTIONS, MatchElo } from '@models/match_elo';
@@ -17,9 +21,9 @@ import { CtxWithArgs, Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import { DocumentType } from '@typegoose/typegoose';
 import { Match } from '@models/match';
-import { MatchResolverMethods } from './match';
+import { MatchResolverMethods } from '@graphql/resolvers/match';
 import { Player } from '@models/player';
-import { PlayerResolverMethods } from './player';
+import { PlayerResolverMethods } from '@graphql/resolvers/player';
 
 // sort enum
 export enum MATCH_ELO_SORT {

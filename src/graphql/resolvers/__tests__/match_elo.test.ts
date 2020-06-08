@@ -5,11 +5,11 @@ import {
   generatePlayer,
   generateMatch,
   generateMatchElo,
-} from '../test/generate';
+} from '@graphql/resolvers/test/generate';
 import { sample, every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
 import { MatchElo, MatchEloModel } from '@models/match_elo';
-import { gql, gqlCall } from '../test/helper';
+import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 
 describe('Match Elo GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;

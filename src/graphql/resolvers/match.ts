@@ -25,7 +25,7 @@ import { TournamentResolverMethods } from '@graphql/resolvers/tournament';
 import { Player } from '@models/player';
 import { PlayersArgs, PlayerResolverMethods } from '@graphql/resolvers/player';
 import { MATCH_ELO_DESCRIPTIONS, MatchElo } from '@models/match_elo';
-import { MatchEloResolverMethods } from './match_elo';
+import { MatchEloResolverMethods } from '@graphql/resolvers/match_elo';
 
 // sorting stuff for matches
 enum MATCH_SORT {
