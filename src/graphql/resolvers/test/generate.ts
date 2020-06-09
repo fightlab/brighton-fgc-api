@@ -16,6 +16,9 @@ import { Bracket } from '@models/bracket';
 import { Match } from '@models/match';
 import { MatchElo } from '@models/match_elo';
 
+// set the faker seed to generate more consistent results
+faker.seed(1337);
+
 // get optional value if random
 const getOptional = (val: any): any | undefined =>
   faker.random.boolean() ? val : undefined;

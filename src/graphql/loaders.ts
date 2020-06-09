@@ -37,13 +37,15 @@ const replacer = (v: any) => {
   return v;
 };
 
+// caching key function by hashing the object to generate a (most likely unique) hash
+// to be used as the cache key
+// use unorderedArrays true to sort arrays before hashing, since we don't care about the order
+const cacheKeyFn = (key: any) =>
+  objectHash(key, { replacer, unorderedArrays: true });
+
 // disable cache in test, since this will break tests
 const { isTest } = getConfig();
 const enableCache = !isTest();
-
-// caching key function by hashing the object to generate a (most likely unique) hash
-// to be used as the cache key
-const cacheKeyFn = (key: any) => objectHash(key, { replacer });
 
 // use general loader to return multiple values (e.g. an array of events)
 const makeGeneralLoader = (
@@ -91,6 +93,8 @@ const makeSingleGeneralLoader = (
     },
   );
 
+// instantiate all the loaders here, dataloader docs suggest we make a new dataloader on each request
+// but since our queries will return the same results on each request, we can define the dataloaders at once
 const BracketPlatformsLoader = makeGeneralLoader(BracketPlatformModel);
 const BracketPlatformLoader = makeSingleGeneralLoader(BracketPlatformModel);
 const GamesLoader = makeGeneralLoader(GameModel);

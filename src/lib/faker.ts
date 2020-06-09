@@ -56,6 +56,9 @@ import { Vod, VodModel } from '@models/vod';
 // set faker locale to something we're used to
 faker.locale = 'en_GB';
 
+// set the seed
+faker.seed(1337);
+
 interface DataLengths {
   game: number;
   event: number;
