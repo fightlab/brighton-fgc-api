@@ -38,6 +38,8 @@ import {
 } from '@graphql/resolvers/tournament';
 import { MatchesArgs, MatchResolverMethods } from '@graphql/resolvers/match';
 import { Match, MATCH_DESCRIPTIONS } from '@models/match';
+import { Result, RESULT_DESCRIPTIONS } from '@models/result';
+import { ResultsArgs, ResultResolverMethods } from '@graphql/resolvers/result';
 
 export enum PLAYER_SORT {
   HANDLE_ASC,
@@ -261,6 +263,29 @@ export class PlayerResolver {
         round_name,
         tournaments,
         winners,
+      },
+    });
+  }
+
+  // populate results
+  @FieldResolver(() => [Result], {
+    description: RESULT_DESCRIPTIONS.DESCRIPTION,
+  })
+  results(
+    @Root() player: DocumentType<Player>,
+    @Args(() => ResultsArgs)
+    { sort, ids, players = [], rank_gte, rank_lte, tournaments }: ResultsArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Result>> {
+    return ResultResolverMethods.results({
+      ctx,
+      args: {
+        sort,
+        ids,
+        players: [player._id, ...players],
+        rank_gte,
+        rank_lte,
+        tournaments,
       },
     });
   }

@@ -34,6 +34,8 @@ import { Bracket, BRACKET_DESCRIPTIONS } from '@models/bracket';
 import { BracketResolverMethods } from '@graphql/resolvers/bracket';
 import { Match, MATCH_DESCRIPTIONS } from '@models/match';
 import { MatchResolverMethods, MatchesArgs } from '@graphql/resolvers/match';
+import { Result, RESULT_DESCRIPTIONS } from '@models/result';
+import { ResultsArgs, ResultResolverMethods } from '@graphql/resolvers/result';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,
@@ -392,6 +394,29 @@ export class TournamentResolver {
         round,
         round_name,
         winners,
+      },
+    });
+  }
+
+  // populate results
+  @FieldResolver(() => [Result], {
+    description: RESULT_DESCRIPTIONS.DESCRIPTION,
+  })
+  results(
+    @Root() tournament: DocumentType<Tournament>,
+    @Args(() => ResultsArgs)
+    { sort, ids, players, rank_gte, rank_lte }: ResultsArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Result>> {
+    return ResultResolverMethods.results({
+      ctx,
+      args: {
+        sort,
+        ids,
+        players,
+        rank_gte,
+        rank_lte,
+        tournaments: [tournament._id],
       },
     });
   }
