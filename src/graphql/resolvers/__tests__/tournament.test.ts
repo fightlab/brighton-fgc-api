@@ -10,6 +10,7 @@ import {
   generateTournament,
   generateBracket,
   generateMatch,
+  generateResult,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
@@ -17,6 +18,7 @@ import { every, some, orderBy, isEqual } from 'lodash';
 import moment from 'moment';
 import { BracketModel } from '@models/bracket';
 import { MatchModel } from '@models/match';
+import { ResultModel } from '@models/result';
 
 describe('Tournament GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -1456,5 +1458,72 @@ describe('Tournament GraphQL Resolver Test', () => {
     expect(output.data?.tournament._id).toBe(tournaments[0].id);
     expect(output.data?.tournament.matches).toBeDefined();
     expect(output.data?.tournament.matches).toHaveLength(0);
+  });
+
+  it('should populate results for a given tournament', async () => {
+    const results = await ResultModel.create([
+      generateResult(tournaments[0]._id, [new ObjectId()], 1),
+      generateResult(tournaments[0]._id, [new ObjectId()], 2),
+    ]);
+
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          results {
+            _id
+            rank
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.results).toHaveLength(results.length);
+    expect(
+      every(
+        output.data?.tournament.results,
+        (e) => e._id === results[0].id || e._id === results[1].id,
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array if no results found for a given tournament', async () => {
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          results {
+            _id
+            rank
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.results).toHaveLength(0);
   });
 });

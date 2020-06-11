@@ -15,6 +15,7 @@ import { Tournament, TOURNAMENT_TYPE } from '@models/tournament';
 import { Bracket } from '@models/bracket';
 import { Match } from '@models/match';
 import { MatchElo } from '@models/match_elo';
+import { Result } from '@models/result';
 
 // set the faker seed to generate more consistent results
 faker.seed(1337);
@@ -417,4 +418,15 @@ export const generateMatchElo = (
     min: 700,
     max: 1400,
   }),
+});
+
+// generate result for testing
+export const generateResult = (
+  tournament: ObjectId,
+  players: Array<ObjectId>,
+  rank = faker.random.number(16),
+): Result => ({
+  players,
+  rank,
+  tournament,
 });

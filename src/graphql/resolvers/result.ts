@@ -28,7 +28,6 @@ import { PlayersArgs, PlayerResolverMethods } from '@graphql/resolvers/player';
 // sort enum
 export enum RESULT_SORT {
   TOURNAMENT_ID,
-  PLAYER_ID,
   RANK_ASC,
   RANK_DESC,
   ID,
@@ -45,8 +44,6 @@ const mapSort = (sort: RESULT_SORT): MapSort => {
   switch (sort) {
     case RESULT_SORT.TOURNAMENT_ID:
       return ['tournament', 'asc'];
-    case RESULT_SORT.PLAYER_ID:
-      return ['player', 'asc'];
     case RESULT_SORT.RANK_ASC:
       return ['rank', 'asc'];
     case RESULT_SORT.RANK_DESC:

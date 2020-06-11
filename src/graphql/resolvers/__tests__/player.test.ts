@@ -5,6 +5,7 @@ import {
   generatePlayerSocial,
   generateTournament,
   generateMatch,
+  generateResult,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -14,6 +15,7 @@ import { GameEloModel } from '@models/game_elo';
 import { PlayerSocialModel } from '@models/player_social';
 import { TournamentModel } from '@models/tournament';
 import { MatchModel } from '@models/match';
+import { ResultModel } from '@models/result';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -573,5 +575,72 @@ describe('Player GraphQL Resolver Test', () => {
     expect(output.data?.player._id).toBe(players[0].id);
     expect(output.data?.player.matches).toBeDefined();
     expect(output.data?.player.matches).toHaveLength(0);
+  });
+
+  it('should populate results for a given player', async () => {
+    const results = await ResultModel.create([
+      generateResult(new ObjectId(), [players[0]._id], 1),
+      generateResult(new ObjectId(), [players[0]._id], 2),
+    ]);
+
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          results {
+            _id
+            rank
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.results).toHaveLength(results.length);
+    expect(
+      every(
+        output.data?.player.results,
+        (e) => e._id === results[0].id || e._id === results[1].id,
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array if no results found for a given player', async () => {
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          results {
+            _id
+            rank
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.results).toHaveLength(0);
   });
 });
