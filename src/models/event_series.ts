@@ -17,6 +17,7 @@ export enum EVENT_SERIES_DESCRIPTIONS {
   EVENT_IDS = 'List of event ids that belong to this event series',
   INFO = 'Additional information about this event series',
   FIND = 'Get a list of event series, or search for a particular event series',
+  FIND_ONE = 'Get an event series by id',
 }
 
 @ObjectType({

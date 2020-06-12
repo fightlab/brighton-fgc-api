@@ -16,6 +16,7 @@ import { BracketResolver } from '@graphql/resolvers/bracket';
 import { MatchResolver } from '@graphql/resolvers/match';
 import { MatchEloResolver } from '@graphql/resolvers/match_elo';
 import { ResultResolver } from '@graphql/resolvers/result';
+import { TournamentSeriesResolver } from '@graphql/resolvers/tournament_series';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -50,4 +51,5 @@ export const resolvers: [Function, ...Function[]] = [
   MatchResolver,
   MatchEloResolver,
   ResultResolver,
+  TournamentSeriesResolver,
 ];

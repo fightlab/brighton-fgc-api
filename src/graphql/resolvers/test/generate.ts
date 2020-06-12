@@ -16,6 +16,7 @@ import { Bracket } from '@models/bracket';
 import { Match } from '@models/match';
 import { MatchElo } from '@models/match_elo';
 import { Result } from '@models/result';
+import { TournamentSeries } from '@models/tournament_series';
 
 // set the faker seed to generate more consistent results
 faker.seed(1337);
@@ -430,3 +431,25 @@ export const generateResult = (
   rank,
   tournament,
 });
+
+// generate tournament series for testing
+export const generateTournamentSeries = (
+  tournaments: Array<ObjectId>,
+  min = true,
+  game?: ObjectId,
+): TournamentSeries => {
+  const obj: TournamentSeries = {
+    name: faker.company.companyName(),
+    tournaments,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    game,
+    info: faker.hacker.phrase(),
+  };
+};

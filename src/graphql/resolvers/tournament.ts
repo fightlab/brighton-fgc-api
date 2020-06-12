@@ -36,6 +36,14 @@ import { Match, MATCH_DESCRIPTIONS } from '@models/match';
 import { MatchResolverMethods, MatchesArgs } from '@graphql/resolvers/match';
 import { Result, RESULT_DESCRIPTIONS } from '@models/result';
 import { ResultsArgs, ResultResolverMethods } from '@graphql/resolvers/result';
+import {
+  TournamentSeriesArgs,
+  TournamentSeriesResolverMethods,
+} from '@graphql/resolvers/tournament_series';
+import {
+  TournamentSeries,
+  TOURNAMENT_SERIES_DESCRIPTIONS,
+} from '@models/tournament_series';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,
@@ -416,6 +424,29 @@ export class TournamentResolver {
         players,
         rank_gte,
         rank_lte,
+        tournaments: [tournament._id],
+      },
+    });
+  }
+
+  // tournament series that feature this game
+  @FieldResolver(() => [TournamentSeries], {
+    description: TOURNAMENT_SERIES_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  tournament_series(
+    @Root() tournament: DocumentType<Tournament>,
+    @Args(() => TournamentSeriesArgs)
+    { sort, ids, search, games }: TournamentSeriesArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<TournamentSeries>> {
+    return TournamentSeriesResolverMethods.tournament_series({
+      ctx,
+      args: {
+        sort,
+        games,
+        ids,
+        search,
         tournaments: [tournament._id],
       },
     });

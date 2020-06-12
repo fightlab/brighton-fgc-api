@@ -4,6 +4,7 @@ import {
   generateCharacter,
   generateGameElo,
   generateTournament,
+  generateTournamentSeries,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -12,6 +13,7 @@ import { Character, CharacterModel } from '@models/character';
 import { ObjectId } from 'mongodb';
 import { GameEloModel } from '@models/game_elo';
 import { TournamentModel } from '@models/tournament';
+import { TournamentSeriesModel } from '@models/tournament_series';
 
 describe('Game GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -518,5 +520,73 @@ describe('Game GraphQL Resolver Test', () => {
         (e) => !!tournaments.find((t) => t.id === e._id),
       ),
     ).toBe(true);
+  });
+
+  it('should return tournament series that feature a particular game', async () => {
+    const [tournamentSeries] = await TournamentSeriesModel.create([
+      generateTournamentSeries([new ObjectId()], false, games[0]._id),
+    ]);
+
+    const source = gql`
+      query QueryGames($id: ObjectId!) {
+        game(id: $id) {
+          _id
+          tournament_series {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: games[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game).toBeDefined();
+    expect(output.data?.game._id).toBe(games[0].id);
+    expect(output.data?.game.tournament_series).toBeDefined();
+    expect(output.data?.game.tournament_series).toHaveLength(1);
+    expect(output.data?.game.tournament_series[0]._id).toBe(
+      tournamentSeries.id,
+    );
+    expect(output.data?.game.tournament_series[0].name).toBe(
+      tournamentSeries.name,
+    );
+  });
+
+  it('should return empty array for tournament series if not found featuring a game', async () => {
+    const source = gql`
+      query QueryGames($id: ObjectId!) {
+        game(id: $id) {
+          _id
+          tournament_series {
+            _id
+            name
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: games[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game).toBeDefined();
+    expect(output.data?.game._id).toBe(games[0].id);
+    expect(output.data?.game.tournament_series).toBeDefined();
+    expect(output.data?.game.tournament_series).toHaveLength(0);
   });
 });

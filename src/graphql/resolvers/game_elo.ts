@@ -183,7 +183,9 @@ export class GameEloResolver {
     return game_elo.game as ObjectId;
   }
 
-  @FieldResolver()
+  @FieldResolver(() => Game, {
+    description: GAME_ELO_DESCRIPTIONS.GAME,
+  })
   game(
     @Root() game_elo: DocumentType<GameElo>,
     @Ctx() ctx: Context,

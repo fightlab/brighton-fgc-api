@@ -37,6 +37,14 @@ import {
   TournamentResolverMethods,
   TournamentsArgs,
 } from '@graphql/resolvers/tournament';
+import {
+  TournamentSeries,
+  TOURNAMENT_SERIES_DESCRIPTIONS,
+} from '@models/tournament_series';
+import {
+  TournamentSeriesResolverMethods,
+  TournamentSeriesArgs,
+} from '@graphql/resolvers/tournament_series';
 
 // sorting stuff for game
 export enum GAME_SORT {
@@ -207,7 +215,28 @@ export class GameResolver {
     });
   }
 
-  // TODO: Add tournament series that feature this game
+  // tournament series that feature this game
+  @FieldResolver(() => [TournamentSeries], {
+    description: TOURNAMENT_SERIES_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  tournament_series(
+    @Root() game: DocumentType<Game>,
+    @Args(() => TournamentSeriesArgs)
+    { sort, ids, search, tournaments }: TournamentSeriesArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<TournamentSeries>> {
+    return TournamentSeriesResolverMethods.tournament_series({
+      ctx,
+      args: {
+        sort,
+        games: [game._id],
+        ids,
+        search,
+        tournaments,
+      },
+    });
+  }
 
   // game elo, also search and sort
   @FieldResolver(() => [GameElo], {

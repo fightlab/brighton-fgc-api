@@ -46,6 +46,14 @@ export const mapSort = (sort: EVENT_SERIES_SORT): MapSort => {
 };
 
 @ArgsType()
+export class EventSeriesSingleArgs {
+  @Field(() => ObjectIdScalar, {
+    description: EVENT_SERIES_DESCRIPTIONS.ID,
+  })
+  id!: ObjectId;
+}
+
+@ArgsType()
 export class EventSeriesArgs {
   @Field(() => [ObjectIdScalar], {
     nullable: true,
@@ -55,7 +63,7 @@ export class EventSeriesArgs {
 
   @Field(() => [ObjectIdScalar], {
     nullable: true,
-    description: EVENT_SERIES_DESCRIPTIONS.IDS,
+    description: EVENT_SERIES_DESCRIPTIONS.EVENT_IDS,
   })
   events?: Array<ObjectId>;
 
@@ -72,6 +80,13 @@ export class EventSeriesArgs {
 }
 
 export class EventSeriesResolverMethods {
+  static event_series_single({
+    ctx,
+    args: { id },
+  }: CtxWithArgs<EventSeriesSingleArgs>): Promise<EventSeries | null> {
+    return ctx.loaders.EventSeriesLoader.load(id);
+  }
+
   static async event_series({
     ctx,
     args: { events, ids, search, sort = EVENT_SERIES_SORT.NAME_ASC },
@@ -105,6 +120,20 @@ export class EventSeriesResolverMethods {
 
 @Resolver(() => EventSeries)
 export class EventSeriesResolver {
+  @Query(() => EventSeries, {
+    description: EVENT_SERIES_DESCRIPTIONS.FIND_ONE,
+    nullable: true,
+  })
+  event_series_single(
+    @Args() { id }: EventSeriesSingleArgs,
+    @Ctx() ctx: Context,
+  ): Promise<EventSeries | null> {
+    return EventSeriesResolverMethods.event_series_single({
+      ctx,
+      args: { id },
+    });
+  }
+
   @Query(() => [EventSeries], {
     description: EVENT_SERIES_DESCRIPTIONS.FIND,
   })

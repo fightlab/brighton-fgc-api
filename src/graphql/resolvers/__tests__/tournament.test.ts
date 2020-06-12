@@ -11,6 +11,7 @@ import {
   generateBracket,
   generateMatch,
   generateResult,
+  generateTournamentSeries,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
@@ -19,6 +20,7 @@ import moment from 'moment';
 import { BracketModel } from '@models/bracket';
 import { MatchModel } from '@models/match';
 import { ResultModel } from '@models/result';
+import { TournamentSeriesModel } from '@models/tournament_series';
 
 describe('Tournament GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -1525,5 +1527,80 @@ describe('Tournament GraphQL Resolver Test', () => {
     expect(output.data?.tournament).toBeDefined();
     expect(output.data?.tournament._id).toBe(tournaments[0].id);
     expect(output.data?.tournament.results).toHaveLength(0);
+  });
+
+  it('should populate tournament series for a given tournament if they exist', async () => {
+    await TournamentSeriesModel.create([
+      generateTournamentSeries([tournaments[0]._id, tournaments[1]._id]),
+      generateTournamentSeries([tournaments[2]._id, tournaments[0]._id]),
+      generateTournamentSeries([tournaments[2]._id, tournaments[1]._id]),
+    ]);
+
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          tournament_series {
+            _id
+            name
+            tournament_ids
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.tournament_series).toHaveLength(2);
+    expect(
+      every(output.data?.tournament.tournament_series, (e) =>
+        e.tournament_ids.includes(tournaments[0].id),
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array of tournament series if none exist which feature a given tournament', async () => {
+    await TournamentSeriesModel.create([
+      generateTournamentSeries([tournaments[3]._id, tournaments[1]._id]),
+      generateTournamentSeries([tournaments[2]._id, tournaments[3]._id]),
+      generateTournamentSeries([tournaments[2]._id, tournaments[1]._id]),
+    ]);
+
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          tournament_series {
+            _id
+            name
+            tournament_ids
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.tournament_series).toHaveLength(0);
   });
 });

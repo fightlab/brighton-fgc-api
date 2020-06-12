@@ -70,6 +70,42 @@ describe('Event Series GraphQL Resolver Test', () => {
     ).toBe(true);
   });
 
+  it('should get event series by id', async () => {
+    const source = gql`
+      query SelectEventSeries($id: ObjectId!) {
+        event_series_single(id: $id) {
+          _id
+          event_ids
+          name
+          info
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: eventSeries[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.event_series_single).toBeDefined();
+    expect(output.data?.event_series_single._id).toBe(eventSeries[0].id);
+    expect(output.data?.event_series_single.name).toBe(eventSeries[0].name);
+    expect(output.data?.event_series_single.info).toBe(eventSeries[0].info);
+    expect(output.data?.event_series_single.event_ids).toHaveLength(
+      eventSeries[0].events.length,
+    );
+    expect(
+      every(output.data?.event_series_single.event_ids, (e) =>
+        some(events, (s) => s.id === e),
+      ),
+    );
+  });
+
   it('should populate events', async () => {
     const source = gql`
       query SelectEventSeries {
