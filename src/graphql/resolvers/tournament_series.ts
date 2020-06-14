@@ -30,6 +30,14 @@ import {
 } from '@graphql/resolvers/tournament';
 import { Game } from '@models/game';
 import { GameResolverMethods } from '@graphql/resolvers/game';
+import {
+  TournamentSeriesElo,
+  TOURNAMENT_SERIES_ELO_DESCRIPTIONS,
+} from '@models/tournament_series_elo';
+import {
+  TournamentSeriesElosArgs,
+  TournamentSeriesEloResolverMethods,
+} from './tournament_series_elo';
 
 // sort
 export enum TOURNAMENT_SERIES_SORT {
@@ -252,6 +260,30 @@ export class TournamentSeriesResolver {
     return GameResolverMethods.game({
       args: { id: tournament_series.game as ObjectId },
       ctx,
+    });
+  }
+
+  // populate tournament series elos
+  @FieldResolver(() => [TournamentSeriesElo], {
+    description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  tournament_series_elos(
+    @Root() tournament_series: DocumentType<TournamentSeries>,
+    @Args(() => TournamentSeriesElosArgs)
+    { sort, ids, players, score_gte, score_lte }: TournamentSeriesElosArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<TournamentSeriesElo>> {
+    return TournamentSeriesEloResolverMethods.tournament_series_elos({
+      ctx,
+      args: {
+        sort,
+        ids,
+        players,
+        score_gte,
+        score_lte,
+        tournament_series: [tournament_series._id],
+      },
     });
   }
 }

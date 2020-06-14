@@ -6,6 +6,7 @@ import {
   generateTournament,
   generateMatch,
   generateResult,
+  generateTournamentSeriesElo,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
@@ -16,6 +17,7 @@ import { PlayerSocialModel } from '@models/player_social';
 import { TournamentModel } from '@models/tournament';
 import { MatchModel } from '@models/match';
 import { ResultModel } from '@models/result';
+import { TournamentSeriesEloModel } from '@models/tournament_series_elo';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -642,5 +644,78 @@ describe('Player GraphQL Resolver Test', () => {
     expect(output.data?.player).toBeDefined();
     expect(output.data?.player._id).toBe(players[0].id);
     expect(output.data?.player.results).toHaveLength(0);
+  });
+
+  it('should populate tournament series elos for a given player', async () => {
+    const tournament_series_elos = await TournamentSeriesEloModel.create([
+      generateTournamentSeriesElo(new ObjectId(), players[0]._id),
+      generateTournamentSeriesElo(new ObjectId(), players[0]._id),
+    ]);
+
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          tournament_series_elos {
+            _id
+            score
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.tournament_series_elos).toHaveLength(
+      tournament_series_elos.length,
+    );
+    expect(
+      every(
+        output.data?.player.tournament_series_elos,
+        (e) =>
+          (e._id === tournament_series_elos[0].id ||
+            e._id === tournament_series_elos[1].id) &&
+          (e.score === tournament_series_elos[0].score ||
+            e.score === tournament_series_elos[1].score),
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty array if tournament series elos for a given player', async () => {
+    const source = gql`
+      query QueryPlayers($id: ObjectId!) {
+        player(id: $id) {
+          _id
+          tournament_series_elos {
+            _id
+            score
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: players[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.player).toBeDefined();
+    expect(output.data?.player._id).toBe(players[0].id);
+    expect(output.data?.player.tournament_series_elos).toHaveLength(0);
   });
 });

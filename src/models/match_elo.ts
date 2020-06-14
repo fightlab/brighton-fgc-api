@@ -27,9 +27,14 @@ export enum MATCH_ELO_DESCRIPTIONS {
 @ObjectType({
   description: MATCH_ELO_DESCRIPTIONS.DESCRIPTION,
 })
+@Index({ match: 1, player: 1, before: 1, after: 1 })
+@Index({ match: 1, player: 1, after: 1 })
+@Index({ match: 1, player: 1, before: 1 })
 @Index({ match: 1, player: 1 })
 @Index({ match: 1 })
 @Index({ player: 1 })
+@Index({ after: 1 })
+@Index({ before: 1 })
 export class MatchElo {
   @Field({
     description: MATCH_ELO_DESCRIPTIONS.ID,

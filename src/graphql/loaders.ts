@@ -27,6 +27,7 @@ import { MatchModel } from '@models/match';
 import { MatchEloModel } from '@models/match_elo';
 import { ResultModel } from '@models/result';
 import { TournamentSeriesModel } from '@models/tournament_series';
+import { TournamentSeriesEloModel } from '@models/tournament_series_elo';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -131,6 +132,10 @@ const ResultsLoader = makeGeneralLoader(ResultModel);
 const ResultLoader = makeSingleGeneralLoader(ResultModel);
 const TournamentSeriesMultiLoader = makeGeneralLoader(TournamentSeriesModel); // use multi as series is both singular and plural
 const TournamentSeriesLoader = makeSingleGeneralLoader(TournamentSeriesModel); // singular form by default
+const TournamentSeriesElosLoader = makeGeneralLoader(TournamentSeriesEloModel);
+const TournamentSeriesEloLoader = makeSingleGeneralLoader(
+  TournamentSeriesEloModel,
+);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -167,6 +172,8 @@ export interface Loaders {
   ResultLoader: DataLoader<unknown, any, unknown>;
   TournamentSeriesMultiLoader: DataLoader<unknown, any[], unknown>;
   TournamentSeriesLoader: DataLoader<unknown, any, unknown>;
+  TournamentSeriesElosLoader: DataLoader<unknown, any[], unknown>;
+  TournamentSeriesEloLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -204,4 +211,6 @@ export const loaders: Loaders = {
   ResultLoader,
   TournamentSeriesMultiLoader,
   TournamentSeriesLoader,
+  TournamentSeriesElosLoader,
+  TournamentSeriesEloLoader,
 };

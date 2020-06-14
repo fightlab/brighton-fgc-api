@@ -40,6 +40,14 @@ import { MatchesArgs, MatchResolverMethods } from '@graphql/resolvers/match';
 import { Match, MATCH_DESCRIPTIONS } from '@models/match';
 import { Result, RESULT_DESCRIPTIONS } from '@models/result';
 import { ResultsArgs, ResultResolverMethods } from '@graphql/resolvers/result';
+import {
+  TournamentSeriesElosArgs,
+  TournamentSeriesEloResolverMethods,
+} from './tournament_series_elo';
+import {
+  TournamentSeriesElo,
+  TOURNAMENT_SERIES_ELO_DESCRIPTIONS,
+} from '@models/tournament_series_elo';
 
 export enum PLAYER_SORT {
   HANDLE_ASC,
@@ -286,6 +294,36 @@ export class PlayerResolver {
         rank_gte,
         rank_lte,
         tournaments,
+      },
+    });
+  }
+
+  // populate tournament series elos
+  @FieldResolver(() => [TournamentSeriesElo], {
+    description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  tournament_series_elos(
+    @Root() player: DocumentType<Player>,
+    @Args(() => TournamentSeriesElosArgs)
+    {
+      sort,
+      ids,
+      score_gte,
+      score_lte,
+      tournament_series,
+    }: TournamentSeriesElosArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<TournamentSeriesElo>> {
+    return TournamentSeriesEloResolverMethods.tournament_series_elos({
+      ctx,
+      args: {
+        sort,
+        ids,
+        players: [player._id],
+        score_gte,
+        score_lte,
+        tournament_series,
       },
     });
   }

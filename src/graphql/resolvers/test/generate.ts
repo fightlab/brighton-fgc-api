@@ -17,6 +17,7 @@ import { Match } from '@models/match';
 import { MatchElo } from '@models/match_elo';
 import { Result } from '@models/result';
 import { TournamentSeries } from '@models/tournament_series';
+import { TournamentSeriesElo } from '@models/tournament_series_elo';
 
 // set the faker seed to generate more consistent results
 faker.seed(1337);
@@ -453,3 +454,16 @@ export const generateTournamentSeries = (
     info: faker.hacker.phrase(),
   };
 };
+
+// generate tournament series elo for testing
+export const generateTournamentSeriesElo = (
+  tournament_series: ObjectId,
+  player: ObjectId,
+): TournamentSeriesElo => ({
+  player,
+  tournament_series,
+  score: faker.random.number({
+    min: 700,
+    max: 1400,
+  }),
+});

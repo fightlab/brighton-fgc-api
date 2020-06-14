@@ -59,6 +59,7 @@ export class GameEloArgs {
     description: GAME_ELO_DESCRIPTIONS.GAME,
   })
   game!: ObjectId;
+
   @Field(() => ObjectIdScalar, {
     description: GAME_ELO_DESCRIPTIONS.PLAYER,
   })

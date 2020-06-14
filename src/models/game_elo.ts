@@ -24,9 +24,11 @@ export enum GAME_ELO_DESCRIPTIONS {
 @ObjectType({
   description: GAME_ELO_DESCRIPTIONS.DESCRIPTIONS,
 })
+@Index({ game: 1, player: 1, score: 1 })
 @Index({ game: 1, player: 1 })
 @Index({ game: 1 })
 @Index({ player: 1 })
+@Index({ score: 1 })
 export class GameElo {
   @Field({
     description: GAME_ELO_DESCRIPTIONS.ID,
