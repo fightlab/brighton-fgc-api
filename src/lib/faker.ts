@@ -438,6 +438,8 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       num = (players.length / 2) * (players.length - 1);
     }
 
+    const [start, end] = generateDates(1, 1);
+
     // play some fake matches with meaningless data
     return Array.from(
       {
@@ -458,6 +460,8 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
           loser: matchPlayers[winner ? 1 : 0],
           round: faker.random.number({ min: -5, max: 5 }),
           round_name: faker.random.word(),
+          date_end: end.toDate(),
+          date_start: start.toDate(),
         };
       },
     );
