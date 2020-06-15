@@ -31,7 +31,7 @@ import {
   BracketsArgs,
 } from '@graphql/resolvers/bracket';
 
-// sorting stuff for character
+// sorting stuff for bracket platform
 enum BRACKET_PLATFORM_SORT {
   NAME_ASC,
   NAME_DESC,
@@ -41,7 +41,7 @@ enum BRACKET_PLATFORM_SORT {
 // register the enum with graphql
 registerEnumType(BRACKET_PLATFORM_SORT, {
   name: 'BracketPlatformSort',
-  description: 'Sort platforms by this enum',
+  description: 'Sort bracket platforms by this enum',
 });
 
 // turn sort into an array usable by lodash

@@ -18,6 +18,7 @@ import { MatchElo } from '@models/match_elo';
 import { Result } from '@models/result';
 import { TournamentSeries } from '@models/tournament_series';
 import { TournamentSeriesElo } from '@models/tournament_series_elo';
+import { VodPlatform } from '@models/vod_platform';
 
 // set the faker seed to generate more consistent results
 faker.seed(1337);
@@ -467,3 +468,21 @@ export const generateTournamentSeriesElo = (
     max: 1400,
   }),
 });
+
+// generate vod platform for testing
+export const generateVodPlatform = (min = true): VodPlatform => {
+  const obj: VodPlatform = {
+    name: faker.company.companyName(),
+    url: faker.internet.url(),
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    embed_url: `${obj.url}/embed`,
+    watch_url: `${obj.url}/watch`,
+  };
+};
