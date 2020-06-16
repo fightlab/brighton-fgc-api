@@ -12,6 +12,7 @@ import {
   generateMatch,
   generateResult,
   generateTournamentSeries,
+  generateVod,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
@@ -21,6 +22,7 @@ import { BracketModel } from '@models/bracket';
 import { MatchModel } from '@models/match';
 import { ResultModel } from '@models/result';
 import { TournamentSeriesModel } from '@models/tournament_series';
+import { VodModel } from '@models/vod';
 
 describe('Tournament GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -1602,5 +1604,70 @@ describe('Tournament GraphQL Resolver Test', () => {
     expect(output.data?.tournament).toBeDefined();
     expect(output.data?.tournament._id).toBe(tournaments[0].id);
     expect(output.data?.tournament.tournament_series).toHaveLength(0);
+  });
+
+  it('should poplaute vod for a given tournament', async () => {
+    const [vod] = await VodModel.create([
+      generateVod(new ObjectId(), tournaments[0]._id),
+    ]);
+
+    const source = gql`
+      query Tournaments($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          vod {
+            _id
+            tournament_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.vod).toBeDefined();
+    expect(output.data?.tournament.vod._id).toBe(vod.id);
+    expect(output.data?.tournament.vod.tournament_id).toBe(
+      vod.tournament?.toString(),
+    );
+    expect(output.data?.tournament.vod.tournament_id).toBe(tournaments[0].id);
+  });
+
+  it('should return null for vod if not found for a given tournament', async () => {
+    const source = gql`
+      query Tournaments($id: ObjectId!) {
+        tournament(id: $id) {
+          _id
+          vod {
+            _id
+            tournament_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: tournaments[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.tournament).toBeDefined();
+    expect(output.data?.tournament._id).toBe(tournaments[0].id);
+    expect(output.data?.tournament.vod).toBeNull();
   });
 });

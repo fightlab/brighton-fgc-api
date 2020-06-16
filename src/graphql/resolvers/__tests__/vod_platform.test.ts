@@ -1,9 +1,13 @@
 import { VodPlatform, VodPlatformModel } from '@models/vod_platform';
 import { DocumentType } from '@typegoose/typegoose';
-import { generateVodPlatform } from '../test/generate';
+import {
+  generateVodPlatform,
+  generateVod,
+} from '@graphql/resolvers/test/generate';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
+import { VodModel } from '@models/vod';
 
 describe('VOD Platform GraphQL Resolver Test', () => {
   let vodPlatforms: Array<DocumentType<VodPlatform>>;
@@ -286,5 +290,71 @@ describe('VOD Platform GraphQL Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.vod_platforms).toBeDefined();
     expect(output.data?.vod_platforms).toHaveLength(0);
+  });
+
+  it('should populate vods for a given vod platform', async () => {
+    await VodModel.create([
+      generateVod(vodPlatforms[0]._id, new ObjectId()),
+      generateVod(vodPlatforms[0]._id, new ObjectId()),
+      generateVod(vodPlatforms[1]._id, new ObjectId()),
+    ]);
+
+    const source = gql`
+      query VodPlatform($id: ObjectId!) {
+        vod_platform(id: $id) {
+          _id
+          vods {
+            _id
+            vod_platform_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: vodPlatforms[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.vod_platform._id).toBe(vodPlatforms[0].id);
+    expect(output.data?.vod_platform.vods).toHaveLength(2);
+    expect(
+      every(
+        output.data?.vod_platform.vods,
+        (e) => e.vod_platform_id === vodPlatforms[0].id,
+      ),
+    ).toBe(true);
+  });
+
+  it('should return empty list of vods if not found for given vod platform', async () => {
+    const source = gql`
+      query VodPlatform($id: ObjectId!) {
+        vod_platform(id: $id) {
+          _id
+          vods {
+            _id
+            vod_platform_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: vodPlatforms[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.vod_platform._id).toBe(vodPlatforms[0].id);
+    expect(output.data?.vod_platform.vods).toHaveLength(0);
   });
 });

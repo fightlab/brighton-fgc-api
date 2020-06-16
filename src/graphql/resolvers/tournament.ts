@@ -44,6 +44,8 @@ import {
   TournamentSeries,
   TOURNAMENT_SERIES_DESCRIPTIONS,
 } from '@models/tournament_series';
+import { Vod, VOD_DESCRIPTIONS } from '@models/vod';
+import { VodResolverMethods } from './vod';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,
@@ -449,6 +451,21 @@ export class TournamentResolver {
         search,
         tournaments: [tournament._id],
       },
+    });
+  }
+
+  // vod field resolver
+  @FieldResolver(() => Vod, {
+    description: VOD_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  vod(
+    @Root() tournament: DocumentType<Tournament>,
+    @Ctx() ctx: Context,
+  ): Promise<Vod | null> {
+    return VodResolverMethods.vod({
+      ctx,
+      args: { tournament: tournament._id },
     });
   }
 }

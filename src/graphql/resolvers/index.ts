@@ -19,6 +19,7 @@ import { ResultResolver } from '@graphql/resolvers/result';
 import { TournamentSeriesResolver } from '@graphql/resolvers/tournament_series';
 import { TournamentSeriesEloResolver } from '@graphql/resolvers/tournament_series_elo';
 import { VodPlatformResolver } from '@graphql/resolvers/vod_platform';
+import { VodResolver } from '@graphql/resolvers/vod';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -56,4 +57,5 @@ export const resolvers: [Function, ...Function[]] = [
   TournamentSeriesResolver,
   TournamentSeriesEloResolver,
   VodPlatformResolver,
+  VodResolver,
 ];

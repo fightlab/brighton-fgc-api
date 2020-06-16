@@ -37,7 +37,7 @@ import {
 import {
   TournamentSeriesElosArgs,
   TournamentSeriesEloResolverMethods,
-} from './tournament_series_elo';
+} from '@graphql/resolvers/tournament_series_elo';
 
 // sort
 export enum TOURNAMENT_SERIES_SORT {

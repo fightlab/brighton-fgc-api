@@ -29,6 +29,7 @@ import { ResultModel } from '@models/result';
 import { TournamentSeriesModel } from '@models/tournament_series';
 import { TournamentSeriesEloModel } from '@models/tournament_series_elo';
 import { VodPlatformModel } from '@models/vod_platform';
+import { VodModel } from '@models/vod';
 
 // replace instances of objectid with string representation for caching
 const replacer = (v: any) => {
@@ -139,6 +140,8 @@ const TournamentSeriesEloLoader = makeSingleGeneralLoader(
 );
 const VodPlatformsLoader = makeGeneralLoader(VodPlatformModel);
 const VodPlatformLoader = makeSingleGeneralLoader(VodPlatformModel);
+const VodsLoader = makeGeneralLoader(VodModel);
+const VodLoader = makeSingleGeneralLoader(VodModel);
 
 export interface Loaders {
   BracketPlatformsLoader: DataLoader<unknown, any[], unknown>;
@@ -179,6 +182,8 @@ export interface Loaders {
   TournamentSeriesEloLoader: DataLoader<unknown, any, unknown>;
   VodPlatformsLoader: DataLoader<unknown, any[], unknown>;
   VodPlatformLoader: DataLoader<unknown, any, unknown>;
+  VodsLoader: DataLoader<unknown, any[], unknown>;
+  VodLoader: DataLoader<unknown, any, unknown>;
 }
 
 export const loaders: Loaders = {
@@ -220,4 +225,6 @@ export const loaders: Loaders = {
   TournamentSeriesEloLoader,
   VodPlatformsLoader,
   VodPlatformLoader,
+  VodsLoader,
+  VodLoader,
 };

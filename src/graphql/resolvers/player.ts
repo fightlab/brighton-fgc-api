@@ -43,7 +43,7 @@ import { ResultsArgs, ResultResolverMethods } from '@graphql/resolvers/result';
 import {
   TournamentSeriesElosArgs,
   TournamentSeriesEloResolverMethods,
-} from './tournament_series_elo';
+} from '@graphql/resolvers/tournament_series_elo';
 import {
   TournamentSeriesElo,
   TOURNAMENT_SERIES_ELO_DESCRIPTIONS,

@@ -99,7 +99,7 @@ export class TournamentSeriesElosArgs {
 
   @Field(() => [ObjectIdScalar], {
     nullable: true,
-    description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.TOURNAMENT_SERIES_IDS,
+    description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.PLAYER_IDS,
   })
   players?: Array<ObjectId>;
 

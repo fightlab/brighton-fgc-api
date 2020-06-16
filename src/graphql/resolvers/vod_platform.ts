@@ -6,6 +6,8 @@ import {
   Query,
   Args,
   Ctx,
+  FieldResolver,
+  Root,
 } from 'type-graphql';
 import {
   MapSort,
@@ -17,6 +19,9 @@ import { ObjectIdScalar } from '@graphql/scalars/ObjectId';
 import { ObjectId } from 'mongodb';
 import { CtxWithArgs, Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
+import { Vod, VOD_DESCRIPTIONS } from '@models/vod';
+import { DocumentType } from '@typegoose/typegoose';
+import { VodResolverMethods, VodsArgs } from './vod';
 
 enum VOD_PLATFORM_SORT {
   NAME_ASC,
@@ -129,6 +134,26 @@ export class VodPlatformResolver {
     return VodPlatformResolverMethods.vod_platforms({
       ctx,
       args: { sort, ids, search },
+    });
+  }
+
+  // get vods
+  @FieldResolver(() => [Vod], {
+    description: VOD_DESCRIPTIONS.DESCRIPTION,
+  })
+  vods(
+    @Root() vod_platform: DocumentType<VodPlatform>,
+    @Args(() => VodsArgs) { sort, ids, tournaments }: VodsArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<Vod>> {
+    return VodResolverMethods.vods({
+      ctx,
+      args: {
+        vod_platforms: [vod_platform._id],
+        sort,
+        ids,
+        tournaments,
+      },
     });
   }
 }
