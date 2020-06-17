@@ -20,6 +20,7 @@ import { TournamentSeries } from '@models/tournament_series';
 import { TournamentSeriesElo } from '@models/tournament_series_elo';
 import { VodPlatform } from '@models/vod_platform';
 import { Vod } from '@models/vod';
+import { MatchVod } from '@models/match_vod';
 
 // set the faker seed to generate more consistent results
 faker.seed(1337);
@@ -496,3 +497,26 @@ export const generateVod = (platform: ObjectId, tournament: ObjectId): Vod => ({
   url: faker.internet.url(),
   start_time: `${faker.random.number(900)}s`,
 });
+
+// generate match vod for testing
+export const generateMatchVod = (
+  match: ObjectId,
+  vod: ObjectId,
+  min = true,
+  characters: Array<ObjectId> = [],
+): MatchVod => {
+  const obj: MatchVod = {
+    match,
+    vod,
+  };
+
+  if (min) {
+    return obj;
+  }
+
+  return {
+    ...obj,
+    characters,
+    timestamp: `${faker.random.number(900)}s`,
+  };
+};

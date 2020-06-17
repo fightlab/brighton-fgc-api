@@ -24,6 +24,11 @@ import {
 import { orderBy } from 'lodash';
 import { Game } from '@models/game';
 import { GameResolverMethods } from '@graphql/resolvers/game';
+import { MatchVod, MATCH_VOD_DESCRIPTIONS } from '@models/match_vod';
+import {
+  MatchVodsArgs,
+  MatchVodResolverMethods,
+} from '@graphql/resolvers/match_vod';
 
 // sorting stuff for character
 export enum CHARACTER_SORT {
@@ -176,5 +181,24 @@ export class CharacterResolver {
     });
   }
 
-  // TODO: Add match vods that character has appeared in
+  // Add match vods that character has appeared in
+  @FieldResolver(() => [MatchVod], {
+    description: MATCH_VOD_DESCRIPTIONS.DESCRIPTION,
+  })
+  match_vods(
+    @Root() character: DocumentType<Character>,
+    @Args(() => MatchVodsArgs) { sort, ids, matches, vods }: MatchVodsArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<MatchVod>> {
+    return MatchVodResolverMethods.match_vods({
+      ctx,
+      args: {
+        sort,
+        characters: [character._id as ObjectId],
+        ids,
+        matches,
+        vods,
+      },
+    });
+  }
 }

@@ -45,7 +45,7 @@ import {
   TOURNAMENT_SERIES_DESCRIPTIONS,
 } from '@models/tournament_series';
 import { Vod, VOD_DESCRIPTIONS } from '@models/vod';
-import { VodResolverMethods } from './vod';
+import { VodResolverMethods } from '@graphql/resolvers/vod';
 
 export enum TOURNAMENT_SORT {
   NAME_ASC,

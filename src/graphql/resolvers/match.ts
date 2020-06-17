@@ -26,6 +26,8 @@ import { Player } from '@models/player';
 import { PlayersArgs, PlayerResolverMethods } from '@graphql/resolvers/player';
 import { MATCH_ELO_DESCRIPTIONS, MatchElo } from '@models/match_elo';
 import { MatchEloResolverMethods } from '@graphql/resolvers/match_elo';
+import { MatchVod, MATCH_VOD_DESCRIPTIONS } from '@models/match_vod';
+import { MatchVodResolverMethods } from '@graphql/resolvers/match_vod';
 
 // sorting stuff for matches
 enum MATCH_SORT {
@@ -458,6 +460,20 @@ export class MatchResolver {
         match: match._id as ObjectId,
         player: (match.player2?.[0] as unknown) as ObjectId,
       },
+    });
+  }
+
+  @FieldResolver(() => MatchVod, {
+    description: MATCH_VOD_DESCRIPTIONS.DESCRIPTION,
+    nullable: true,
+  })
+  match_vod(
+    @Root() match: DocumentType<Match>,
+    @Ctx() ctx: Context,
+  ): Promise<MatchVod | null> {
+    return MatchVodResolverMethods.match_vod({
+      ctx,
+      args: { match: match._id as ObjectId },
     });
   }
 }

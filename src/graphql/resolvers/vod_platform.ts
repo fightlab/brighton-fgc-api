@@ -21,7 +21,7 @@ import { CtxWithArgs, Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
 import { Vod, VOD_DESCRIPTIONS } from '@models/vod';
 import { DocumentType } from '@typegoose/typegoose';
-import { VodResolverMethods, VodsArgs } from './vod';
+import { VodResolverMethods, VodsArgs } from '@graphql/resolvers/vod';
 
 enum VOD_PLATFORM_SORT {
   NAME_ASC,

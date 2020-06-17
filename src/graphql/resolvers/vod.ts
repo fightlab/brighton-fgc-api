@@ -24,6 +24,11 @@ import { Tournament } from '@models/tournament';
 import { TournamentResolverMethods } from '@graphql/resolvers/tournament';
 import { VodPlatform } from '@models/vod_platform';
 import { VodPlatformResolverMethods } from '@graphql/resolvers/vod_platform';
+import { MatchVod, MATCH_VOD_DESCRIPTIONS } from '@models/match_vod';
+import {
+  MatchVodResolverMethods,
+  MatchVodsArgs,
+} from '@graphql/resolvers/match_vod';
 
 // sort
 export enum VOD_SORT {
@@ -152,7 +157,7 @@ export class VodResolverMethods {
 // vod resolver
 @Resolver(() => Vod)
 export class VodResolver {
-  // get single vod by id, or tournament and player
+  // get single vod by id, or tournament
   @Query(() => Vod, {
     nullable: true,
     description: VOD_DESCRIPTIONS.FIND_ONE,
@@ -235,6 +240,21 @@ export class VodResolver {
     return VodPlatformResolverMethods.vod_platform({
       ctx,
       args: { id: vod.platform as ObjectId },
+    });
+  }
+
+  // match vods field resolver
+  @FieldResolver(() => [MatchVod], {
+    description: MATCH_VOD_DESCRIPTIONS.DESCRIPTION,
+  })
+  match_vods(
+    @Root() vod: DocumentType<Vod>,
+    @Args(() => MatchVodsArgs) { sort, characters }: MatchVodsArgs,
+    @Ctx() ctx: Context,
+  ): Promise<Array<MatchVod>> {
+    return MatchVodResolverMethods.match_vods({
+      ctx,
+      args: { sort, characters, vods: [vod._id as ObjectId] },
     });
   }
 }

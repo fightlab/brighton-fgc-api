@@ -40,7 +40,6 @@ export enum VOD_DESCRIPTIONS {
 export class Vod {
   @Field({
     description: VOD_DESCRIPTIONS.ID,
-    nullable: true,
   })
   readonly _id?: ObjectId;
 
