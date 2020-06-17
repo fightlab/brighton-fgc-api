@@ -69,12 +69,6 @@ export class MatchVodArgs {
     nullable: true,
   })
   match?: ObjectId;
-
-  @Field(() => ObjectIdScalar, {
-    description: MATCH_VOD_DESCRIPTIONS.VOD_ID,
-    nullable: true,
-  })
-  vod?: ObjectId;
 }
 
 // multi args
@@ -115,9 +109,9 @@ export class MatchVodsArgs {
 export class MatchVodResolverMethods {
   static async match_vod({
     ctx,
-    args: { id, match, vod },
+    args: { id, match },
   }: CtxWithArgs<MatchVodArgs>): Promise<MatchVod | null> {
-    if (!id && !match && !vod) {
+    if (!id && !match) {
       return null;
     }
 
@@ -125,19 +119,8 @@ export class MatchVodResolverMethods {
       return ctx.loaders.MatchVodLoader.load(id);
     }
 
-    if (!match && !vod) {
-      return null;
-    }
-
     const q = generateMongooseQueryObject();
-
-    if (match) {
-      q.match = match;
-    }
-
-    if (vod) {
-      q.vod = vod;
-    }
+    q.match = match;
 
     const [matchVod = null] = await ctx.loaders.MatchVodsLoader.load(q);
     return matchVod;
@@ -188,10 +171,10 @@ export class MatchVodResolver {
     description: MATCH_VOD_DESCRIPTIONS.FIND_ONE,
   })
   match_vod(
-    @Args() { id, match, vod }: MatchVodArgs,
+    @Args() { id, match }: MatchVodArgs,
     @Ctx() ctx: Context,
   ): Promise<MatchVod | null> {
-    return MatchVodResolverMethods.match_vod({ ctx, args: { id, match, vod } });
+    return MatchVodResolverMethods.match_vod({ ctx, args: { id, match } });
   }
 
   @Query(() => [MatchVod], {

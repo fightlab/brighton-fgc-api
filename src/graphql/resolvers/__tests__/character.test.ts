@@ -365,4 +365,10 @@ describe('Character GraphQL Resolver Test', () => {
     expect(output.data?.characters).toBeDefined();
     expect(output.data?.characters).toHaveLength(0);
   });
+
+  it.todo('should populate match vods for a given character');
+
+  it.todo(
+    'should return empty array if no match vods found for given character',
+  );
 });
