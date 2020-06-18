@@ -91,7 +91,6 @@ const generateGame = (num: number): Game => ({
   short: `G${num}`,
   logo: getOptional(faker.image.imageUrl()),
   bg: getOptional(faker.image.imageUrl()),
-  meta: getOptional(faker.hacker.phrase()),
 });
 
 // VENUE
@@ -189,7 +188,6 @@ const generateEventSocial = (event: DocumentType<Event>): EventSocial => ({
   instagram: getOptional(faker.internet.url()),
   twitch: getOptional(faker.internet.url()),
   youtube: getOptional(faker.internet.url()),
-  meta: getOptional(faker.internet.url()),
 });
 
 // player social mock

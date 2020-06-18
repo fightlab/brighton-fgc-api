@@ -5,12 +5,10 @@
 import {
   prop as Property,
   getModelForClass,
-  Severity,
   index as Index,
 } from '@typegoose/typegoose';
 import { Field, ObjectType } from 'type-graphql';
 import { default as validator } from 'validator';
-import { default as mongoose } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import {
   VALIDATION_MESSAGES,
@@ -89,15 +87,11 @@ export class BracketPlatform {
     },
   })
   public api_docs?: string;
-
-  @Property({ type: mongoose.Schema.Types.Mixed })
-  meta?: any;
 }
 
 export const BracketPlatformModel = getModelForClass(BracketPlatform, {
   options: {
     customName: 'BracketPlatform',
-    allowMixed: Severity.ALLOW,
   },
   schemaOptions: {
     collection: 'bracket_platform',

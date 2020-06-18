@@ -40,9 +40,6 @@ describe('EventSocial model test', () => {
       twitter: 'event social twitter',
       web: 'https://event-social.web',
       youtube: 'event social youtube',
-      meta: {
-        hello: 'world',
-      },
     };
 
     // not sure why you'd do this but /shrug
@@ -72,7 +69,6 @@ describe('EventSocial model test', () => {
     expect(output.instagram).toBe(eventSocialFull.instagram);
     expect(output.web).toBe(eventSocialFull.web);
     expect(output.youtube).toBe(eventSocialFull.youtube);
-    expect(output.meta).toBeDefined();
   });
 
   it('should create & save min eventSocial successfully', async () => {
@@ -89,7 +85,6 @@ describe('EventSocial model test', () => {
     expect(output.instagram).toBeUndefined();
     expect(output.web).toBeUndefined();
     expect(output.youtube).toBeUndefined();
-    expect(output.meta).toBeUndefined();
   });
 
   it('should populate event', async () => {

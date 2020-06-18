@@ -53,9 +53,6 @@ export const generateBracketPlatform = (min = true): BracketPlatform => {
     url: faker.internet.url(),
     api_url: faker.internet.url(),
     api_docs: faker.internet.url(),
-    meta: {
-      info: faker.hacker.phrase(),
-    },
   };
 };
 
@@ -74,9 +71,6 @@ export const generateGame = (min = true): Game => {
     ...obj,
     logo: faker.image.imageUrl(),
     bg: faker.image.imageUrl(),
-    meta: {
-      info: faker.hacker.phrase(),
-    },
   };
 };
 
@@ -289,10 +283,6 @@ export const generateEventSocial = (
         ? getOptional(faker.internet.url())
         : faker.internet.url(),
     youtube:
-      type === 'random'
-        ? getOptional(faker.internet.url())
-        : faker.internet.url(),
-    meta:
       type === 'random'
         ? getOptional(faker.internet.url())
         : faker.internet.url(),

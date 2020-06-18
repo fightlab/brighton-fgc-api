@@ -103,9 +103,6 @@ export class EventSocial {
   })
   @Property()
   public youtube?: string;
-
-  @Property()
-  public meta?: any;
 }
 
 export const EventSocialModel = getModelForClass(EventSocial, {

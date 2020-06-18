@@ -13,9 +13,6 @@ describe('BracketPlatform model test', () => {
     url: 'https://hbk.gg',
     api_docs: 'https://github.com/fightlab/brighton-fgc-api',
     api_url: 'https://api.hbk.gg',
-    meta: {
-      random: 'stuff',
-    },
   };
 
   const bracketPlatformMin: BracketPlatform = {
@@ -31,7 +28,6 @@ describe('BracketPlatform model test', () => {
     expect(output.url).toBe(bracketPlatformFull.url);
     expect(output.api_docs).toBe(bracketPlatformFull.api_docs);
     expect(output.api_url).toBe(bracketPlatformFull.api_url);
-    expect(output.meta).toBeDefined();
   });
 
   it('create & save minimum bracketPlatform successfully', async () => {
@@ -43,7 +39,6 @@ describe('BracketPlatform model test', () => {
     expect(output.url).toBeUndefined();
     expect(output.api_docs).toBeUndefined();
     expect(output.api_url).toBeUndefined();
-    expect(output.meta).toBeUndefined();
   });
 
   it('should not validate if url not valid', async () => {

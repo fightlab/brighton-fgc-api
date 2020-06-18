@@ -7,9 +7,6 @@ describe('Game model test', () => {
     short: 'BAFS',
     bg: faker.image.imageUrl(),
     logo: faker.image.imageUrl(),
-    meta: {
-      random: 'stuff',
-    },
   };
 
   const gameMin: Game = {
@@ -26,7 +23,6 @@ describe('Game model test', () => {
     expect(output.short).toBe(gameFull.short);
     expect(output.bg).toBe(gameFull.bg);
     expect(output.logo).toBe(gameFull.logo);
-    expect(output.meta).toBeDefined();
   });
 
   it('create & save minimum game successfully', async () => {
@@ -38,6 +34,5 @@ describe('Game model test', () => {
     expect(output.short).toBe(gameMin.short);
     expect(output.bg).toBeUndefined();
     expect(output.logo).toBeUndefined();
-    expect(output.meta).toBeUndefined();
   });
 });

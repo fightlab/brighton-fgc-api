@@ -2,10 +2,8 @@ import {
   prop as Property,
   getModelForClass,
   Ref,
-  Severity,
   Index,
 } from '@typegoose/typegoose';
-import { Schema } from 'mongoose';
 import { Tournament } from '@models/tournament';
 import { Player } from '@models/player';
 import { ObjectType, Field } from 'type-graphql';
@@ -186,15 +184,11 @@ export class Match {
     },
   })
   date_end?: Date;
-
-  @Property({ type: Schema.Types.Mixed })
-  public meta?: any;
 }
 
 export const MatchModel = getModelForClass(Match, {
   options: {
     customName: 'Match',
-    allowMixed: Severity.ALLOW,
   },
   schemaOptions: {
     collection: 'match',

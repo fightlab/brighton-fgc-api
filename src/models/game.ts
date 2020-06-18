@@ -1,11 +1,9 @@
 // Game Model
 // The games that have previously been run as tournaments
 
-import { default as mongoose } from 'mongoose';
 import {
   prop as Property,
   getModelForClass,
-  Severity,
   Index,
 } from '@typegoose/typegoose';
 import { Field, ObjectType } from 'type-graphql';
@@ -62,15 +60,11 @@ export class Game {
   })
   @Property()
   public bg?: string;
-
-  @Property({ type: mongoose.Schema.Types.Mixed })
-  public meta?: any;
 }
 
 export const GameModel = getModelForClass(Game, {
   options: {
     customName: 'Game',
-    allowMixed: Severity.ALLOW,
   },
   schemaOptions: {
     collection: 'game',
