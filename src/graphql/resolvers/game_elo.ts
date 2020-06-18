@@ -56,14 +56,22 @@ export const mapSort = (sort: GAME_ELO_SORT): MapSort => {
 @ArgsType()
 export class GameEloArgs {
   @Field(() => ObjectIdScalar, {
-    description: GAME_ELO_DESCRIPTIONS.GAME,
+    description: GAME_ELO_DESCRIPTIONS.ID,
+    nullable: true,
   })
-  game!: ObjectId;
+  id?: ObjectId;
+
+  @Field(() => ObjectIdScalar, {
+    description: GAME_ELO_DESCRIPTIONS.GAME,
+    nullable: true,
+  })
+  game?: ObjectId;
 
   @Field(() => ObjectIdScalar, {
     description: GAME_ELO_DESCRIPTIONS.PLAYER,
+    nullable: true,
   })
-  player!: ObjectId;
+  player?: ObjectId;
 }
 
 @ArgsType()
@@ -80,6 +88,18 @@ export class GameElosArgs {
   })
   players?: Array<ObjectId>;
 
+  @Field(() => Number, {
+    description: GAME_ELO_DESCRIPTIONS.SCORE_MIN,
+    nullable: true,
+  })
+  score_gte?: number;
+
+  @Field(() => Number, {
+    description: GAME_ELO_DESCRIPTIONS.SCORE_MAX,
+    nullable: true,
+  })
+  score_lte?: number;
+
   @Field(() => GAME_ELO_SORT, {
     nullable: true,
     defaultValue: GAME_ELO_SORT.SCORE_DESC,
@@ -91,22 +111,44 @@ export class GameElosArgs {
 export class GameEloResolverMethods {
   // get a single game elo by game and player
   static async game_elo({
-    args: { game, player },
+    args: { id, game, player },
     ctx,
   }: CtxWithArgs<GameEloArgs>): Promise<GameElo | null> {
+    if (!id && !game && !player) {
+      return null;
+    }
+
+    // if id exists use the single loader by id
+    if (id) {
+      return ctx.loaders.GameEloLoader.load(id);
+    }
+
+    // at this point we need both game and player, so check both exist
+    if (!game || !player) {
+      return null;
+    }
+
     const q = generateMongooseQueryObject();
+
     q.game = game;
+
     q.player = player;
 
-    // find a result, so return the first one
+    // found a game_elo, so return the first one
     // nothing found, return null
-    const [results = null] = await ctx.loaders.GameElosLoader.load(q);
-    return results;
+    const [game_elo = null] = await ctx.loaders.GameElosLoader.load(q);
+    return game_elo;
   }
 
   // get multiple game elos based on a list of games or players
   static async game_elos({
-    args: { games, players, sort = GAME_ELO_SORT.SCORE_DESC },
+    args: {
+      games,
+      players,
+      sort = GAME_ELO_SORT.SCORE_DESC,
+      score_gte,
+      score_lte,
+    },
     ctx,
   }: CtxWithArgs<GameElosArgs>): Promise<Array<GameElo>> {
     const q = generateMongooseQueryObject();
@@ -123,6 +165,16 @@ export class GameEloResolverMethods {
       } as MongooseQuery;
     }
 
+    if (score_lte || score_gte) {
+      q.score = {} as MongooseQuery;
+      if (score_lte) {
+        q.score.$lte = score_lte;
+      }
+      if (score_gte) {
+        q.score.$gte = score_gte;
+      }
+    }
+
     const elos = await ctx.loaders.GameElosLoader.load(q);
     const [iteratee, orders] = mapSort(sort);
     return orderBy(elos, iteratee, orders);
@@ -137,10 +189,10 @@ export class GameEloResolver {
     description: GAME_ELO_DESCRIPTIONS.FIND_ONE,
   })
   game_elo(
-    @Args() { game, player }: GameEloArgs,
+    @Args() { id, game, player }: GameEloArgs,
     @Ctx() ctx: Context,
   ): Promise<GameElo | null> {
-    return GameEloResolverMethods.game_elo({ args: { game, player }, ctx });
+    return GameEloResolverMethods.game_elo({ args: { game, player, id }, ctx });
   }
 
   // get multiple game elos based on a list of games or players
@@ -148,11 +200,11 @@ export class GameEloResolver {
     description: GAME_ELO_DESCRIPTIONS.FIND,
   })
   game_elos(
-    @Args() { sort, games, players }: GameElosArgs,
+    @Args() { sort, games, players, score_gte, score_lte }: GameElosArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<GameElo>> {
     return GameEloResolverMethods.game_elos({
-      args: { games, players, sort },
+      args: { games, players, sort, score_gte, score_lte },
       ctx,
     });
   }

@@ -19,6 +19,8 @@ export enum GAME_ELO_DESCRIPTIONS {
   PLAYER_IDS = 'List of unique identifiers (_id) of one or more players',
   FIND_ONE = 'Find and get an elo raking based on a given game and player',
   FIND = 'Find and get elo rankings based on query parameters',
+  SCORE_MIN = 'Minimum score to search for',
+  SCORE_MAX = 'Maximum score to search for',
 }
 
 @ObjectType({

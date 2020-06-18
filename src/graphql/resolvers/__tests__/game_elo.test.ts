@@ -5,7 +5,7 @@ import {
   generatePlayer,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
-import { every, some, orderBy, isEqual } from 'lodash';
+import { every, some, orderBy, isEqual, mean } from 'lodash';
 import { GameElo, GameEloModel } from '@models/game_elo';
 import { Game, GameModel } from '@models/game';
 import { Player, PlayerModel } from '@models/player';
@@ -73,6 +73,61 @@ describe('Game Elo GraphQL Resolver Test', () => {
           some(gameElos, (s) => s.player?.toString() === e.player_id),
       ),
     ).toBe(true);
+  });
+
+  it('selects single game elo for a id', async () => {
+    const source = gql`
+      query SelectGameElo($id: ObjectId!) {
+        game_elo(id: $id) {
+          _id
+          score
+          game_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: gameElos[0]._id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elo._id).toBe(gameElos[0].id);
+    expect(output.data?.game_elo.score).toBe(gameElos[0].score);
+    expect(output.data?.game_elo.game_id).toBe(gameElos[0].game?.toString());
+    expect(output.data?.game_elo.player_id).toBe(
+      gameElos[0].player?.toString(),
+    );
+  });
+
+  it('returns null if not found for a id', async () => {
+    const source = gql`
+      query SelectGameElo($id: ObjectId!) {
+        game_elo(id: $id) {
+          _id
+          score
+          game_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: new ObjectId(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elo).toBeNull();
   });
 
   it('selects single game elo for a given game and player', async () => {
@@ -455,5 +510,175 @@ describe('Game Elo GraphQL Resolver Test', () => {
 
     expect(dataFromQuery).toHaveLength(gameElos.length);
     expect(isEqual(received, expected)).toBe(true);
+  });
+
+  it('should return elos between 2 scores', async () => {
+    const source = gql`
+      query GameElo($score_gte: Float!, $score_lte: Float!) {
+        game_elos(score_gte: $score_gte, score_lte: $score_lte) {
+          _id
+          score
+        }
+      }
+    `;
+
+    const meanScore = mean(gameElos.map((ge) => ge.score));
+    const score_gte = meanScore - 250;
+    const score_lte = meanScore + 250;
+
+    const variableValues = {
+      score_gte,
+      score_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elos).toBeDefined();
+    expect(output.data?.game_elos).toHaveLength(
+      gameElos.filter((ge) => ge.score >= score_gte && ge.score <= score_lte)
+        .length,
+    );
+  });
+
+  it('should return empty array if elos not found between 2 scores', async () => {
+    const source = gql`
+      query GameElo($score_gte: Float!, $score_lte: Float!) {
+        game_elos(score_gte: $score_gte, score_lte: $score_lte) {
+          _id
+          score
+        }
+      }
+    `;
+
+    const score_gte = 2000;
+    const score_lte = 2001;
+
+    const variableValues = {
+      score_gte,
+      score_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elos).toBeDefined();
+    expect(output.data?.game_elos).toHaveLength(0);
+  });
+
+  it('should return elos greater than or equal to a score', async () => {
+    const source = gql`
+      query GameElo($score_gte: Float!) {
+        game_elos(score_gte: $score_gte) {
+          _id
+          score
+        }
+      }
+    `;
+
+    const meanScore = mean(gameElos.map((ge) => ge.score));
+    const score_gte = meanScore;
+
+    const variableValues = {
+      score_gte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elos).toBeDefined();
+    expect(output.data?.game_elos).toHaveLength(
+      gameElos.filter((ge) => ge.score >= score_gte).length,
+    );
+  });
+
+  it('should return elos less than or equal to a score', async () => {
+    const source = gql`
+      query GameElo($score_lte: Float!) {
+        game_elos(score_lte: $score_lte) {
+          _id
+          score
+        }
+      }
+    `;
+
+    const meanScore = mean(gameElos.map((ge) => ge.score));
+    const score_lte = meanScore;
+
+    const variableValues = {
+      score_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elos).toBeDefined();
+    expect(output.data?.game_elos).toHaveLength(
+      gameElos.filter((ge) => ge.score <= score_lte).length,
+    );
+  });
+
+  it('should return empty array if not found greater than given score', async () => {
+    const source = gql`
+      query GameElo($score_gte: Float!) {
+        game_elos(score_gte: $score_gte) {
+          _id
+          score
+        }
+      }
+    `;
+
+    const score_gte = 1500;
+
+    const variableValues = {
+      score_gte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elos).toBeDefined();
+    expect(output.data?.game_elos).toHaveLength(0);
+  });
+
+  it('should return empty array if elos not found less than or equal to a score', async () => {
+    const source = gql`
+      query GameElo($score_lte: Float!) {
+        game_elos(score_lte: $score_lte) {
+          _id
+          score
+        }
+      }
+    `;
+
+    const score_lte = 700;
+
+    const variableValues = {
+      score_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elos).toBeDefined();
+    expect(output.data?.game_elos).toHaveLength(0);
   });
 });
