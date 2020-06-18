@@ -273,7 +273,7 @@ export class MatchEloResolver {
   }
 
   // populate match
-  @FieldResolver(() => Match, {
+  @FieldResolver({
     description: MATCH_ELO_DESCRIPTIONS.MATCH,
   })
   match(
@@ -295,7 +295,7 @@ export class MatchEloResolver {
   }
 
   // populate player
-  @FieldResolver(() => Player, {
+  @FieldResolver({
     description: MATCH_ELO_DESCRIPTIONS.PLAYER,
   })
   player(

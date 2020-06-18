@@ -240,7 +240,7 @@ export class ResultResolver {
   }
 
   // field resolver to return tournament
-  @FieldResolver(() => Tournament, {
+  @FieldResolver({
     description: RESULT_DESCRIPTIONS.TOURNAMENT,
   })
   tournament(
@@ -260,7 +260,9 @@ export class ResultResolver {
   }
 
   // populate players array
-  @FieldResolver(() => [Player])
+  @FieldResolver({
+    description: RESULT_DESCRIPTIONS.PLAYER,
+  })
   players(
     @Root() result: DocumentType<Result>,
     @Args(() => PlayersArgs) { sort, search }: PlayersArgs,

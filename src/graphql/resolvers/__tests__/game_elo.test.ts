@@ -161,6 +161,26 @@ describe('Game Elo GraphQL Resolver Test', () => {
     );
   });
 
+  it('should return null if no params given', async () => {
+    const source = gql`
+      query SelectGameElo {
+        game_elo {
+          _id
+          score
+          game_id
+          player_id
+        }
+      }
+    `;
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elo).toBeNull();
+  });
+
   it('should return null if not found for a given game', async () => {
     const source = gql`
       query SelectGameElo($game: ObjectId!, $player: ObjectId!) {
@@ -175,6 +195,31 @@ describe('Game Elo GraphQL Resolver Test', () => {
 
     const variableValues = {
       game: new ObjectId().toHexString(), // game with this id won't exist
+      player: gameElos[0].player?.toString(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elo).toBeNull();
+  });
+
+  it('should return null if given game not included', async () => {
+    const source = gql`
+      query SelectGameElo($player: ObjectId!) {
+        game_elo(player: $player) {
+          _id
+          score
+          game_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
       player: gameElos[0].player?.toString(),
     };
 
@@ -202,6 +247,31 @@ describe('Game Elo GraphQL Resolver Test', () => {
     const variableValues = {
       game: gameElos[0].game?.toString(),
       player: new ObjectId().toHexString(), // player with this id wont exist
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.game_elo).toBeNull();
+  });
+
+  it('should return null if given player not included', async () => {
+    const source = gql`
+      query SelectGameElo($game: ObjectId!) {
+        game_elo(game: $game) {
+          _id
+          score
+          game_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      game: gameElos[0].game?.toString(),
     };
 
     const output = await gqlCall({

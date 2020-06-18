@@ -315,7 +315,7 @@ export class MatchResolver {
   }
 
   // field resolver for tournament
-  @FieldResolver(() => Tournament, {
+  @FieldResolver({
     description: MATCH_DESCRIPTIONS.TOURNAMENT,
     nullable: true,
   })
@@ -339,7 +339,7 @@ export class MatchResolver {
   }
 
   // field resolver for player 1
-  @FieldResolver(() => [Player], {
+  @FieldResolver({
     description: MATCH_DESCRIPTIONS.PLAYER_1,
     nullable: true,
   })
@@ -364,7 +364,7 @@ export class MatchResolver {
   }
 
   // field resolver for player 2
-  @FieldResolver(() => [Player], {
+  @FieldResolver({
     description: MATCH_DESCRIPTIONS.PLAYER_2,
     nullable: true,
   })
@@ -389,7 +389,7 @@ export class MatchResolver {
   }
 
   // field resolver for winner
-  @FieldResolver(() => [Player], {
+  @FieldResolver({
     description: MATCH_DESCRIPTIONS.WINNER,
     nullable: true,
   })
@@ -414,7 +414,7 @@ export class MatchResolver {
   }
 
   // field resolver for loser
-  @FieldResolver(() => [Player], {
+  @FieldResolver({
     description: MATCH_DESCRIPTIONS.LOSER,
     nullable: true,
   })
@@ -437,11 +437,15 @@ export class MatchResolver {
     @Root() match: DocumentType<Match>,
     @Ctx() ctx: Context,
   ): Promise<MatchElo | null> {
+    if (match.player1?.length !== 1) {
+      return Promise.resolve(null);
+    }
+
     return MatchEloResolverMethods.match_elo({
       ctx,
       args: {
         match: match._id as ObjectId,
-        player: (match.player1?.[0] as unknown) as ObjectId,
+        player: match.player1[0] as ObjectId,
       },
     });
   }
@@ -454,11 +458,15 @@ export class MatchResolver {
     @Root() match: DocumentType<Match>,
     @Ctx() ctx: Context,
   ): Promise<MatchElo | null> {
+    if (match.player2?.length !== 1) {
+      return Promise.resolve(null);
+    }
+
     return MatchEloResolverMethods.match_elo({
       ctx,
       args: {
         match: match._id as ObjectId,
-        player: (match.player2?.[0] as unknown) as ObjectId,
+        player: match.player2[0] as ObjectId,
       },
     });
   }

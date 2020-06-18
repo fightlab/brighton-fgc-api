@@ -77,7 +77,7 @@ export class EventSocialResolver {
   }
 
   // populate event
-  @FieldResolver(() => Event, {
+  @FieldResolver({
     description: EVENT_SOCIAL_DESCRIPTIONS.EVENT,
   })
   event(

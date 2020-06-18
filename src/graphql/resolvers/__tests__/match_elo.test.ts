@@ -119,6 +119,27 @@ describe('Match Elo GraphQL Resolver Test', () => {
     expect(output.data?.match_elo.player_id).toBe(players[0].id);
   });
 
+  it('should return null if match elo not found as no params provided', async () => {
+    const source = gql`
+      query QueryMatchElos {
+        match_elo {
+          _id
+          after
+          before
+          match_id
+          player_id
+        }
+      }
+    `;
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elo).toBeNull();
+  });
+
   it('should return null if match elo not found for a given match elo id', async () => {
     const source = gql`
       query QueryMatchElos($id: ObjectId!) {
@@ -207,6 +228,31 @@ describe('Match Elo GraphQL Resolver Test', () => {
     expect(output.data?.match_elo).toBeNull();
   });
 
+  it('should return null if given match not in query variables', async () => {
+    const source = gql`
+      query QueryMatchElos($player: ObjectId!) {
+        match_elo(player: $player) {
+          _id
+          after
+          before
+          match_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      player: players[0]._id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elo).toBeNull();
+  });
+
   it('should return null if match elo not found for a given player', async () => {
     const source = gql`
       query QueryMatchElos($match: ObjectId!, $player: ObjectId!) {
@@ -223,6 +269,31 @@ describe('Match Elo GraphQL Resolver Test', () => {
     const variableValues = {
       match: matches[0]._id,
       player: new ObjectId(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elo).toBeNull();
+  });
+
+  it('should return null if player not in query variables', async () => {
+    const source = gql`
+      query QueryMatchElos($match: ObjectId!) {
+        match_elo(match: $match) {
+          _id
+          after
+          before
+          match_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      match: matches[0]._id,
     };
 
     const output = await gqlCall({

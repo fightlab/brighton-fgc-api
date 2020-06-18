@@ -67,7 +67,7 @@ export class PlayerSocialResolver {
   }
 
   // field resolver for the player
-  @FieldResolver(() => Player, {
+  @FieldResolver({
     description: PLAYER_SOCIAL_DESCRIPTIONS.PLAYER,
   })
   player(

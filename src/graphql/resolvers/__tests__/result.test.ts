@@ -152,6 +152,26 @@ describe('Result GraphQl Resolver Test', () => {
     expect(output.data?.result.rank).toBe(results[0].rank);
   });
 
+  it('return null if no query variables provided', async () => {
+    const source = gql`
+      query QueryResults {
+        result {
+          _id
+          tournament_id
+          player_ids
+          rank
+        }
+      }
+    `;
+
+    const output = await gqlCall({
+      source,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.result).toBeNull();
+  });
+
   it('return null if id not valid', async () => {
     const source = gql`
       query QueryResults($id: ObjectId!) {
@@ -191,6 +211,56 @@ describe('Result GraphQl Resolver Test', () => {
 
     const variableValues = {
       player: new ObjectId(),
+      tournament: new ObjectId(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.result).toBeNull();
+  });
+
+  it('return null if either player provided & tournament not provided', async () => {
+    const source = gql`
+      query QueryResults($player: ObjectId!) {
+        result(player: $player) {
+          _id
+          tournament_id
+          player_ids
+          rank
+        }
+      }
+    `;
+
+    const variableValues = {
+      player: new ObjectId(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.result).toBeNull();
+  });
+
+  it('return null if either player not provided & tournament provided', async () => {
+    const source = gql`
+      query QueryResults($tournament: ObjectId!) {
+        result(tournament: $tournament) {
+          _id
+          tournament_id
+          player_ids
+          rank
+        }
+      }
+    `;
+
+    const variableValues = {
       tournament: new ObjectId(),
     };
 

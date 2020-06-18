@@ -108,7 +108,7 @@ export class GameResolverMethods {
   }
 
   static async games({
-    args: { search, ids, sort = GAME_SORT.NAME_ASC },
+    args: { search, ids, sort },
     ctx,
   }: CtxWithArgs<GamesArgs>): Promise<Array<Game>> {
     const q = generateMongooseQueryObject();

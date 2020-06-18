@@ -112,7 +112,7 @@ export class PlayerResolverMethods {
 
   static async players({
     ctx,
-    args: { ids, search, sort = PLAYER_SORT.HANDLE_ASC },
+    args: { ids, search, sort },
   }: CtxWithArgs<PlayersArgs>): Promise<Array<Player>> {
     const q = generateMongooseQueryObject();
 

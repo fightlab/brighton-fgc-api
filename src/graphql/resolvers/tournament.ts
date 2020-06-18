@@ -180,7 +180,7 @@ export class TournamentResolverMethods {
       games,
       players,
       type,
-      sort = TOURNAMENT_SORT.DATE_START_DESC,
+      sort,
     },
     ctx,
   }: CtxWithArgs<TournamentsArgs>): Promise<Array<Tournament>> {
@@ -303,7 +303,9 @@ export class TournamentResolver {
   }
 
   // populate event field
-  @FieldResolver(() => Event)
+  @FieldResolver({
+    description: TOURNAMENT_DESCRIPTIONS.EVENT,
+  })
   event(
     @Root() tournament: DocumentType<Tournament>,
     @Ctx() ctx: Context,
@@ -321,7 +323,9 @@ export class TournamentResolver {
   }
 
   // populate games array field
-  @FieldResolver(() => [Game])
+  @FieldResolver({
+    description: TOURNAMENT_DESCRIPTIONS.GAMES,
+  })
   games(
     @Root() tournament: DocumentType<Tournament>,
     @Args(() => GamesArgs) { sort, search }: GamesArgs,
@@ -340,7 +344,9 @@ export class TournamentResolver {
   }
 
   // populate players array
-  @FieldResolver(() => [Player])
+  @FieldResolver({
+    description: TOURNAMENT_DESCRIPTIONS.PLAYERS,
+  })
   players(
     @Root() tournament: DocumentType<Tournament>,
     @Args(() => PlayersArgs) { sort, search }: PlayersArgs,

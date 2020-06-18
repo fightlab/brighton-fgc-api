@@ -199,7 +199,7 @@ export class MatchVodResolver {
   }
 
   // match field resolver
-  @FieldResolver(() => Match, {
+  @FieldResolver({
     description: MATCH_VOD_DESCRIPTIONS.MATCH,
   })
   match(
@@ -221,7 +221,7 @@ export class MatchVodResolver {
   }
 
   // vod field resolver
-  @FieldResolver(() => Vod, {
+  @FieldResolver({
     description: MATCH_VOD_DESCRIPTIONS.MATCH,
   })
   vod(
@@ -244,7 +244,7 @@ export class MatchVodResolver {
   }
 
   // characters field resolver
-  @FieldResolver(() => [Character], {
+  @FieldResolver({
     description: MATCH_VOD_DESCRIPTIONS.CHARACTERS,
   })
   characters(

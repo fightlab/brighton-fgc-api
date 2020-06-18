@@ -22,7 +22,6 @@ import {
 import { ObjectId } from 'mongodb';
 import { CtxWithArgs, Context } from '@lib/graphql';
 import { orderBy } from 'lodash';
-import { Tournament } from '@models/tournament';
 import { DocumentType } from '@typegoose/typegoose';
 import { TournamentSeriesResolverMethods } from '@graphql/resolvers/tournament_series';
 import { TournamentSeries } from '@models/tournament_series';
@@ -264,7 +263,7 @@ export class TournamentSeriesEloResolver {
   }
 
   // field resolver to return tournament_series
-  @FieldResolver(() => Tournament, {
+  @FieldResolver({
     description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.TOURNAMENT_SERIES,
   })
   tournament_series(
@@ -278,7 +277,9 @@ export class TournamentSeriesEloResolver {
   }
 
   // player ids
-  @FieldResolver(() => ObjectIdScalar)
+  @FieldResolver(() => ObjectIdScalar, {
+    description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.PLAYER_IDS,
+  })
   player_id(
     @Root() tournament_series_elo: DocumentType<TournamentSeriesElo>,
   ): ObjectId {
@@ -286,7 +287,9 @@ export class TournamentSeriesEloResolver {
   }
 
   // populate player array
-  @FieldResolver(() => Player)
+  @FieldResolver({
+    description: TOURNAMENT_SERIES_ELO_DESCRIPTIONS.PLAYER,
+  })
   player(
     @Root() tournament_series_elo: DocumentType<TournamentSeriesElo>,
     @Ctx() ctx: Context,

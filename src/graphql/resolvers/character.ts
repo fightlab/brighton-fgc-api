@@ -103,7 +103,7 @@ export class CharacterResolverMethods {
   }
 
   static async characters({
-    args: { search, ids, game, sort = CHARACTER_SORT.GAME_ID },
+    args: { search, ids, game, sort },
     ctx,
   }: CtxWithArgs<CharactersArgs>): Promise<Array<Character>> {
     const q = generateMongooseQueryObject();
@@ -168,7 +168,7 @@ export class CharacterResolver {
   }
 
   // field resolver for the game
-  @FieldResolver(() => Game, {
+  @FieldResolver({
     description: CHARACTER_DESCRIPTIONS.GAME,
   })
   game(

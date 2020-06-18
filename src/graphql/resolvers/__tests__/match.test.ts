@@ -1614,6 +1614,45 @@ describe('Match GraphQl Resolver Test', () => {
     expect(output.data?.match.match_elo_player1).toBeNull();
   });
 
+  it('should return null for match elo player 1 more than 1 player', async () => {
+    const [match] = await MatchModel.create([
+      generateMatch(
+        new ObjectId(),
+        [new ObjectId(), new ObjectId()],
+        [new ObjectId(), new ObjectId()],
+        false,
+      ),
+    ]);
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          player1_ids
+          match_elo_player1 {
+            _id
+            before
+            after
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: match.id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(match.id);
+    expect(output.data?.match.match_elo_player1).toBeNull();
+  });
+
   it('should return null for match elo player 2 if not found', async () => {
     const source = gql`
       query QueryMatches($id: ObjectId!) {
@@ -1642,6 +1681,45 @@ describe('Match GraphQl Resolver Test', () => {
     expect(output.data).toBeDefined();
     expect(output.data?.match).toBeDefined();
     expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_elo_player2).toBeNull();
+  });
+
+  it('should return null for match elo player 2 more than 1 player', async () => {
+    const [match] = await MatchModel.create([
+      generateMatch(
+        new ObjectId(),
+        [new ObjectId(), new ObjectId()],
+        [new ObjectId(), new ObjectId()],
+        false,
+      ),
+    ]);
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          player2_ids
+          match_elo_player2 {
+            _id
+            before
+            after
+            player_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: match.id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(match.id);
     expect(output.data?.match.match_elo_player2).toBeNull();
   });
 

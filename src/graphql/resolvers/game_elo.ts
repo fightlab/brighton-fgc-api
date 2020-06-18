@@ -142,13 +142,7 @@ export class GameEloResolverMethods {
 
   // get multiple game elos based on a list of games or players
   static async game_elos({
-    args: {
-      games,
-      players,
-      sort = GAME_ELO_SORT.SCORE_DESC,
-      score_gte,
-      score_lte,
-    },
+    args: { games, players, sort, score_gte, score_lte },
     ctx,
   }: CtxWithArgs<GameElosArgs>): Promise<Array<GameElo>> {
     const q = generateMongooseQueryObject();
@@ -236,7 +230,7 @@ export class GameEloResolver {
     return game_elo.game as ObjectId;
   }
 
-  @FieldResolver(() => Game, {
+  @FieldResolver({
     description: GAME_ELO_DESCRIPTIONS.GAME,
   })
   game(

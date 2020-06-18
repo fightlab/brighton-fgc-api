@@ -145,7 +145,7 @@ export class EventResolverMethods {
       date_end_gte,
       date_end_lte,
       venue,
-      sort = EVENT_SORT.DATE_START_DESC,
+      sort,
     },
     ctx,
   }: CtxWithArgs<EventsArgs>): Promise<Array<Event>> {
@@ -246,7 +246,7 @@ export class EventResolver {
   }
 
   // populate venue
-  @FieldResolver(() => Venue, {
+  @FieldResolver({
     description: EVENT_DESCRIPTIONS.VENUE,
   })
   venue(

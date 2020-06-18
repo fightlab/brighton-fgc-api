@@ -205,7 +205,7 @@ export class VodResolver {
   }
 
   // tournament field resolver
-  @FieldResolver(() => Tournament, {
+  @FieldResolver({
     description: VOD_DESCRIPTIONS.TOURNAMENT,
     nullable: true,
   })

@@ -120,13 +120,7 @@ export class TournamentSeriesResolverMethods {
 
   static async tournament_series({
     ctx,
-    args: {
-      tournaments,
-      games,
-      ids,
-      search,
-      sort = TOURNAMENT_SERIES_SORT.NAME_ASC,
-    },
+    args: { tournaments, games, ids, search, sort },
   }: CtxWithArgs<TournamentSeriesArgs>): Promise<Array<TournamentSeries>> {
     const q = generateMongooseQueryObject();
 
@@ -202,7 +196,7 @@ export class TournamentSeriesResolver {
   }
 
   // populate tournaments
-  @FieldResolver(() => [Tournament], {
+  @FieldResolver({
     description: TOURNAMENT_SERIES_DESCRIPTIONS.TOURNAMENTS,
   })
   tournaments(
@@ -249,7 +243,7 @@ export class TournamentSeriesResolver {
     return tournament_series.game as ObjectId;
   }
 
-  @FieldResolver(() => Game, {
+  @FieldResolver({
     description: TOURNAMENT_SERIES_DESCRIPTIONS.GAME,
     nullable: true,
   })

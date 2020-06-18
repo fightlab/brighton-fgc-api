@@ -152,14 +152,7 @@ export class BracketResolverMethods {
 
   static async brackets({
     ctx,
-    args: {
-      sort = BRACKET_SORT.ID,
-      bracket_platform,
-      ids,
-      platform_id,
-      slug,
-      tournaments,
-    },
+    args: { sort, bracket_platform, ids, platform_id, slug, tournaments },
   }: CtxWithArgs<BracketsArgs>): Promise<Array<Bracket>> {
     const q = generateMongooseQueryObject();
 
@@ -274,7 +267,7 @@ export class BracketResolver {
   }
 
   // field resolver to return tournament
-  @FieldResolver(() => Tournament, {
+  @FieldResolver({
     description: BRACKET_DESCRIPTIONS.TOURNAMENT,
   })
   tournament(

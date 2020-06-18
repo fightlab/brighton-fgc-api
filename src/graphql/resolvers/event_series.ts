@@ -89,7 +89,7 @@ export class EventSeriesResolverMethods {
 
   static async event_series({
     ctx,
-    args: { events, ids, search, sort = EVENT_SERIES_SORT.NAME_ASC },
+    args: { events, ids, search, sort },
   }: CtxWithArgs<EventSeriesArgs>): Promise<Array<EventSeries>> {
     const q = generateMongooseQueryObject();
 
@@ -156,7 +156,7 @@ export class EventSeriesResolver {
   }
 
   // populate events
-  @FieldResolver(() => [Event], {
+  @FieldResolver({
     description: EVENT_SERIES_DESCRIPTIONS.EVENTS,
   })
   events(
