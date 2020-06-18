@@ -22,6 +22,10 @@ export enum MATCH_ELO_DESCRIPTIONS {
   AFTER = 'The elo rating for a player after the end of a match',
   FIND_ONE = 'Find and get a match elo ranking based on a given match and player',
   FIND = 'Find and get match elo rankings based on query parameters',
+  BEFORE_SCORE_MIN = 'Minimum before score to search for',
+  BEFORE_SCORE_MAX = 'Maximum before score to search for',
+  AFTER_SCORE_MIN = 'Minimum before score to search for',
+  AFTER_SCORE_MAX = 'Maximum before score to search for',
 }
 
 @ObjectType({

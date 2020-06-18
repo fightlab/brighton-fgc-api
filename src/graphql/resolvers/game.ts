@@ -245,11 +245,12 @@ export class GameResolver {
   })
   game_elos(
     @Root() game: DocumentType<Game>,
-    @Args(() => GameElosArgs) { sort, players }: GameElosArgs,
+    @Args(() => GameElosArgs)
+    { sort, players, score_gte, score_lte }: GameElosArgs,
     @Ctx() ctx: Context,
   ): Promise<Array<GameElo>> {
     return GameEloResolverMethods.game_elos({
-      args: { games: [game._id], players, sort },
+      args: { games: [game._id], players, sort, score_gte, score_lte },
       ctx,
     });
   }

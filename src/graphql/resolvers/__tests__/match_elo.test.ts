@@ -6,7 +6,7 @@ import {
   generateMatch,
   generateMatchElo,
 } from '@graphql/resolvers/test/generate';
-import { sample, every, some, orderBy, isEqual } from 'lodash';
+import { sample, every, some, orderBy, isEqual, mean } from 'lodash';
 import { ObjectId } from 'mongodb';
 import { MatchElo, MatchEloModel } from '@models/match_elo';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
@@ -81,6 +81,67 @@ describe('Match Elo GraphQL Resolver Test', () => {
           some(matchElos, (s) => s.player?.toString() === e.player_id),
       ),
     ).toBe(true);
+  });
+
+  it('should return single match elo for a given id with all fields', async () => {
+    const source = gql`
+      query QueryMatchElos($id: ObjectId!) {
+        match_elo(id: $id) {
+          _id
+          after
+          before
+          match_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matchElos[0]._id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elo).toBeDefined();
+    expect(output.data?.match_elo._id).toBe(matchElos[0].id);
+    expect(output.data?.match_elo.before).toBe(matchElos[0].before);
+    expect(output.data?.match_elo.after).toBe(matchElos[0].after);
+    expect(output.data?.match_elo.match_id).toBe(
+      matchElos[0].match?.toString(),
+    );
+    expect(output.data?.match_elo.match_id).toBe(matches[0].id);
+    expect(output.data?.match_elo.player_id).toBe(
+      matchElos[0].player?.toString(),
+    );
+    expect(output.data?.match_elo.player_id).toBe(players[0].id);
+  });
+
+  it('should return null if match elo not found for a given match elo id', async () => {
+    const source = gql`
+      query QueryMatchElos($id: ObjectId!) {
+        match_elo(id: $id) {
+          _id
+          after
+          before
+          match_id
+          player_id
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: new ObjectId(),
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elo).toBeNull();
   });
 
   it('should return single match elo for a given match and player with all fields', async () => {
@@ -391,7 +452,7 @@ describe('Match Elo GraphQL Resolver Test', () => {
     expect(isEqual(received, expected)).toBe(true);
   });
 
-  it('should sort match elos by before score asc', async () => {
+  it('should sort match elos by before before asc', async () => {
     const source = gql`
       query MatchElos {
         match_elos(sort: BEFORE_SCORE_ASC) {
@@ -420,7 +481,7 @@ describe('Match Elo GraphQL Resolver Test', () => {
     expect(isEqual(received, expected)).toBe(true);
   });
 
-  it('should sort match elos by before score desc', async () => {
+  it('should sort match elos by before before desc', async () => {
     const source = gql`
       query MatchElos {
         match_elos(sort: BEFORE_SCORE_DESC) {
@@ -449,7 +510,7 @@ describe('Match Elo GraphQL Resolver Test', () => {
     expect(isEqual(received, expected)).toBe(true);
   });
 
-  it('should sort match elos by after score asc', async () => {
+  it('should sort match elos by after before asc', async () => {
     const source = gql`
       query MatchElos {
         match_elos(sort: AFTER_SCORE_ASC) {
@@ -478,7 +539,7 @@ describe('Match Elo GraphQL Resolver Test', () => {
     expect(isEqual(received, expected)).toBe(true);
   });
 
-  it('should sort match elos by after score desc', async () => {
+  it('should sort match elos by after before desc', async () => {
     const source = gql`
       query MatchElos {
         match_elos(sort: AFTER_SCORE_DESC) {
@@ -533,5 +594,281 @@ describe('Match Elo GraphQL Resolver Test', () => {
 
     expect(dataFromQuery).toHaveLength(matchElos.length);
     expect(isEqual(received, expected)).toBe(true);
+  });
+
+  it('should return empty array if elos not found between 2 before scores', async () => {
+    const source = gql`
+      query MatchElos($before_gte: Float!, $before_lte: Float!) {
+        match_elos(before_gte: $before_gte, before_lte: $before_lte) {
+          _id
+          before
+        }
+      }
+    `;
+
+    const before_gte = 2000;
+    const before_lte = 2001;
+
+    const variableValues = {
+      before_gte,
+      before_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(0);
+  });
+
+  it('should return elos greater than or equal to a before score', async () => {
+    const source = gql`
+      query MatchElos($before_gte: Float!) {
+        match_elos(before_gte: $before_gte) {
+          _id
+          before
+        }
+      }
+    `;
+
+    const meanScore = mean(matchElos.map((me) => me.before));
+    const before_gte = meanScore;
+
+    const variableValues = {
+      before_gte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(
+      matchElos.filter((me) => me.before >= before_gte).length,
+    );
+  });
+
+  it('should return elos less than or equal to a before score', async () => {
+    const source = gql`
+      query MatchElos($before_lte: Float!) {
+        match_elos(before_lte: $before_lte) {
+          _id
+          before
+        }
+      }
+    `;
+
+    const meanScore = mean(matchElos.map((me) => me.before));
+    const before_lte = meanScore;
+
+    const variableValues = {
+      before_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(
+      matchElos.filter((me) => me.before <= before_lte).length,
+    );
+  });
+
+  it('should return empty array if not found greater than given before score', async () => {
+    const source = gql`
+      query MatchElos($before_gte: Float!) {
+        match_elos(before_gte: $before_gte) {
+          _id
+          before
+        }
+      }
+    `;
+
+    const before_gte = 1500;
+
+    const variableValues = {
+      before_gte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(0);
+  });
+
+  it('should return empty array if elos not found less than or equal to a before score', async () => {
+    const source = gql`
+      query MatchElos($before_lte: Float!) {
+        match_elos(before_lte: $before_lte) {
+          _id
+          before
+        }
+      }
+    `;
+
+    const before_lte = 700;
+
+    const variableValues = {
+      before_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(0);
+  });
+
+  it('should return empty array if elos not found between 2 after scores', async () => {
+    const source = gql`
+      query MatchElos($after_gte: Float!, $after_lte: Float!) {
+        match_elos(after_gte: $after_gte, after_lte: $after_lte) {
+          _id
+          after
+        }
+      }
+    `;
+
+    const after_gte = 2000;
+    const after_lte = 2001;
+
+    const variableValues = {
+      after_gte,
+      after_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(0);
+  });
+
+  it('should return elos greater than or equal to a after score', async () => {
+    const source = gql`
+      query MatchElos($after_gte: Float!) {
+        match_elos(after_gte: $after_gte) {
+          _id
+          after
+        }
+      }
+    `;
+
+    const meanScore = mean(matchElos.map((me) => me.after));
+    const after_gte = meanScore;
+
+    const variableValues = {
+      after_gte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(
+      matchElos.filter((me) => me.after >= after_gte).length,
+    );
+  });
+
+  it('should return elos less than or equal to a after score', async () => {
+    const source = gql`
+      query MatchElos($after_lte: Float!) {
+        match_elos(after_lte: $after_lte) {
+          _id
+          after
+        }
+      }
+    `;
+
+    const meanScore = mean(matchElos.map((me) => me.after));
+    const after_lte = meanScore;
+
+    const variableValues = {
+      after_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(
+      matchElos.filter((me) => me.after <= after_lte).length,
+    );
+  });
+
+  it('should return empty array if not found greater than given after score', async () => {
+    const source = gql`
+      query MatchElos($after_gte: Float!) {
+        match_elos(after_gte: $after_gte) {
+          _id
+          after
+        }
+      }
+    `;
+
+    const after_gte = 1500;
+
+    const variableValues = {
+      after_gte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(0);
+  });
+
+  it('should return empty array if elos not found less than or equal to a after score', async () => {
+    const source = gql`
+      query MatchElos($after_lte: Float!) {
+        match_elos(after_lte: $after_lte) {
+          _id
+          after
+        }
+      }
+    `;
+
+    const after_lte = 700;
+
+    const variableValues = {
+      after_lte,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match_elos).toBeDefined();
+    expect(output.data?.match_elos).toHaveLength(0);
   });
 });
