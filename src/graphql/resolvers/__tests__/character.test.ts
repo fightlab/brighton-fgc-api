@@ -2,12 +2,14 @@ import { gqlCall, gql } from '@graphql/resolvers/test/helper';
 import {
   generateCharacter,
   generateGame,
+  generateMatchVod,
 } from '@graphql/resolvers/test/generate';
 import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Character, CharacterModel } from '@models/character';
 import { Game, GameModel } from '@models/game';
 import { ObjectId } from 'mongodb';
+import { MatchVodModel } from '@models/match_vod';
 
 describe('Character GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -366,9 +368,64 @@ describe('Character GraphQL Resolver Test', () => {
     expect(output.data?.characters).toHaveLength(0);
   });
 
-  it.todo('should populate match vods for a given character');
+  it('should populate match vods for a given character', async () => {
+    await MatchVodModel.create([
+      generateMatchVod(new ObjectId(), new ObjectId(), false, [
+        characters[0]._id,
+      ]),
+      generateMatchVod(new ObjectId(), new ObjectId(), false, [
+        characters[0]._id,
+      ]),
+    ]);
 
-  it.todo(
-    'should return empty array if no match vods found for given character',
-  );
+    const source = gql`
+      query Character($id: ObjectId!) {
+        character(id: $id) {
+          _id
+          match_vods {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: characters[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.character._id).toBe(characters[0].id);
+    expect(output.data?.character.match_vods).toHaveLength(2);
+  });
+
+  it('should return empty array if no match vods found for given character', async () => {
+    const source = gql`
+      query Character($id: ObjectId!) {
+        character(id: $id) {
+          _id
+          match_vods {
+            _id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: characters[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.character._id).toBe(characters[0].id);
+    expect(output.data?.character.match_vods).toHaveLength(0);
+  });
 });

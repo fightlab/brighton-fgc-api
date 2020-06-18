@@ -7,12 +7,14 @@ import {
   generatePlayer,
   generateMatch,
   generateMatchElo,
+  generateMatchVod,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { sample, every, some, orderBy, isEqual } from 'lodash';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import moment from 'moment';
 import { MatchEloModel } from '@models/match_elo';
+import { MatchVodModel } from '@models/match_vod';
 
 describe('Match GraphQl Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -1643,7 +1645,65 @@ describe('Match GraphQl Resolver Test', () => {
     expect(output.data?.match.match_elo_player2).toBeNull();
   });
 
-  it.todo('should popualte match vod for a given match');
+  it('should popualte match vod for a given match', async () => {
+    const [matchVod] = await MatchVodModel.create([
+      generateMatchVod(matches[0]._id, new ObjectId(), true),
+    ]);
 
-  it.todo('should return null for match vod if not found for match');
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          match_vod {
+            _id
+            match_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matches[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_vod).toBeDefined();
+    expect(output.data?.match.match_vod._id).toBe(matchVod.id);
+    expect(output.data?.match.match_vod.match_id).toBe(matches[0].id);
+  });
+
+  it('should return null for match vod if not found for match', async () => {
+    const source = gql`
+      query QueryMatches($id: ObjectId!) {
+        match(id: $id) {
+          _id
+          match_vod {
+            _id
+            match_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: matches[0].id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.match).toBeDefined();
+    expect(output.data?.match._id).toBe(matches[0].id);
+    expect(output.data?.match.match_vod).toBeNull();
+  });
 });

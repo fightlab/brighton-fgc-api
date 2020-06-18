@@ -6,10 +6,12 @@ import {
   generateVodPlatform,
   generateTournament,
   generateVod,
+  generateMatchVod,
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
+import { MatchVodModel } from '@models/match_vod';
 
 describe('VOD GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -513,9 +515,64 @@ describe('VOD GraphQL Resolver Test', () => {
     expect(output.data?.vods).toHaveLength(0);
   });
 
-  it.todo('should populate match vods for given vod');
+  it('should populate match vods for given vod', async () => {
+    await MatchVodModel.create([
+      generateMatchVod(new ObjectId(), vods[0]._id),
+      generateMatchVod(new ObjectId(), vods[0]._id),
+    ]);
 
-  it.todo(
-    'should return empty array of match vods if not found for a given vod',
-  );
+    const source = gql`
+      query Vods($id: ObjectId!) {
+        vod(id: $id) {
+          _id
+          match_vods {
+            _id
+            match_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: vods[0]._id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.vod).toBeDefined();
+    expect(output.data?.vod._id).toBe(vods[0].id);
+    expect(output.data?.vod.match_vods).toHaveLength(2);
+  });
+
+  it('should return empty array of match vods if not found for a given vod', async () => {
+    const source = gql`
+      query Vods($id: ObjectId!) {
+        vod(id: $id) {
+          _id
+          match_vods {
+            _id
+            match_id
+          }
+        }
+      }
+    `;
+
+    const variableValues = {
+      id: vods[0]._id,
+    };
+
+    const output = await gqlCall({
+      source,
+      variableValues,
+    });
+
+    expect(output.data).toBeDefined();
+    expect(output.data?.vod).toBeDefined();
+    expect(output.data?.vod._id).toBe(vods[0].id);
+    expect(output.data?.vod.match_vods).toHaveLength(0);
+  });
 });
