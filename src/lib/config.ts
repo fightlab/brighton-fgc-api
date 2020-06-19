@@ -1,6 +1,13 @@
 // config file, to pull any useful configuration information into a single callable function
 // that returns an object containing our app configuration
 
+// auth0 interface object for config
+interface Auth0 {
+  enabled: boolean;
+  audience?: string;
+  issuer?: string;
+}
+
 // the config object, properties in here are returned to be used
 interface Config {
   env: string;
@@ -16,6 +23,7 @@ interface Config {
   isDev: () => boolean;
   isTest: () => boolean;
   isProd: () => boolean;
+  auth0: Auth0;
 }
 
 // enum to check the possible values for the node environment
@@ -47,6 +55,24 @@ const getOrThrowEnv = (key: string): string => {
   return value;
 };
 
+// get the auth0 object, by checking if first enabled,
+// and if so check the audience and issuer
+const checkAuth0Config = (): Auth0 => {
+  const enabled = process.env.AUTH0_ENABLED;
+  const auth0: Auth0 = {
+    // enabled if set to "true", any other value is false
+    enabled: enabled === 'true',
+  };
+
+  // if true, check for required variables
+  if (auth0.enabled) {
+    auth0.audience = getOrThrowEnv('AUTH0_AUDIENCE');
+    auth0.issuer = getOrThrowEnv('AUTH0_ISSUER');
+  }
+
+  return auth0;
+};
+
 // get the node env based on the environment variable
 const env = checkNodeEnv(process.env.NODE_ENV);
 
@@ -64,4 +90,5 @@ export const getConfig = (): Config => ({
   isDev: () => env === NODE_ENV.DEV,
   isTest: () => env === NODE_ENV.TEST,
   isProd: () => env === NODE_ENV.PROD,
+  auth0: checkAuth0Config(),
 });

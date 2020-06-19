@@ -8,6 +8,21 @@ import { default as bodyParser } from 'body-parser';
 import { default as compression } from 'compression';
 import { default as morgan } from 'morgan';
 import { getConfig } from '@lib/config';
+import { jwtCheck } from './auth';
+
+interface ParsedToken {
+  iss: string;
+  sub: string;
+  aud: string | string[];
+  iat: number;
+  exp: number;
+  azp: string;
+  scope: string;
+  permissions: string[];
+}
+interface RequestWithUser extends Request {
+  user?: ParsedToken;
+}
 
 const { isDev } = getConfig();
 
@@ -47,6 +62,11 @@ export default (): Express => {
   // healthcheck endpoint for all request methods
   app.use('/healthcheck', (_: Request, res: Response) => {
     return res.sendStatus(200);
+  });
+
+  // authorization test route
+  app.get('/authorized', jwtCheck, (req: RequestWithUser, res: Response) => {
+    return res.status(200).json(req.user ?? {});
   });
 
   return app;

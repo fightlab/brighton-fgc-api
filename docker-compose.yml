@@ -14,6 +14,9 @@ services:
       - PORT=9000
       - MONGODB_URI=mongodb://root:password@hbk-mongo/hbk-setup?authSource=admin
       - SEED_DB=
+      - AUTH0_ENABLED=${AUTH0_ENABLED}
+      - AUTH0_AUDIENCE=${AUTH0_AUDIENCE}
+      - AUTH0_ISSUER=${AUTH0_ISSUER}
     ports:
       - 9000:9000
       - 9229:9229
