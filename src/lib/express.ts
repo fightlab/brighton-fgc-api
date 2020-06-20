@@ -8,23 +8,12 @@ import { default as bodyParser } from 'body-parser';
 import { default as compression } from 'compression';
 import { default as morgan } from 'morgan';
 import { getConfig } from '@lib/config';
-import { jwtCheck } from './auth';
-
-interface ParsedToken {
-  iss: string;
-  sub: string;
-  aud: string | string[];
-  iat: number;
-  exp: number;
-  azp: string;
-  scope: string;
-  permissions: string[];
-}
-interface RequestWithUser extends Request {
-  user?: ParsedToken;
-}
+import { getJwtCheck } from '@lib/auth';
 
 const { isDev } = getConfig();
+
+// get the jwt check middleware if enabled
+const jwtCheck = getJwtCheck();
 
 export default (): Express => {
   const app: Express = express();
@@ -64,10 +53,8 @@ export default (): Express => {
     return res.sendStatus(200);
   });
 
-  // authorization test route
-  app.get('/authorized', jwtCheck, (req: RequestWithUser, res: Response) => {
-    return res.status(200).json(req.user ?? {});
-  });
+  // add authorization to graphql if enabled
+  app.use('/graphql', jwtCheck);
 
   return app;
 };

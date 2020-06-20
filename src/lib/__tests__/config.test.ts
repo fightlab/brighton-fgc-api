@@ -26,7 +26,7 @@ describe('Configuration', () => {
     expect(output.port).toBe(9000);
     expect(output.env).toBe('test');
     expect(output.mongo.uri).toBe('mongo-uri');
-    expect(output.auth0.enabled).toBe(false);
+    expect(output.auth0.enabled).toBeDefined();
     expect(output.isDev).toBeDefined();
     expect(output.isTest).toBeDefined();
     expect(output.isProd).toBeDefined();
