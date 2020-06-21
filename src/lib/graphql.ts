@@ -12,23 +12,39 @@ import { getConfig } from '@lib/config';
 import { GraphQLSchema } from 'graphql';
 import { User, RequestWithUser } from '@lib/auth';
 
+// enum of valid roles and permissions
+export enum ROLES {
+  ADMIN = 'admin',
+}
+
 // our user defined Context interface to be used to type the context object
 export interface Context {
   loaders: Loaders;
   user: User;
 }
 
+// add context object to generic arguments type
 export interface CtxWithArgs<T> {
   args: T;
   ctx: Context;
 }
 
 // disable emitSchemaFile in test, since this will break tests
-const { isTest } = getConfig();
+// also get the auth0 enabled value, to check if auth is enabled
+const {
+  isTest,
+  auth0: { enabled: authEnabled },
+} = getConfig();
 const emitSchemaFile = !isTest();
 
 // auth checker
-const authChecker: AuthChecker<Context> = ({ context }) => {
+const authChecker: AuthChecker<Context> = ({ context }, roles) => {
+  // authentication not enabled, so always valid
+  if (!authEnabled) {
+    return true;
+  }
+
+  // get the user from the context object
   const { user } = context;
 
   // check if user exists, if not then not authorised
@@ -36,7 +52,15 @@ const authChecker: AuthChecker<Context> = ({ context }) => {
     return false;
   }
 
-  return true; // or false if access is denied
+  // check if field, query or mutation needs a specific role by looking at the roles array
+  // "roles" array defines what roles can access that particular field, query or mutation in graphql
+  if (roles.length) {
+    // so we check each expected role against the users permissions to see if the user has permission for that role
+    return roles.some((role) => user.permissions.includes(role));
+  }
+
+  // at this point the user is authenticated by default
+  return true;
 };
 
 // helper method to generate the schema
@@ -57,7 +81,9 @@ export const createSchema = (): Promise<GraphQLSchema> =>
     dateScalarMode: 'isoDate',
     // we validate using mongoose/typegoose
     validate: false,
+    // add our custom auth checker
     authChecker,
+    // if not authorized, just return null
     authMode: 'null',
   });
 

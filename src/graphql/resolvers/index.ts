@@ -21,6 +21,7 @@ import { TournamentSeriesEloResolver } from '@graphql/resolvers/tournament_serie
 import { VodPlatformResolver } from '@graphql/resolvers/vod_platform';
 import { VodResolver } from '@graphql/resolvers/vod';
 import { MatchVodResolver } from '@graphql/resolvers/match_vod';
+import { AuthResolver } from './auth';
 
 // Mongoose query helper type
 export type MongooseQuery = MongooseFilterQuery<
@@ -40,6 +41,7 @@ export const generateMongooseQueryObject = (): MongooseQuery => ({});
 // add all resolvers here
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const resolvers: [Function, ...Function[]] = [
+  AuthResolver,
   BracketPlatformResolver,
   GameResolver,
   CharacterResolver,
