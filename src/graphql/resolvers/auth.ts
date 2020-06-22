@@ -22,4 +22,14 @@ export class AuthResolver {
   permissions(@Ctx() ctx: Context): Array<string> {
     return ctx.user.permissions;
   }
+
+  @Authorized('admin')
+  @Query(() => Boolean, {
+    description:
+      'Returns "true" if authenticated as an admin user, "null" otherwise',
+    nullable: true,
+  })
+  authenticatedAsAdmin(): boolean {
+    return true;
+  }
 }

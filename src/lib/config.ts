@@ -9,7 +9,7 @@ interface Auth0 {
 }
 
 // the config object, properties in here are returned to be used
-interface Config {
+export interface Config {
   env: string;
   port: number;
   mongo: {

@@ -3,6 +3,7 @@ import { createSchema } from '@lib/graphql';
 import Maybe from 'graphql/tsutils/Maybe';
 import { loaders } from '@graphql/loaders';
 import { Context } from '@lib/graphql';
+import { User } from '@lib/auth';
 
 interface GqlCallOptions {
   source: string | Source;
@@ -15,10 +16,12 @@ interface GqlCallOptions {
 let schema: GraphQLSchema;
 
 // helper method to call graphql without needing an server
-export const gqlCall = async ({
-  source,
-  variableValues,
-}: GqlCallOptions): Promise<ExecutionResult> => {
+export const gqlCall = async (
+  { source, variableValues }: GqlCallOptions,
+  // provide user to test authenticated/authorized routes
+  // in production user is provided by express-jwt
+  user?: User,
+): Promise<ExecutionResult> => {
   if (!schema) {
     schema = await createSchema();
   }
@@ -29,6 +32,7 @@ export const gqlCall = async ({
     variableValues,
     contextValue: {
       loaders,
+      user,
     } as Context,
   });
 };

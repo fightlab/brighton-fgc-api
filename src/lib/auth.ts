@@ -2,14 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import { default as jwt } from 'express-jwt';
 import { default as jwks } from 'jwks-rsa';
 import { getConfig } from '@lib/config';
+import { ROLES } from './graphql';
 
 export interface User {
-  iss: string;
-  sub: string;
-  aud: string | string[];
-  iat: number;
-  exp: number;
-  azp: string;
+  iss?: string;
+  sub?: string;
+  aud?: string | string[];
+  iat?: number;
+  exp?: number;
+  azp?: string;
   scope: string;
   permissions: string[];
 }
@@ -26,8 +27,16 @@ export const getJwtCheck = (): ((
   next: NextFunction,
 ) => void) => {
   // if auth0 not enabled, simply return middleware that passes onto next resolver
+  // with an admin user
   if (!auth0.enabled) {
-    return (_: Request, __: Response, next: NextFunction) => next();
+    return (req: RequestWithUser, __: Response, next: NextFunction) => {
+      req.user = {
+        scope: ROLES.ADMIN,
+        permissions: [ROLES.ADMIN],
+      } as User;
+
+      return next();
+    };
   }
 
   // otherwise return the jwt check middleware
