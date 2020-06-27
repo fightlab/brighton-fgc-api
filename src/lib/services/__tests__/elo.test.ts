@@ -1,4 +1,4 @@
-import { Elo } from '@lib/services/elo';
+import { Elo, ELO_RESULT } from '@lib/services/elo';
 
 describe('Elo Service', () => {
   test('expected score for defaults', () => {
@@ -81,11 +81,142 @@ describe('Elo Service', () => {
 
     const playerA = 1613;
 
-    const expectedScore = 2.8665;
+    const expectedScore = 2.88;
     const actualScore = 2.5;
 
     const newRating = elo.newRating(expectedScore, actualScore, playerA);
 
     expect(newRating).toBe(1601);
+  });
+
+  test('calculate rating for a given match', () => {
+    const elo = new Elo();
+
+    const rating = 1440;
+
+    // win against 1000
+    expect(
+      elo.newRating(elo.expectedScore(rating, 1000), ELO_RESULT.WIN, rating),
+    ).toBe(1442);
+
+    // draw against 1000
+    expect(
+      elo.newRating(elo.expectedScore(rating, 1000), ELO_RESULT.DRAW, rating),
+    ).toBe(1426);
+
+    // lose against 1000
+    expect(
+      elo.newRating(elo.expectedScore(rating, 1000), ELO_RESULT.LOSS, rating),
+    ).toBe(1410);
+  });
+
+  test('calculate rating for a given match without rounding', () => {
+    const elo = new Elo();
+
+    const rating = 1440;
+
+    // win against 1000
+    expect(
+      elo.newRating(
+        elo.expectedScore(rating, 1000),
+        ELO_RESULT.WIN,
+        rating,
+        false,
+      ),
+    ).toBeCloseTo(1442.35);
+
+    // draw against 1000
+    expect(
+      elo.newRating(
+        elo.expectedScore(rating, 1000),
+        ELO_RESULT.DRAW,
+        rating,
+        false,
+      ),
+    ).toBeCloseTo(1426.35);
+
+    // lose against 1000
+    expect(
+      elo.newRating(
+        elo.expectedScore(rating, 1000),
+        ELO_RESULT.LOSS,
+        rating,
+        false,
+      ),
+    ).toBeCloseTo(1410.35);
+  });
+
+  test('clamp calculated rating to given options', () => {
+    const elo = new Elo({
+      options: {
+        min: 700,
+        max: 1400,
+      },
+    });
+
+    const rating1 = 1399;
+    const rating2 = 701;
+
+    // rating 1 win
+    expect(
+      elo.newRating(elo.expectedScore(rating1, 1300), ELO_RESULT.WIN, rating1),
+    ).toBe(1400);
+
+    // rating 2 loss
+    expect(
+      elo.newRating(elo.expectedScore(rating2, 800), ELO_RESULT.LOSS, rating2),
+    ).toBe(700);
+  });
+
+  test('calculate new rating for different kFactor', () => {
+    const elo = new Elo({
+      kFactor: {
+        default: 40,
+      },
+    });
+
+    const rating = 1440;
+
+    // win against 1000
+    expect(
+      elo.newRating(elo.expectedScore(rating, 1000), ELO_RESULT.WIN, rating),
+    ).toBe(1443);
+
+    // draw against 1000
+    expect(
+      elo.newRating(elo.expectedScore(rating, 1000), ELO_RESULT.DRAW, rating),
+    ).toBe(1423);
+
+    // lose against 1000
+    expect(
+      elo.newRating(elo.expectedScore(rating, 1000), ELO_RESULT.LOSS, rating),
+    ).toBe(1403);
+  });
+
+  test('calculate ratings for different kFactors at different ratings', () => {
+    const elo = new Elo({
+      kFactor: {
+        default: 32,
+        ratings: [
+          [1400, 24],
+          [1200, 28],
+        ],
+      },
+    });
+
+    // above 1400, use kFactor 24
+    expect(
+      elo.newRating(elo.expectedScore(1444, 1000), ELO_RESULT.WIN, 1444),
+    ).toBe(1446);
+
+    // above 1200, use kFactor 28
+    expect(
+      elo.newRating(elo.expectedScore(1250, 1000), ELO_RESULT.WIN, 1250),
+    ).toBe(1255);
+
+    // else use default 32
+    expect(
+      elo.newRating(elo.expectedScore(1050, 1000), ELO_RESULT.WIN, 1050),
+    ).toBe(1064);
   });
 });

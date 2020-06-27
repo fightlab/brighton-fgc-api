@@ -46,10 +46,10 @@ export class Elo {
 
   // gets the k factor for a given rating
   // or default k factor if no rating provided
-  private kFactorForRating(rating?: number): number {
+  private kFactorForRating(rating: number): number {
     const { default: defaultKFactor, ratings: kFactorRatings } = this.kFactor;
 
-    if (!rating || !kFactorRatings?.length) {
+    if (!kFactorRatings?.length) {
       return defaultKFactor;
     }
 
@@ -95,7 +95,7 @@ export class Elo {
     expectedScore: number,
     result: number,
     currentRating: number,
-    round = true,
+    roundToInteger = true,
   ): number {
     // get k factor for the current rating
     const kFactor = this.kFactorForRating(this.clamp(currentRating));
@@ -109,6 +109,7 @@ export class Elo {
     // clamp the result between the min and max
     const clamped = this.clamp(rating);
 
-    return round ? Math.round(clamped) : clamped;
+    // round to nearest integer, or return with decimals
+    return roundToInteger ? Math.round(clamped) : clamped;
   }
 }
