@@ -1,4 +1,3 @@
-# HBK - API
 ## Habrewken API
 **(Soon to be) Powering the Brighton Fighting Game Community**
 
@@ -58,3 +57,5 @@ $ docker-compose exec hbk-api /bin/sh
 ```
 
 While using docker and docker-compose is preferable, you can still run this locally by populating environment variables into an `.env` file using the `.env.example` file as an example, installing dependencies using `yarn`, followed by `(set -a && source .env && yarn dev)` to run the development server. You'll need to have all the technologies installed and set up too.
+
+
