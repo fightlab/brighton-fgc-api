@@ -6,10 +6,6 @@ const mongoServer = new MongoMemoryServer({
   instance: {
     dbName: 'jest',
   },
-  binary: {
-    version: 'latest',
-  },
-  autoStart: false,
 });
 
 // allow enough time to download mongo memory server
