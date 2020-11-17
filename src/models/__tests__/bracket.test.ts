@@ -1,7 +1,7 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { default as faker } from 'faker';
 import { default as moment } from 'moment';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { BracketModel, Bracket } from '@models/bracket';
 import {
   TournamentModel,
@@ -47,7 +47,7 @@ describe('Bracket model test', () => {
         type: TOURNAMENT_TYPE.ROUND_ROBIN,
         is_team_based: true,
       },
-    ] as Array<Tournament>);
+    ] as CreateQuery<Tournament>[]);
 
     // fake some platforms
     platforms = await BracketPlatformModel.create([
@@ -87,7 +87,7 @@ describe('Bracket model test', () => {
         slug: faker.lorem.slug(),
         url: `${platforms[0]?.url}/${bracketUuid}`,
       },
-    ] as Array<Bracket>);
+    ] as CreateQuery<Bracket>[]);
   });
 
   it('create & save bracket successfully', async () => {

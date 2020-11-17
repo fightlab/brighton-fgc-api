@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { default as moment } from 'moment';
 import {
   DocumentType,
@@ -55,7 +55,7 @@ describe('Result model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<Tournament>);
+    ] as CreateQuery<Tournament>[]);
 
     tournamentSeriesFull = {
       name: 'Tournament Series Full',
@@ -71,7 +71,7 @@ describe('Result model test', () => {
 
     [tournamentSeries] = await TournamentSeriesModel.create([
       tournamentSeriesFull,
-    ] as Array<TournamentSeries>);
+    ] as CreateQuery<TournamentSeries>[]);
   });
 
   it('should create & save tournament series successfully', async () => {

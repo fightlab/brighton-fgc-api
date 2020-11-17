@@ -1,6 +1,6 @@
 import { graphql, Source, GraphQLSchema, ExecutionResult } from 'graphql';
 import { createSchema } from '@lib/graphql';
-import Maybe from 'graphql/tsutils/Maybe';
+import { Maybe } from 'graphql/jsutils/Maybe';
 import { loaders } from '@graphql/loaders';
 import { Context } from '@lib/graphql';
 import { User } from '@lib/auth';

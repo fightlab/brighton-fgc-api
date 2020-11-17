@@ -7,6 +7,7 @@ import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
 } from '@lib/validation';
+import { CreateQuery } from 'mongoose';
 
 describe('Event model test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -52,7 +53,7 @@ describe('Event model test', () => {
         date_end: moment.utc().add(5, 'h').toDate(),
         venue: venues[0]._id,
       },
-    ] as Array<Event>);
+    ] as CreateQuery<Event>[]);
   });
 
   it('should create & save event successfully', async () => {

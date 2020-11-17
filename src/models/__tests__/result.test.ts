@@ -3,7 +3,7 @@ import {
   isDocument,
   isDocumentArray,
 } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { default as moment } from 'moment';
 import {
   TournamentModel,
@@ -38,7 +38,7 @@ describe('Result model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<Tournament>);
+    ] as CreateQuery<Tournament>[]);
 
     // fake some players
     players = await PlayerModel.create([
@@ -62,7 +62,7 @@ describe('Result model test', () => {
       rank: 2,
     };
 
-    [result] = await ResultModel.create([resultFull] as Array<Result>);
+    [result] = await ResultModel.create([resultFull] as CreateQuery<Result>[]);
   });
 
   it('should create & save result successfully', async () => {

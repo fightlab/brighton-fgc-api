@@ -13,8 +13,9 @@ import { ObjectId } from 'mongodb';
 import { sample, every, some, orderBy, isEqual } from 'lodash';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import moment from 'moment';
-import { MatchEloModel } from '@models/match_elo';
-import { MatchVodModel } from '@models/match_vod';
+import { MatchElo, MatchEloModel } from '@models/match_elo';
+import { MatchVod, MatchVodModel } from '@models/match_vod';
+import { CreateQuery } from 'mongoose';
 
 describe('Match GraphQl Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -43,7 +44,7 @@ describe('Match GraphQl Resolver Test', () => {
             players.map((p) => p._id),
             true,
           ),
-      ),
+      ) as CreateQuery<Tournament>[],
     );
 
     // ok generate a bunch of matches we can roughly test
@@ -57,7 +58,7 @@ describe('Match GraphQl Resolver Test', () => {
             i !== 0,
           ),
         ),
-      ),
+      ) as CreateQuery<Match>[],
     );
   });
 
@@ -1501,7 +1502,7 @@ describe('Match GraphQl Resolver Test', () => {
         matches[0].id,
         (matches[0].player1?.[0] as unknown) as ObjectId,
       ),
-    ]);
+    ] as CreateQuery<MatchElo>[]);
 
     const source = gql`
       query QueryMatches($id: ObjectId!) {
@@ -1545,7 +1546,7 @@ describe('Match GraphQl Resolver Test', () => {
         matches[0].id,
         (matches[0].player2?.[0] as unknown) as ObjectId,
       ),
-    ]);
+    ] as CreateQuery<MatchElo>[]);
 
     const source = gql`
       query QueryMatches($id: ObjectId!) {
@@ -1622,7 +1623,7 @@ describe('Match GraphQl Resolver Test', () => {
         [new ObjectId(), new ObjectId()],
         false,
       ),
-    ]);
+    ] as CreateQuery<Match>[]);
     const source = gql`
       query QueryMatches($id: ObjectId!) {
         match(id: $id) {
@@ -1692,7 +1693,7 @@ describe('Match GraphQl Resolver Test', () => {
         [new ObjectId(), new ObjectId()],
         false,
       ),
-    ]);
+    ] as CreateQuery<Match>[]);
     const source = gql`
       query QueryMatches($id: ObjectId!) {
         match(id: $id) {
@@ -1726,7 +1727,7 @@ describe('Match GraphQl Resolver Test', () => {
   it('should popualte match vod for a given match', async () => {
     const [matchVod] = await MatchVodModel.create([
       generateMatchVod(matches[0]._id, new ObjectId(), true),
-    ]);
+    ] as CreateQuery<MatchVod>[]);
 
     const source = gql`
       query QueryMatches($id: ObjectId!) {

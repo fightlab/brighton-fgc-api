@@ -52,6 +52,7 @@ import {
 import { Venue, VenueModel } from '@models/venue';
 import { VodPlatform, VodPlatformModel } from '@models/vod_platform';
 import { Vod, VodModel } from '@models/vod';
+import { CreateQuery } from 'mongoose';
 
 // set faker locale to something we're used to
 faker.locale = 'en_GB';
@@ -262,13 +263,13 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       return generateEvent(i, dataLengths.event, venue);
     },
   );
-  const Events = await EventModel.create(events);
+  const Events = await EventModel.create(events as CreateQuery<Event>[]);
 
   // generate event social media
   const eventSocials: Array<EventSocial> = Events.map((event) =>
     generateEventSocial(event),
   );
-  await EventSocialModel.create(eventSocials);
+  await EventSocialModel.create(eventSocials as CreateQuery<EventSocial>[]);
 
   // generate event series
   const eventSeries: Array<EventSeries> = Venues.map((venue) => ({
@@ -278,7 +279,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
     ).map((event) => event._id),
     info: 'An event series',
   }));
-  await EventSeriesModel.create(eventSeries);
+  await EventSeriesModel.create(eventSeries as CreateQuery<EventSeries>[]);
 
   // generate tournaments with parameters:
   // total, 2 * events, 2 per event
@@ -329,7 +330,9 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       };
     },
   );
-  const Tournaments = await TournamentModel.create(tournaments);
+  const Tournaments = await TournamentModel.create(
+    tournaments as CreateQuery<Tournament>[],
+  );
 
   // generate a bracket for each tournament
   const brackets = Array.from(
@@ -342,13 +345,13 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
         BracketPlatforms[i % BracketPlatforms.length],
       ),
   );
-  await BracketModel.create(brackets);
+  await BracketModel.create(brackets as CreateQuery<Bracket>[]);
 
   // create player socials
   const playerSocials: Array<PlayerSocial> = Players.map((player) =>
     generatePlayerSocial(player),
   );
-  await PlayerSocialModel.create(playerSocials);
+  await PlayerSocialModel.create(playerSocials as CreateQuery<PlayerSocial>[]);
 
   // create player platforms
   const playerPlatforms: Array<PlayerPlatform> = Players.flatMap((player) =>
@@ -361,7 +364,9 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
         .digest('hex'),
     })),
   );
-  await PlayerPlatformModel.create(playerPlatforms);
+  await PlayerPlatformModel.create(
+    playerPlatforms as CreateQuery<PlayerPlatform>[],
+  );
 
   // create tournament series
   const tournamentsByGame: Array<Array<DocumentType<Tournament>>> = values(
@@ -382,7 +387,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
     }),
   );
   const TournamentSerieses = await TournamentSeriesModel.create(
-    tournamentSerieses,
+    tournamentSerieses as CreateQuery<TournamentSeries>[],
   );
 
   // create random vods for a tournament
@@ -402,7 +407,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       ),
     }),
   );
-  const Vods = await VodModel.create(vods);
+  const Vods = await VodModel.create(vods as CreateQuery<Vod>[]);
 
   // results generation
   const results: Array<Result> = Tournaments.flatMap((tournament) => {
@@ -417,7 +422,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       rank: i + 1,
     }));
   });
-  await ResultModel.create(results);
+  await ResultModel.create(results as CreateQuery<Result>[]);
 
   // match generation, will not match results, for demo only
   const matches: Array<Match> = Tournaments.flatMap((tournament) => {
@@ -464,7 +469,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       },
     );
   });
-  const Matches = await MatchModel.create(matches);
+  const Matches = await MatchModel.create(matches as CreateQuery<Match>[]);
 
   // generate random number of characters per game, 8-32 character
   const characters = Games.flatMap((game) =>
@@ -472,7 +477,9 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       generateCharacter(game),
     ),
   );
-  const Characters = await CharacterModel.create(characters);
+  const Characters = await CharacterModel.create(
+    characters as CreateQuery<Character>[],
+  );
 
   // generate random match vods, for a random number of matches
   const matchVods: Array<MatchVod> = compact(
@@ -511,7 +518,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       return null;
     }),
   );
-  await MatchVodModel.create(matchVods);
+  await MatchVodModel.create(matchVods as CreateQuery<MatchVod>[]);
 
   // generate random game elo for a random set of players, will not match actual results
   const gameElos: Array<GameElo> = Games.flatMap((game) => {
@@ -533,7 +540,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       }),
     );
   });
-  await GameEloModel.create(gameElos);
+  await GameEloModel.create(gameElos as CreateQuery<GameElo>[]);
 
   // tournament series elo for random set of players, will not match actual results
   const tournamentSeriesElos: Array<TournamentSeriesElo> = TournamentSerieses.flatMap(
@@ -558,7 +565,9 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       );
     },
   );
-  await TournamentSeriesEloModel.create(tournamentSeriesElos);
+  await TournamentSeriesEloModel.create(
+    tournamentSeriesElos as CreateQuery<TournamentSeriesElo>[],
+  );
 
   // finally match elos, the true pain to do, so only doing a subset of matches
   const matchElos: Array<MatchElo> = Matches.filter(
@@ -591,7 +600,7 @@ export const fakeData: (dataLengths?: DataLengths) => Promise<boolean> = async (
       },
     ],
   );
-  await MatchEloModel.create(matchElos);
+  await MatchEloModel.create(matchElos as CreateQuery<MatchElo>[]);
 
   return true;
 };

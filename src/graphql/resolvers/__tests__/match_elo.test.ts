@@ -10,6 +10,7 @@ import { sample, every, some, orderBy, isEqual, mean } from 'lodash';
 import { ObjectId } from 'mongodb';
 import { MatchElo, MatchEloModel } from '@models/match_elo';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
+import { CreateQuery } from 'mongoose';
 
 describe('Match Elo GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -34,7 +35,7 @@ describe('Match Elo GraphQL Resolver Test', () => {
           [sample(players)?._id],
           false,
         ),
-      ),
+      ) as CreateQuery<Match>[],
     );
 
     matchElos = await MatchEloModel.create(
@@ -43,7 +44,7 @@ describe('Match Elo GraphQL Resolver Test', () => {
           generateMatchElo(match._id, match.player1[0] as ObjectId),
         match.player2 &&
           generateMatchElo(match._id, match.player2[0] as ObjectId),
-      ]),
+      ]) as CreateQuery<MatchElo>[],
     );
   });
 

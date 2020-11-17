@@ -12,12 +12,16 @@ import { DocumentType } from '@typegoose/typegoose';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { Player, PlayerModel } from '@models/player';
 import { ObjectId } from 'mongodb';
-import { GameEloModel } from '@models/game_elo';
-import { PlayerSocialModel } from '@models/player_social';
-import { TournamentModel } from '@models/tournament';
-import { MatchModel } from '@models/match';
-import { ResultModel } from '@models/result';
-import { TournamentSeriesEloModel } from '@models/tournament_series_elo';
+import { GameElo, GameEloModel } from '@models/game_elo';
+import { PlayerSocial, PlayerSocialModel } from '@models/player_social';
+import { Tournament, TournamentModel } from '@models/tournament';
+import { Match, MatchModel } from '@models/match';
+import { Result, ResultModel } from '@models/result';
+import {
+  TournamentSeriesElo,
+  TournamentSeriesEloModel,
+} from '@models/tournament_series_elo';
+import { CreateQuery } from 'mongoose';
 
 describe('Player GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -337,7 +341,7 @@ describe('Player GraphQL Resolver Test', () => {
     const gameElos = await GameEloModel.create([
       generateGameElo(players[0]._id, new ObjectId()),
       generateGameElo(players[0]._id, new ObjectId()),
-    ]);
+    ] as CreateQuery<GameElo>[]);
 
     const source = gql`
       query SelectSingleGame($id: ObjectId!) {
@@ -378,7 +382,7 @@ describe('Player GraphQL Resolver Test', () => {
   it('should resolve player social', async () => {
     const [playerSocial] = await PlayerSocialModel.create([
       generatePlayerSocial(players[0]._id, 'min'),
-    ]);
+    ] as CreateQuery<PlayerSocial>[]);
 
     const source = gql`
       query SelectPlayerSocial($id: ObjectId!) {
@@ -447,7 +451,7 @@ describe('Player GraphQL Resolver Test', () => {
         players.map((p) => p._id),
         true,
       ),
-    ]);
+    ] as CreateQuery<Tournament>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {
@@ -516,7 +520,7 @@ describe('Player GraphQL Resolver Test', () => {
     const matches = await MatchModel.create([
       generateMatch(new ObjectId(), [players[1]._id], [players[0]._id], false),
       generateMatch(new ObjectId(), [players[0]._id], [players[1]._id], false),
-    ]);
+    ] as CreateQuery<Match>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {
@@ -583,7 +587,7 @@ describe('Player GraphQL Resolver Test', () => {
     const results = await ResultModel.create([
       generateResult(new ObjectId(), [players[0]._id], 1),
       generateResult(new ObjectId(), [players[0]._id], 2),
-    ]);
+    ] as CreateQuery<Result>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {
@@ -650,7 +654,7 @@ describe('Player GraphQL Resolver Test', () => {
     const tournament_series_elos = await TournamentSeriesEloModel.create([
       generateTournamentSeriesElo(new ObjectId(), players[0]._id),
       generateTournamentSeriesElo(new ObjectId(), players[0]._id),
-    ]);
+    ] as CreateQuery<TournamentSeriesElo>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {

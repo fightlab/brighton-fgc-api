@@ -11,9 +11,13 @@ import { every, some, orderBy, isEqual } from 'lodash';
 import { Game, GameModel } from '@models/game';
 import { Character, CharacterModel } from '@models/character';
 import { ObjectId } from 'mongodb';
-import { GameEloModel } from '@models/game_elo';
-import { TournamentModel } from '@models/tournament';
-import { TournamentSeriesModel } from '@models/tournament_series';
+import { GameElo, GameEloModel } from '@models/game_elo';
+import { Tournament, TournamentModel } from '@models/tournament';
+import {
+  TournamentSeries,
+  TournamentSeriesModel,
+} from '@models/tournament_series';
+import { CreateQuery } from 'mongoose';
 
 describe('Game GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -36,7 +40,7 @@ describe('Game GraphQL Resolver Test', () => {
           length: games.length * charactersToGeneratePerGame,
         },
         (_, i) => generateCharacter(games[i % games.length]._id, false),
-      ),
+      ) as CreateQuery<Character>[],
     );
   });
 
@@ -393,7 +397,7 @@ describe('Game GraphQL Resolver Test', () => {
     const gameElos = await GameEloModel.create([
       generateGameElo(new ObjectId(), games[0]._id),
       generateGameElo(new ObjectId(), games[0]._id),
-    ]);
+    ] as CreateQuery<GameElo>[]);
 
     const source = gql`
       query SelectSingleGame($id: ObjectId!) {
@@ -437,7 +441,7 @@ describe('Game GraphQL Resolver Test', () => {
     await GameEloModel.create([
       generateGameElo(fakePlayer, games[0]._id),
       generateGameElo(new ObjectId(), games[0]._id),
-    ]);
+    ] as CreateQuery<GameElo>[]);
 
     const source = gql`
       query SelectSingleGame($id: ObjectId!, $players: [ObjectId!]) {
@@ -486,7 +490,7 @@ describe('Game GraphQL Resolver Test', () => {
         [new ObjectId()],
         true,
       ),
-    ]);
+    ] as CreateQuery<Tournament>[]);
 
     const source = gql`
       query QueryGames($id: ObjectId!) {
@@ -525,7 +529,7 @@ describe('Game GraphQL Resolver Test', () => {
   it('should return tournament series that feature a particular game', async () => {
     const [tournamentSeries] = await TournamentSeriesModel.create([
       generateTournamentSeries([new ObjectId()], false, games[0]._id),
-    ]);
+    ] as CreateQuery<TournamentSeries>[]);
 
     const source = gql`
       query QueryGames($id: ObjectId!) {

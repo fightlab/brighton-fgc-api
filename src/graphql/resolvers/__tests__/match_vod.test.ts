@@ -12,6 +12,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
+import { CreateQuery } from 'mongoose';
 
 describe('MatchVod GraphQL Resolver Test', () => {
   // variables
@@ -34,11 +35,13 @@ describe('MatchVod GraphQL Resolver Test', () => {
             [new ObjectId()],
             false,
           ),
-      ),
+      ) as CreateQuery<Match>[],
     );
 
     vods = await VodModel.create(
-      matches.map(() => generateVod(new ObjectId(), new ObjectId())),
+      matches.map(() =>
+        generateVod(new ObjectId(), new ObjectId()),
+      ) as CreateQuery<Vod>[],
     );
 
     characters = await CharacterModel.create(
@@ -47,7 +50,7 @@ describe('MatchVod GraphQL Resolver Test', () => {
           length: 8,
         },
         () => generateCharacter(new ObjectId(), false),
-      ),
+      ) as CreateQuery<Character>[],
     );
 
     matchVods = await MatchVodModel.create([
@@ -62,7 +65,7 @@ describe('MatchVod GraphQL Resolver Test', () => {
         vods[vods.length - 1]._id,
         true,
       ),
-    ]);
+    ] as CreateQuery<MatchVod>[]);
   });
 
   // find

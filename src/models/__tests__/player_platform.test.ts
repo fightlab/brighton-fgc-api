@@ -5,6 +5,7 @@ import {
   BracketPlatformModel,
 } from '@models/bracket_platform';
 import { Player, PlayerModel } from '@models/player';
+import { CreateQuery } from 'mongoose';
 
 describe('PlayerPlatform model test', () => {
   let platforms: Array<DocumentType<BracketPlatform>>;
@@ -52,7 +53,7 @@ describe('PlayerPlatform model test', () => {
     // generate to test populate
     [playerPlatform] = await PlayerPlatformModel.create([
       playerPlatformFull,
-    ] as Array<PlayerPlatform>);
+    ] as CreateQuery<PlayerPlatform>[]);
   });
 
   it('should create & save a player platform successfully', async () => {

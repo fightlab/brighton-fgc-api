@@ -18,11 +18,12 @@ import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import moment from 'moment';
-import { BracketModel } from '@models/bracket';
-import { MatchModel } from '@models/match';
-import { ResultModel } from '@models/result';
-import { TournamentSeriesModel } from '@models/tournament_series';
-import { VodModel } from '@models/vod';
+import { Bracket, BracketModel } from '@models/bracket';
+import { Match, MatchModel } from '@models/match';
+import { Result, ResultModel } from '@models/result';
+import { TournamentSeries, TournamentSeriesModel } from '@models/tournament_series';
+import { Vod, VodModel } from '@models/vod';
+import { CreateQuery } from 'mongoose';
 
 describe('Tournament GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -40,7 +41,9 @@ describe('Tournament GraphQL Resolver Test', () => {
     );
 
     events = await EventModel.create(
-      Array.from({ length: 2 }, () => generateEvent(new ObjectId())),
+      Array.from({ length: 2 }, () =>
+        generateEvent(new ObjectId()),
+      ) as CreateQuery<Event>[],
     );
 
     tournaments = await TournamentModel.create([
@@ -74,7 +77,7 @@ describe('Tournament GraphQL Resolver Test', () => {
         [],
         true,
       ),
-    ] as Array<Tournament>);
+    ] as CreateQuery<Tournament>[]);
   });
 
   it('should return all tournaments', async () => {
@@ -1326,7 +1329,7 @@ describe('Tournament GraphQL Resolver Test', () => {
   it('should populate bracket for a given tournament', async () => {
     const [bracket] = await BracketModel.create([
       generateBracket(tournaments[0]._id, new ObjectId(), true),
-    ]);
+    ] as CreateQuery<Bracket>[]);
 
     const source = gql`
       query QueryBrackets($id: ObjectId!) {
@@ -1401,7 +1404,7 @@ describe('Tournament GraphQL Resolver Test', () => {
         [players[1]._id],
         false,
       ),
-    ]);
+    ] as CreateQuery<Match>[]);
 
     const source = gql`
       query QueryTournaments($id: ObjectId!) {
@@ -1468,7 +1471,7 @@ describe('Tournament GraphQL Resolver Test', () => {
     const results = await ResultModel.create([
       generateResult(tournaments[0]._id, [new ObjectId()], 1),
       generateResult(tournaments[0]._id, [new ObjectId()], 2),
-    ]);
+    ] as CreateQuery<Result>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {
@@ -1536,7 +1539,7 @@ describe('Tournament GraphQL Resolver Test', () => {
       generateTournamentSeries([tournaments[0]._id, tournaments[1]._id]),
       generateTournamentSeries([tournaments[2]._id, tournaments[0]._id]),
       generateTournamentSeries([tournaments[2]._id, tournaments[1]._id]),
-    ]);
+    ] as CreateQuery<TournamentSeries>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {
@@ -1576,7 +1579,7 @@ describe('Tournament GraphQL Resolver Test', () => {
       generateTournamentSeries([tournaments[3]._id, tournaments[1]._id]),
       generateTournamentSeries([tournaments[2]._id, tournaments[3]._id]),
       generateTournamentSeries([tournaments[2]._id, tournaments[1]._id]),
-    ]);
+    ] as CreateQuery<TournamentSeries>[]);
 
     const source = gql`
       query QueryPlayers($id: ObjectId!) {
@@ -1609,7 +1612,7 @@ describe('Tournament GraphQL Resolver Test', () => {
   it('should poplaute vod for a given tournament', async () => {
     const [vod] = await VodModel.create([
       generateVod(new ObjectId(), tournaments[0]._id),
-    ]);
+    ] as CreateQuery<Vod>[]);
 
     const source = gql`
       query Tournaments($id: ObjectId!) {

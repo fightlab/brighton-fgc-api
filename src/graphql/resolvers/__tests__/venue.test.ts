@@ -5,6 +5,7 @@ import { generateVenue, generateEvent } from '@graphql/resolvers/test/generate';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
 import { EventModel, Event } from '@models/event';
+import { CreateQuery } from 'mongoose';
 
 describe('Venue GraphQL Resolver Test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -269,7 +270,7 @@ describe('Venue GraphQL Resolver Test', () => {
     const events = await EventModel.create([
       generateEvent(venues[0]._id),
       generateEvent(venues[0]._id),
-    ] as Array<Event>);
+    ] as CreateQuery<Event>[]);
 
     const source = gql`
       query SelectVenues($id: ObjectId!) {

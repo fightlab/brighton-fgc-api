@@ -7,7 +7,8 @@ import {
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
 import { ObjectId } from 'mongodb';
-import { VodModel } from '@models/vod';
+import { Vod, VodModel } from '@models/vod';
+import { CreateQuery } from 'mongoose';
 
 describe('VOD Platform GraphQL Resolver Test', () => {
   let vodPlatforms: Array<DocumentType<VodPlatform>>;
@@ -297,7 +298,7 @@ describe('VOD Platform GraphQL Resolver Test', () => {
       generateVod(vodPlatforms[0]._id, new ObjectId()),
       generateVod(vodPlatforms[0]._id, new ObjectId()),
       generateVod(vodPlatforms[1]._id, new ObjectId()),
-    ]);
+    ] as CreateQuery<Vod>[]);
 
     const source = gql`
       query VodPlatform($id: ObjectId!) {

@@ -3,7 +3,7 @@ import {
   isDocument,
   isDocumentArray,
 } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { default as moment } from 'moment';
 import { MatchModel, Match } from '@models/match';
 import { PlayerModel, Player } from '@models/player';
@@ -43,7 +43,7 @@ describe('Match model test', () => {
         type: TOURNAMENT_TYPE.ROUND_ROBIN,
         is_team_based: true,
       },
-    ] as Array<Tournament>);
+    ] as CreateQuery<Tournament>[]);
 
     // fake some players
     players = await PlayerModel.create([
@@ -90,7 +90,7 @@ describe('Match model test', () => {
     };
 
     // generate match to test populate
-    [match] = await MatchModel.create([matchFull] as Array<Match>);
+    [match] = await MatchModel.create([matchFull] as CreateQuery<Match>[]);
   });
 
   it('should create & save a match successfully', async () => {

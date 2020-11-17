@@ -14,7 +14,11 @@ import {
 import { ObjectId } from 'mongodb';
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
-import { TournamentSeriesEloModel } from '@models/tournament_series_elo';
+import {
+  TournamentSeriesElo,
+  TournamentSeriesEloModel,
+} from '@models/tournament_series_elo';
+import { CreateQuery } from 'mongoose';
 
 describe('Tournament Series GraphQL Resolver Test', () => {
   let game: DocumentType<Game>;
@@ -29,7 +33,7 @@ describe('Tournament Series GraphQL Resolver Test', () => {
       generateTournament(new ObjectId(), [game._id], [new ObjectId()], false),
       generateTournament(new ObjectId(), [], [new ObjectId()], false),
       generateTournament(new ObjectId(), [], [new ObjectId()], false),
-    ]);
+    ] as CreateQuery<Tournament>[]);
 
     tournamentSeries = await TournamentSeriesModel.create([
       generateTournamentSeries(
@@ -45,7 +49,7 @@ describe('Tournament Series GraphQL Resolver Test', () => {
           .map((t) => t._id),
         true,
       ),
-    ]);
+    ] as CreateQuery<TournamentSeries>[]);
   });
 
   it('should return all tournament series', async () => {
@@ -545,7 +549,7 @@ describe('Tournament Series GraphQL Resolver Test', () => {
     const tournament_series_elos = await TournamentSeriesEloModel.create([
       generateTournamentSeriesElo(tournamentSeries[0]._id, new ObjectId()),
       generateTournamentSeriesElo(tournamentSeries[0]._id, new ObjectId()),
-    ]);
+    ] as CreateQuery<TournamentSeriesElo>[]);
 
     const source = gql`
       query TournamentSeries($id: ObjectId!) {

@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import {
   TournamentSeriesEloModel,
@@ -22,7 +22,7 @@ describe('TournamentSeriesElo model test', () => {
         name: 'TournamentSeries 1',
         tournaments: [new Types.ObjectId()],
       },
-    ] as Array<TournamentSeries>);
+    ] as CreateQuery<TournamentSeries>[]);
 
     // fake a player
     [player] = await PlayerModel.create([

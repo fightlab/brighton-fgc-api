@@ -14,7 +14,8 @@ import { ObjectId } from 'mongodb';
 import moment from 'moment';
 import { EventSeriesModel, EventSeries } from '@models/event_series';
 import { EventSocialModel } from '@models/event_social';
-import { TournamentModel } from '@models/tournament';
+import { Tournament, TournamentModel } from '@models/tournament';
+import { CreateQuery } from 'mongoose';
 
 describe('Event GraphQL Resolver Test', () => {
   let venues: Array<DocumentType<Venue>>;
@@ -33,7 +34,7 @@ describe('Event GraphQL Resolver Test', () => {
     events = await EventModel.create([
       generateEvent(venues[0]._id, false),
       generateEvent(venues[1]._id, true),
-    ] as Array<Event>);
+    ] as CreateQuery<Event>[]);
   });
 
   it('should return all events with fields', async () => {
@@ -895,7 +896,7 @@ describe('Event GraphQL Resolver Test', () => {
     // generate an event series for events
     const [eventSeries] = await EventSeriesModel.create([
       generateEventSeries(events.map((e) => e._id)),
-    ] as Array<EventSeries>);
+    ] as CreateQuery<EventSeries>[]);
 
     const source = gql`
       query SelectEvents($id: ObjectId!) {
@@ -1030,7 +1031,7 @@ describe('Event GraphQL Resolver Test', () => {
         [new ObjectId()],
         true,
       ),
-    ]);
+    ] as CreateQuery<Tournament>[]);
 
     const source = gql`
       query QueryEvents($id: ObjectId!) {

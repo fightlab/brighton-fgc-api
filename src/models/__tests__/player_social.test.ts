@@ -5,6 +5,7 @@ import {
   generateValidationMessage,
   VALIDATION_MESSAGES,
 } from '@lib/validation';
+import { CreateQuery } from 'mongoose';
 
 describe('PlayerSocial model test', () => {
   let players: Array<DocumentType<Player>>;
@@ -51,7 +52,7 @@ describe('PlayerSocial model test', () => {
       {
         player: players[2]._id,
       },
-    ] as Array<PlayerSocial>);
+    ] as CreateQuery<PlayerSocial>[]);
   });
 
   it('should create & save playerSocial successfully', async () => {

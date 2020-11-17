@@ -2,7 +2,7 @@ import { default as moment } from 'moment';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { EventSocialModel, EventSocial } from '@models/event_social';
 import { EventModel, Event } from '@models/event';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import {
   VALIDATION_MESSAGES,
   generateValidationMessage,
@@ -29,7 +29,7 @@ describe('EventSocial model test', () => {
         date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
         date_end: moment.utc().subtract(2, 'd').toDate(),
       },
-    ] as Array<Event>);
+    ] as CreateQuery<Event>[]);
 
     eventSocialFull = {
       event: events[0]._id,
@@ -52,7 +52,7 @@ describe('EventSocial model test', () => {
       {
         event: events[0]._id,
       },
-    ] as Array<EventSocial>);
+    ] as CreateQuery<EventSocial>[]);
   });
 
   it('should create & save eventSocial successfully', async () => {

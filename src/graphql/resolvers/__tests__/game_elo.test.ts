@@ -10,6 +10,7 @@ import { GameElo, GameEloModel } from '@models/game_elo';
 import { Game, GameModel } from '@models/game';
 import { Player, PlayerModel } from '@models/player';
 import { ObjectId } from 'mongodb';
+import { CreateQuery } from 'mongoose';
 
 describe('Game Elo GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -39,7 +40,9 @@ describe('Game Elo GraphQL Resolver Test', () => {
     const gameElosToGenerate: Array<GameElo> = games.flatMap((game) =>
       players.map((player) => generateGameElo(player._id, game._id)),
     );
-    gameElos = await GameEloModel.create(gameElosToGenerate);
+    gameElos = await GameEloModel.create(
+      gameElosToGenerate as CreateQuery<GameElo>[],
+    );
   });
 
   it('should return all game elos with fields', async () => {

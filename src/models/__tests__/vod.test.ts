@@ -1,5 +1,5 @@
 import { DocumentType, isDocument } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { default as moment } from 'moment';
 import {
   TournamentModel,
@@ -44,7 +44,7 @@ describe('Vod model test', () => {
         is_team_based: false,
         players: [new Types.ObjectId()],
       },
-    ] as Array<Tournament>);
+    ] as CreateQuery<Tournament>[]);
 
     // fake some vod platforms
     platforms = await VodPlatformModel.create([
@@ -69,7 +69,7 @@ describe('Vod model test', () => {
       url: 'https://vodplayer.co.uk/vod/vod-full-id',
     };
 
-    [vod] = await VodModel.create([vodFull] as Array<Vod>);
+    [vod] = await VodModel.create([vodFull] as CreateQuery<Vod>[]);
   });
 
   it('should create & save vod successfully', async () => {

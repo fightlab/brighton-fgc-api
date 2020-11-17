@@ -2,6 +2,7 @@ import { default as faker } from 'faker';
 import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { CharacterModel, Character } from '@models/character';
 import { GameModel, Game } from '@models/game';
+import { CreateQuery } from 'mongoose';
 
 describe('Character model test', () => {
   let games: Array<DocumentType<Game>>;
@@ -41,7 +42,7 @@ describe('Character model test', () => {
         name: 'Another Waifu',
         short: 'WAIFU',
       },
-    ] as Array<Character>);
+    ] as CreateQuery<Character>[]);
   });
 
   it('should create & save character successfully', async () => {

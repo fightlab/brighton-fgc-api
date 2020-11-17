@@ -10,7 +10,8 @@ import {
   BracketPlatformModel,
 } from '@models/bracket_platform';
 import { ObjectId } from 'mongodb';
-import { BracketModel } from '@models/bracket';
+import { Bracket, BracketModel } from '@models/bracket';
+import { CreateQuery } from 'mongoose';
 
 describe('Bracket Platform GraphQL Resolver Test', () => {
   let bracketPlatforms: Array<DocumentType<BracketPlatform>>;
@@ -311,7 +312,7 @@ describe('Bracket Platform GraphQL Resolver Test', () => {
     const brackets = await BracketModel.create([
       generateBracket(new ObjectId(), bracketPlatforms[0].id, true),
       generateBracket(new ObjectId(), bracketPlatforms[0].id, true),
-    ]);
+    ] as CreateQuery<Bracket>[]);
 
     const source = gql`
       query QueryBrackets($id: ObjectId!) {

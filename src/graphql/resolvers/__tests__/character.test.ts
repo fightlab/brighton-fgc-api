@@ -9,7 +9,8 @@ import { every, some, orderBy, isEqual } from 'lodash';
 import { Character, CharacterModel } from '@models/character';
 import { Game, GameModel } from '@models/game';
 import { ObjectId } from 'mongodb';
-import { MatchVodModel } from '@models/match_vod';
+import { MatchVod, MatchVodModel } from '@models/match_vod';
+import { CreateQuery } from 'mongoose';
 
 describe('Character GraphQL Resolver Test', () => {
   let games: Array<DocumentType<Game>>;
@@ -32,7 +33,7 @@ describe('Character GraphQL Resolver Test', () => {
           length: games.length * charactersToGeneratePerGame,
         },
         (_, i) => generateCharacter(games[i % games.length]._id, false),
-      ),
+      ) as CreateQuery<Character>[],
     );
   });
 
@@ -376,7 +377,7 @@ describe('Character GraphQL Resolver Test', () => {
       generateMatchVod(new ObjectId(), new ObjectId(), false, [
         characters[0]._id,
       ]),
-    ]);
+    ] as CreateQuery<MatchVod>[]);
 
     const source = gql`
       query Character($id: ObjectId!) {

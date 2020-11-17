@@ -7,6 +7,7 @@ import {
 } from '@graphql/resolvers/test/generate';
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
+import { CreateQuery } from 'mongoose';
 
 describe('Event Social GraphQL Resolver Test', () => {
   let events: Array<DocumentType<Event>>;
@@ -19,13 +20,13 @@ describe('Event Social GraphQL Resolver Test', () => {
           length: 2,
         },
         () => generateEvent(new ObjectId(), true),
-      ),
+      ) as CreateQuery<Event>[],
     );
 
     eventSocials = await EventSocialModel.create([
       generateEventSocial(events[0]._id, 'full'),
       generateEventSocial(events[1]._id, 'random'),
-    ] as Array<EventSocial>);
+    ] as CreateQuery<EventSocial>[]);
   });
 
   it('should return event social by id', async () => {

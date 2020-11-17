@@ -8,6 +8,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { chunk, every, some, orderBy, isEqual } from 'lodash';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
+import { CreateQuery } from 'mongoose';
 
 describe('Event Series GraphQL Resolver Test', () => {
   let events: Array<DocumentType<Event>>;
@@ -20,7 +21,7 @@ describe('Event Series GraphQL Resolver Test', () => {
           length: 4,
         },
         () => generateEvent(new ObjectId(), true),
-      ),
+      ) as CreateQuery<Event>[],
     );
 
     const eventSeriesToGenerate = 2;
@@ -32,7 +33,7 @@ describe('Event Series GraphQL Resolver Test', () => {
     eventSeries = await EventSeriesModel.create(
       Array.from({ length: eventSeriesToGenerate }, (_, i) =>
         generateEventSeries(chunkedEvents[i], !!(i % eventSeriesToGenerate)),
-      ),
+      ) as CreateQuery<EventSeries>[],
     );
   });
 

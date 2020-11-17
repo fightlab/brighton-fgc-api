@@ -16,6 +16,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { gqlCall, gql } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual, mean } from 'lodash';
+import { CreateQuery } from 'mongoose';
 
 describe('Tournament Series Elo GraphQl Resolver Test', () => {
   let tournamentSeries: Array<DocumentType<TournamentSeries>>;
@@ -29,7 +30,7 @@ describe('Tournament Series Elo GraphQl Resolver Test', () => {
           length: 3,
         },
         () => generateTournamentSeries([new ObjectId()], true),
-      ),
+      ) as CreateQuery<TournamentSeries>[],
     );
 
     players = await PlayerModel.create(
@@ -44,7 +45,7 @@ describe('Tournament Series Elo GraphQl Resolver Test', () => {
     tournamentSeriesElos = await TournamentSeriesEloModel.create(
       tournamentSeries.flatMap((ts) =>
         players.map((p) => generateTournamentSeriesElo(ts._id, p._id)),
-      ),
+      ) as CreateQuery<TournamentSeriesElo>[],
     );
   });
 

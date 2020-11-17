@@ -3,7 +3,7 @@ import {
   isDocument,
   isDocumentArray,
 } from '@typegoose/typegoose';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { MatchVodModel, MatchVod } from '@models/match_vod';
 import { MatchModel, Match } from '@models/match';
 import { VodModel, Vod } from '@models/vod';
@@ -36,7 +36,7 @@ describe('MatchVod model test', () => {
       {
         tournament: tournaments[1],
       },
-    ] as Array<Match>);
+    ] as CreateQuery<Match>[]);
 
     // fake some vods
     vods = await VodModel.create([
@@ -52,7 +52,7 @@ describe('MatchVod model test', () => {
         tournament: tournaments[1],
         url: 'https://youtube.com/1',
       },
-    ] as Array<Vod>);
+    ] as CreateQuery<Vod>[]);
 
     // fake some characters
     characters = await CharacterModel.create([
@@ -76,7 +76,7 @@ describe('MatchVod model test', () => {
         name: 'Char 3',
         short: 'C3',
       },
-    ] as Array<Character>);
+    ] as CreateQuery<Character>[]);
 
     matchVodFull = {
       match: matches[0]._id,
@@ -97,7 +97,7 @@ describe('MatchVod model test', () => {
         vod: vods[0]._id,
         characters: characters.map((c) => c._id),
       },
-    ] as Array<MatchVod>);
+    ] as CreateQuery<MatchVod>[]);
   });
 
   it('should create & save match vod successfully', async () => {

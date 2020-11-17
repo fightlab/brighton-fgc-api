@@ -10,6 +10,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
+import { CreateQuery } from 'mongoose';
 
 describe('Result GraphQl Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -38,13 +39,13 @@ describe('Result GraphQl Resolver Test', () => {
             players.map((p) => p._id),
             false,
           ),
-      ),
+      ) as CreateQuery<Tournament>[],
     );
 
     results = await ResultModel.create(
       tournaments.flatMap((t) =>
         t.players.map((p, i) => generateResult(t._id, [p as ObjectId], i)),
-      ),
+      ) as CreateQuery<Result>[],
     );
   });
 

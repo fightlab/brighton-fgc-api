@@ -7,6 +7,7 @@ import {
 } from '@graphql/resolvers/test/generate';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { ObjectId } from 'mongodb';
+import { CreateQuery } from 'mongoose';
 
 describe('Player social GraphQL Resolver Test', () => {
   let players: Array<DocumentType<Player>>;
@@ -25,7 +26,7 @@ describe('Player social GraphQL Resolver Test', () => {
     playerSocials = await PlayerSocialModel.create([
       generatePlayerSocial(players[0]._id, 'full'),
       generatePlayerSocial(players[1]._id, 'min'),
-    ]);
+    ] as CreateQuery<PlayerSocial>[]);
   });
 
   it('should return a single player social for a given player', async () => {

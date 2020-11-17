@@ -3,7 +3,7 @@ import { chunk } from 'lodash';
 import { DocumentType, isDocumentArray } from '@typegoose/typegoose';
 import { EventSeriesModel, EventSeries } from '@models/event_series';
 import { EventModel, Event } from '@models/event';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 
 describe('EventSeries model test', () => {
   let events: Array<DocumentType<Event>>;
@@ -38,7 +38,7 @@ describe('EventSeries model test', () => {
         date_end: moment.utc().subtract(4, 'd').toDate(),
         date_start: moment.utc().subtract(4, 'd').subtract(4, 'h').toDate(),
       },
-    ] as Array<Event>);
+    ] as CreateQuery<Event>[]);
 
     eventSeriesFull = {
       name: 'Event Series Full',
@@ -56,7 +56,7 @@ describe('EventSeries model test', () => {
         name: 'Event Series',
         events: events.map((e) => e._id),
       },
-    ] as Array<EventSeries>);
+    ] as CreateQuery<EventSeries>[]);
   });
 
   it('should create & save eventSeries successfully', async () => {

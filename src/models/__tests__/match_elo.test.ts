@@ -2,7 +2,7 @@ import { DocumentType, isDocument } from '@typegoose/typegoose';
 import { MatchEloModel, MatchElo } from '@models/match_elo';
 import { MatchModel, Match } from '@models/match';
 import { PlayerModel, Player } from '@models/player';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 
 describe('MatchElo model test', () => {
   let match: DocumentType<Match>;
@@ -15,7 +15,7 @@ describe('MatchElo model test', () => {
       {
         tournament: new Types.ObjectId(),
       },
-    ] as Array<Match>);
+    ] as CreateQuery<Match>[]);
     [player] = await PlayerModel.create([
       {
         handle: 'LAD',

@@ -13,6 +13,7 @@ import {
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
+import { CreateQuery } from 'mongoose';
 
 describe('Bracket GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -32,7 +33,7 @@ describe('Bracket GraphQL Resolver Test', () => {
             [new ObjectId()],
             true,
           ),
-      ),
+      ) as CreateQuery<Tournament>[],
     );
 
     platforms = await BracketPlatformModel.create(
@@ -47,7 +48,7 @@ describe('Bracket GraphQL Resolver Test', () => {
     brackets = await BracketModel.create(
       tournaments.map((t, i) =>
         generateBracket(t._id, platforms[i % platforms.length]._id, i !== 0),
-      ),
+      ) as CreateQuery<Bracket>[],
     );
   });
 

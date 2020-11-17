@@ -11,7 +11,8 @@ import {
 import { ObjectId } from 'mongodb';
 import { gql, gqlCall } from '@graphql/resolvers/test/helper';
 import { every, some, orderBy, isEqual } from 'lodash';
-import { MatchVodModel } from '@models/match_vod';
+import { MatchVod, MatchVodModel } from '@models/match_vod';
+import { CreateQuery } from 'mongoose';
 
 describe('VOD GraphQL Resolver Test', () => {
   let tournaments: Array<DocumentType<Tournament>>;
@@ -28,13 +29,13 @@ describe('VOD GraphQL Resolver Test', () => {
       vodPlatforms.flatMap(() => [
         generateTournament(new ObjectId(), [new ObjectId()], [new ObjectId()]),
         generateTournament(new ObjectId(), [new ObjectId()], [new ObjectId()]),
-      ]),
+      ]) as CreateQuery<Tournament>[],
     );
 
     vods = await VodModel.create(
       tournaments.map((tournament, i) =>
         generateVod(vodPlatforms[i % vodPlatforms.length]._id, tournament._id),
-      ),
+      ) as CreateQuery<Vod>[],
     );
   });
 
@@ -519,7 +520,7 @@ describe('VOD GraphQL Resolver Test', () => {
     await MatchVodModel.create([
       generateMatchVod(new ObjectId(), vods[0]._id),
       generateMatchVod(new ObjectId(), vods[0]._id),
-    ]);
+    ] as CreateQuery<MatchVod>[]);
 
     const source = gql`
       query Vods($id: ObjectId!) {

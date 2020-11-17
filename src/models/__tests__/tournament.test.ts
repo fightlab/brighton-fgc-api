@@ -4,7 +4,7 @@ import {
   isDocumentArray,
 } from '@typegoose/typegoose';
 import { default as moment } from 'moment';
-import { Types } from 'mongoose';
+import { CreateQuery, Types } from 'mongoose';
 import { EventModel, Event } from '@models/event';
 import { GameModel, Game } from '@models/game';
 import { PlayerModel, Player } from '@models/player';
@@ -44,7 +44,7 @@ describe('Tournament model test', () => {
         date_end: moment.utc().subtract(2, 'd').toDate(),
         date_start: moment.utc().subtract(2, 'd').subtract(2, 'h').toDate(),
       },
-    ] as Array<Event>);
+    ] as CreateQuery<Event>[]);
 
     // fake some games
     games = await GameModel.create([
@@ -91,9 +91,9 @@ describe('Tournament model test', () => {
       players: players.map((p) => p._id),
     };
 
-    [tournament] = await TournamentModel.create([tournamentFull] as Array<
+    [tournament] = await TournamentModel.create([tournamentFull] as CreateQuery<
       Tournament
-    >);
+    >[]);
   });
 
   it('should create & save tournament successfully', async () => {
