@@ -15,8 +15,10 @@ export interface User {
   permissions: string[];
 }
 
-export interface RequestWithUser extends Request {
-  user?: User;
+export interface ResponseWithLocals extends Response {
+  locals: {
+    user?: User;
+  };
 }
 
 const { auth0 } = getConfig();
@@ -29,8 +31,8 @@ export const getJwtCheck = (): ((
   // if auth0 not enabled, simply return middleware that passes onto next resolver
   // with an admin user
   if (!auth0.enabled) {
-    return (req: RequestWithUser, __: Response, next: NextFunction) => {
-      req.user = {
+    return (_: Request, res: ResponseWithLocals, next: NextFunction) => {
+      res.locals.user = {
         scope: ROLES.ADMIN,
         permissions: [ROLES.ADMIN],
       } as User;

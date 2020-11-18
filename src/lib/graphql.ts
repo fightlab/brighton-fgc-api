@@ -10,7 +10,7 @@ import { loaders, Loaders } from '@graphql/loaders';
 import { resolvers } from '@graphql/resolvers';
 import { getConfig } from '@lib/config';
 import { GraphQLSchema } from 'graphql';
-import { User, RequestWithUser } from '@lib/auth';
+import { User, ResponseWithLocals } from '@lib/auth';
 
 // enum of valid roles and permissions
 export enum ROLES {
@@ -93,10 +93,10 @@ export const makeApolloServer: () => Promise<ApolloServer> = async () => {
 
   return new ApolloServer({
     schema,
-    context: ({ req }: { req: RequestWithUser }) =>
+    context: ({ res }: { res: ResponseWithLocals }) =>
       ({
         loaders,
-        user: req.user,
+        user: res.locals.user,
       } as Context),
     playground: true,
     introspection: true,
