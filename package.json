@@ -66,6 +66,6 @@
     "reflect-metadata": "^0.1.13",
     "sift": "^13.4.0",
     "type-graphql": "^1.1.1",
-    "validator": "^13.1.17"
+    "validator": "^13.7.0"
   }
 }
